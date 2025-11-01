@@ -5,28 +5,25 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Eye, ShoppingCart } from "lucide-react";
-import { usePrefetchProduct } from "@/hooks/user/useProducts";
+import { usePrefetchProductWithDebounce } from "@/hooks/user/useProducts";
+import { useAddToCart } from "@/hooks/user/useCart";
 import type { Product } from "@/types/users/product.types";
+import _ from "lodash";
 
 interface ProductCardProps {
   product: Product;
   onQuickView?: (product: Product) => void;
-  onAddToCart?: (product: Product) => void;
   priority?: boolean;
 }
 
-/**
- * ProductCard component displays a single product with hover effects
- * Features: lazy loading, error handling, quick view, add to cart
- */
 export default function ProductCard({
   product,
   onQuickView,
-  onAddToCart,
   priority = false,
 }: ProductCardProps) {
   const [imageError, setImageError] = useState(false);
-  const prefetchProduct = usePrefetchProduct();
+  const { onMouseEnter, onMouseLeave } = usePrefetchProductWithDebounce();
+  const addToCartMutation = useAddToCart();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -42,22 +39,15 @@ export default function ProductCard({
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    onAddToCart?.(product);
-  };
-
-  // Prefetch product details on hover for faster Quick View
-  const handleMouseEnter = () => {
-    if (product.slug) {
-      prefetchProduct(product.slug);
-    }
+    onQuickView?.(product);
   };
 
   return (
     <div
       className="relative bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden group hover:shadow-md transition-shadow duration-300 h-full flex flex-col"
-      onMouseEnter={handleMouseEnter}
+      onMouseEnter={() => onMouseEnter(product.slug)}
+      onMouseLeave={onMouseLeave}
     >
-      {/* Product Image */}
       <Link
         href={`/san-pham/${product.slug}`}
         className="relative aspect-square overflow-hidden block"
@@ -73,7 +63,6 @@ export default function ProductCard({
           onError={() => setImageError(true)}
         />
 
-        {/* Bought Count Badge */}
         {product.boughtCount > 0 && (
           <div className="absolute top-2 left-2">
             <span className="px-2 py-1 text-xs font-medium rounded-full text-white bg-green-500">
@@ -83,9 +72,7 @@ export default function ProductCard({
         )}
       </Link>
 
-      {/* Product Info */}
       <div className="p-3 flex-1 flex flex-col">
-        {/* Product Name - Fixed height */}
         <Link href={`/san-pham/${product.slug}`}>
           <h3
             className="text-sm font-medium text-gray-900 mb-2 leading-tight h-10 overflow-hidden text-ellipsis"
@@ -99,20 +86,17 @@ export default function ProductCard({
           </h3>
         </Link>
 
-        {/* Price - Fixed height */}
         <div className="flex items-center gap-2 mb-2 h-6">
           <span className="text-lg font-bold text-gray-900">
             {formatPrice(product.price)}
           </span>
         </div>
 
-        {/* Shop Name - Fixed height */}
         <div className="flex items-center gap-2 mb-2 h-5">
           <div className="w-4 h-4 rounded-full bg-blue-500" />
           <span className="text-xs text-gray-600">{product.shopName}</span>
         </div>
 
-        {/* Rating - Fixed height */}
         <div className="flex items-center gap-1 mb-3 h-5">
           <div className="flex">
             {[...Array(5)].map((_, i) => (
@@ -133,10 +117,8 @@ export default function ProductCard({
           <span className="text-xs text-gray-500">({product.reviewCount})</span>
         </div>
 
-        {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Action Buttons - Hidden by default, shown on hover */}
         <div className="absolute bottom-0 left-0 right-0 p-3 bg-white border-t border-gray-100 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <Button
             variant="default"
@@ -144,8 +126,10 @@ export default function ProductCard({
             className="flex-1 bg-purple-600 hover:bg-purple-700 text-white text-sm h-10"
             onClick={handleAddToCart}
           >
-            <ShoppingCart className="w-4 h-4 mr-1" />
-            Thêm vào giỏ
+            <>
+              <ShoppingCart className="w-4 h-4 mr-1" />
+              Thêm vào giỏ
+            </>
           </Button>
           <Button
             variant="outline"

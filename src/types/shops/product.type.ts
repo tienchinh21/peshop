@@ -12,11 +12,11 @@ export interface ProductInformation {
 
 // ============ Product Property Value Types ============
 export interface PropertyValue {
-  propertyValueId: string; // UUID generated on frontend
   value: string;
   propertyProductId: string;
   level: number;
   urlImage: string | null;
+  code: number; // Unique code for this property value
 }
 
 // ============ Variant Create DTO ============
@@ -29,7 +29,7 @@ export interface VariantCreateDto {
 // ============ Product Variant Types (New API Structure) ============
 export interface ProductVariant {
   variantCreateDto: VariantCreateDto;
-  propertyValueIds: string[]; // Array of propertyValueId references
+  code: number[]; // Array of property value codes
 }
 
 // ============ Main Product Types ============

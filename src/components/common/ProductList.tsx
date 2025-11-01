@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef, useCallback, useEffect } from "react";
+import { useRef, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import type { Product } from "@/types/users/product.types";
 import ProductCard from "@/views/pages/home/components/ProductCard";
+import { filterValidProducts, getProductKey } from "@/lib/utils/product.utils";
 
 interface ProductListProps {
   products: Product[];
@@ -13,21 +14,15 @@ interface ProductListProps {
   isFetchingNextPage?: boolean;
   onLoadMore?: () => void;
   onQuickView?: (product: Product) => void;
-  onAddToCart?: (product: Product) => void;
   showViewAllButton?: boolean;
 }
 
-/**
- * ProductList component displays a grid of products with load more functionality
- * Features: viewport-based loading detection, responsive grid, empty state
- */
 export default function ProductList({
   products,
   hasNextPage,
   isFetchingNextPage,
   onLoadMore,
   onQuickView,
-  onAddToCart,
   showViewAllButton = false,
 }: ProductListProps) {
   const router = useRouter();
@@ -66,7 +61,11 @@ export default function ProductList({
     router.push("/san-pham?page=2");
   };
 
-  if (!products || products.length === 0) {
+  const validProducts = useMemo(() => {
+    return filterValidProducts(products);
+  }, [products]);
+
+  if (!validProducts || validProducts.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-500">Không tìm thấy sản phẩm nào</p>
@@ -78,18 +77,16 @@ export default function ProductList({
     <div className="space-y-6">
       {/* Product Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {products.map((product, index) => (
+        {validProducts.map((product, index) => (
           <ProductCard
-            key={product.id}
+            key={getProductKey(product, index)}
             product={product}
             onQuickView={onQuickView}
-            onAddToCart={onAddToCart}
             priority={index < 10}
           />
         ))}
       </div>
 
-      {/* Load More or View All Button */}
       {hasNextPage && (
         <div ref={loadMoreRef} className="flex justify-center py-8">
           <Button

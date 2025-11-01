@@ -65,19 +65,6 @@ export function SearchBar({
     }
   };
 
-  // Handle Enter key press
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (searchQuery.trim()) {
-        onSearch?.(searchQuery);
-        setShowSuggestions(false);
-        // Navigate to search page with current input value
-        router.push(`/tim-kiem?q=${encodeURIComponent(searchQuery)}`);
-      }
-    }
-  };
-
   // Handle suggestion selection
   const handleSelectSuggestion = (keyword: string) => {
     handleSuggestionClick(keyword);
@@ -105,7 +92,6 @@ export function SearchBar({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            onKeyPress={handleKeyPress}
             onFocus={() =>
               searchQuery.trim().length >= 2 && setShowSuggestions(true)
             }

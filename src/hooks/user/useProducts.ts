@@ -3,6 +3,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useRef } from "react";
 import {
   getProducts,
   getProductBySlug,
@@ -43,7 +44,9 @@ export const useProducts = (filters?: ProductFilters) => {
     filters?.minPrice ||
     filters?.maxPrice ||
     filters?.reviewPoint;
-  const shouldFetch = Boolean(!filters || isSearch || hasFilters);
+
+  // Always fetch - the hook should always return data
+  const shouldFetch = true;
 
   return useQuery({
     queryKey: productKeys.list(filters || {}),
@@ -127,6 +130,41 @@ export const usePrefetchProduct = () => {
       queryFn: () => getProductDetail(slug),
       staleTime: 5 * 60 * 1000,
     });
+  };
+};
+
+/**
+ * Hook for prefetching product details with debounce
+ * Prefetches after 1 second of hover to avoid excessive API calls
+ */
+export const usePrefetchProductWithDebounce = () => {
+  const queryClient = useQueryClient();
+  const prefetchProduct = usePrefetchProduct();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const onMouseEnter = (slug: string) => {
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    // Set timeout to prefetch after 1 second
+    timeoutRef.current = setTimeout(() => {
+      prefetchProduct(slug);
+    }, 1000);
+  };
+
+  const onMouseLeave = () => {
+    // Clear timeout if user leaves before 1 second
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  };
+
+  return {
+    onMouseEnter,
+    onMouseLeave,
   };
 };
 

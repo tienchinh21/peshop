@@ -27,10 +27,6 @@ export const uploadImages = async (files: File[]): Promise<string[]> => {
   return Promise.all(uploadPromises);
 };
 
-/**
- * Upload product images and return ProductImage array with proper sortOrder
- * sortOrder is the array index, where 0 is the cover image
- */
 export const uploadProductImages = async (
   imageFiles: File[]
 ): Promise<ProductImage[]> => {
@@ -43,10 +39,6 @@ export const uploadProductImages = async (
   return Promise.all(uploadPromises);
 };
 
-/**
- * Upload variant images and return a map of variant value to image URL
- * Used for first-level classification images
- */
 export const uploadVariantImages = async (variantImagesMap: {
   [key: string]: File;
 }): Promise<{ [key: string]: string }> => {
@@ -62,28 +54,8 @@ export const uploadVariantImages = async (variantImagesMap: {
 export const createProduct = async (
   data: CreateProductPayload
 ): Promise<ProductResponse> => {
-  const formData = new FormData();
-
-  // Add product as JSON blob with application/json type
-  const productBlob = new Blob([JSON.stringify(data.product)], {
-    type: "application/json",
-  });
-  formData.append("product", productBlob);
-
-  // Add propertyValues as JSON blob with application/json type
-  const propertyValuesBlob = new Blob([JSON.stringify(data.propertyValues)], {
-    type: "application/json",
-  });
-  formData.append("propertyValues", propertyValuesBlob);
-
-  // Add variants as JSON blob with application/json type
-  const variantsBlob = new Blob([JSON.stringify(data.variants)], {
-    type: "application/json",
-  });
-  formData.append("variants", variantsBlob);
-
-  const response = await axiosJavaFormData("/shop/product", formData, "POST");
-  return response;
+  const response = await axiosJava.post("/shop/product", data);
+  return response.data;
 };
 
 export const getProduct = async (id: string): Promise<Product> => {

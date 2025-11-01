@@ -16,7 +16,7 @@ import {
   Loader2,
   Edit2,
 } from "lucide-react";
-import { CategorySelectionModal } from "@/components/common/CategorySelectionModal";
+import { CategorySelectionModal } from "@/components/common/Modal/CategorySelectionModal";
 import { Category, CategoryChild } from "@/types/shops/category.type";
 import { uploadImage } from "@/services/api/shops/product.service";
 import { toast } from "sonner";
@@ -260,7 +260,6 @@ export function BasicInfoSection({
         </div>
       </div>
 
-      {/* Product Name */}
       <div className="space-y-2 flex flex-col gap-2">
         <Label
           htmlFor="product-name"
@@ -283,7 +282,6 @@ export function BasicInfoSection({
         </div>
       </div>
 
-      {/* Category */}
       <div className="space-y-2 flex flex-col gap-2">
         <Label className="text-sm font-medium text-gray-700">
           Ngành hàng <span className="text-red-500">*</span>
@@ -322,14 +320,12 @@ export function BasicInfoSection({
         </div>
       </div>
 
-      {/* Category Selection Modal */}
       <CategorySelectionModal
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}
         onSelect={handleCategorySelect}
       />
 
-      {/* Image Crop Modal */}
       <ImageCropModal
         isOpen={cropModalOpen}
         imageSrc={imageToCrop}

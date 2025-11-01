@@ -13,12 +13,20 @@ export interface Product {
 }
 
 // Product Detail Types (for Quick View and Detail Page)
-export interface ProductVariantValue {
-  propertyValueId: string;
-  value: string;
-  propertyProductId: string;
+export interface PropertyValue {
+  propertyName: string;
+  imgUrl: string;
   level: number;
-  urlImage: string | null;
+  value: string;
+}
+
+export interface Property {
+  name: string;
+}
+
+export interface VariantValue {
+  propertyValue: PropertyValue;
+  property: Property;
 }
 
 export interface ProductVariantDetail {
@@ -26,27 +34,25 @@ export interface ProductVariantDetail {
   price: number;
   quantity: number;
   status: number;
-  propertyValues: ProductVariantValue[];
-}
-
-export interface ProductImage {
-  urlImage: string;
-  sortOrder: number;
+  statusText?: string;
+  variantValues: VariantValue[];
 }
 
 export interface ProductDetail {
-  id: string;
-  name: string;
+  productId: string;
+  productName: string;
   description: string;
   price: number;
   slug: string;
   shopName: string;
   shopId: string;
-  addressShop: string;
+  imgMain: string;
+  imgList: string[];
   boughtCount: number;
   reviewCount: number;
   reviewPoint: number;
-  images: ProductImage[];
+  likeCount: number;
+  viewCount: number;
   variants: ProductVariantDetail[];
 }
 

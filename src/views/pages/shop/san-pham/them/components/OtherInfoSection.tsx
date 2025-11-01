@@ -36,7 +36,6 @@ export function OtherInfoSection({
   dimensions,
   setDimensions,
 }: OtherInfoSectionProps) {
-  // Use React Query hook for category template
   const {
     data: templateResponse,
     isLoading: loading,
@@ -45,7 +44,6 @@ export function OtherInfoSection({
 
   const categoryTemplate = templateResponse?.content || null;
 
-  // Initialize product informations when template changes
   React.useEffect(() => {
     if (categoryTemplate) {
       const initialInfos: ProductInformation[] = [];
@@ -106,13 +104,11 @@ export function OtherInfoSection({
         </p>
       </div>
 
-      {/* Weight and Dimensions Section */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-base font-semibold text-gray-900 mb-4">
           Vận chuyển
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Weight */}
           <div className="space-y-2">
             <Label
               htmlFor="weight"

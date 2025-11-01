@@ -1,9 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-/**
- * ProductSkeleton - Loading skeleton for ProductCard
- * Matches the exact layout and dimensions of ProductCard
- */
 export default function ProductSkeleton() {
   return (
     <div className="relative bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden h-full flex flex-col">
@@ -52,3 +48,14 @@ export default function ProductSkeleton() {
     </div>
   );
 }
+
+export const ProductDetailSkeleton = () => {
+  return (
+    <div className="container mx-auto px-4 py-6">
+      <ProductSkeleton />
+      <ProductSkeleton />
+      <ProductSkeleton />
+      <ProductSkeleton />
+    </div>
+  );
+};

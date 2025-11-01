@@ -47,7 +47,6 @@ export function Header({
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
       <SectionContainer>
         <div className="flex h-16 items-center justify-between gap-4">
-          {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <div className="flex items-center justify-center w-10 h-10 bg-primary rounded-lg">
               <span className="text-2xl font-bold text-white">P</span>
@@ -71,11 +70,9 @@ export function Header({
         </div>
       </SectionContainer>
 
-      {/* Navigation Menu */}
       <div className="border-t bg-gray-50">
         <SectionContainer>
           <nav className="flex items-center justify-between py-3 text-sm font-medium">
-            {/* Left side - Main navigation */}
             <div className="flex items-center space-x-6">
               <Link
                 href="/san-pham"
@@ -123,9 +120,10 @@ export function Header({
               </Link>
             </div>
 
-            {/* Right side - Seller channel button */}
             <Link
               href="/shop"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 border border-primary hover:bg-primary/90 text-primary hover:text-white rounded-md transition-colors"
             >
               Kênh người bán

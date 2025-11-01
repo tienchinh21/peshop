@@ -202,10 +202,10 @@ export function ProductInfoSection({
     setUploadingVariantImage(colorGroup);
     try {
       const uploadedUrl = await uploadImage(file);
-      setVariantImages((prev) => ({
-        ...prev,
+      setVariantImages({
+        ...variantImages,
         [colorGroup]: { file, url: uploadedUrl },
-      }));
+      });
       toast.success(`Đã tải ảnh cho "${colorGroup}"`);
     } catch (error) {
       console.error("Error uploading variant image:", error);

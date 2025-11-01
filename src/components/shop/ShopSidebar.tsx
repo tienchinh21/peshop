@@ -16,6 +16,9 @@ import {
   Users,
   MessageSquare,
   Store,
+  Megaphone,
+  Ticket,
+  Gift,
 } from "lucide-react";
 import {
   Sidebar,
@@ -91,6 +94,22 @@ const menuItems = [
     title: "Đánh giá",
     url: "/shop/danh-gia",
     icon: MessageSquare,
+  },
+  {
+    title: "Chiến dịch",
+    icon: Megaphone,
+    items: [
+      {
+        title: "Mã giảm giá",
+        url: "/shop/chien-dich/ma-giam-gia",
+        icon: Ticket,
+      },
+      {
+        title: "Mua X Tặng Y",
+        url: "/shop/chien-dich/muaXtangY",
+        icon: Gift,
+      },
+    ],
   },
   {
     title: "Cài đặt",

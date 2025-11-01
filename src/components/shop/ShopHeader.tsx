@@ -54,6 +54,32 @@ const routeMap: Record<
     parent: "Quản lý đơn hàng",
     parentHref: "/shop/don-hang",
   },
+  "/shop/san-pham/[id]": {
+    title: "Chi tiết sản phẩm",
+    parent: "Quản lý sản phẩm",
+    parentHref: "/shop/san-pham",
+  },
+  "/shop/chien-dich/ma-giam-gia": {
+    title: "Mã giảm giá",
+    parent: "Quản lý mã giảm giá",
+    parentHref: "/shop/chien-dich/ma-giam-gia",
+  },
+  "/shop/chien-dich/ma-giam-gia/them": {
+    title: "Thêm mã giảm giá",
+    parent: "Quản lý mã giảm giá",
+    parentHref: "/shop/chien-dich/ma-giam-gia",
+  },
+  // Pattern for dynamic routes - will be matched by pathname check
+  "/shop/chien-dich/ma-giam-gia/[id]": {
+    title: "Chi tiết mã giảm giá",
+    parent: "Quản lý mã giảm giá",
+    parentHref: "/shop/chien-dich/ma-giam-gia",
+  },
+  "/shop/chien-dich/ma-giam-gia/sua/[id]": {
+    title: "Chỉnh sửa mã giảm giá",
+    parent: "Quản lý mã giảm giá",
+    parentHref: "/shop/chien-dich/ma-giam-gia",
+  },
   "/shop/thong-ke": { title: "Thống kê" },
   "/shop/khach-hang": { title: "Khách hàng" },
   "/shop/cai-dat": { title: "Cài đặt" },
@@ -77,7 +103,31 @@ export function ShopHeader({ onLogout }: ShopHeaderProps) {
 
   // Generate breadcrumb items based on current route
   const generateBreadcrumbs = () => {
-    const route = routeMap[pathname];
+    // First try exact match
+    let route = routeMap[pathname];
+
+    // If no exact match, try pattern matching for dynamic routes
+    if (!route) {
+      // Check for /shop/chien-dich/ma-giam-gia/sua/[id] pattern (must check before [id] pattern)
+      if (pathname.match(/^\/shop\/chien-dich\/ma-giam-gia\/sua\/[^\/]+$/)) {
+        route = routeMap["/shop/chien-dich/ma-giam-gia/sua/[id]"];
+      }
+      // Check for /shop/chien-dich/ma-giam-gia/[id] pattern (exclude static routes like "them")
+      else if (
+        pathname.match(/^\/shop\/chien-dich\/ma-giam-gia\/[^\/]+$/) &&
+        !pathname.match(/^\/shop\/chien-dich\/ma-giam-gia\/(them|sua)$/)
+      ) {
+        route = routeMap["/shop/chien-dich/ma-giam-gia/[id]"];
+      }
+      // Check for /shop/san-pham/[id] pattern
+      else if (
+        pathname.match(/^\/shop\/san-pham\/[^\/]+$/) &&
+        !pathname.match(/^\/shop\/san-pham\/(them)$/)
+      ) {
+        route = routeMap["/shop/san-pham/[id]"];
+      }
+    }
+
     if (!route) return [];
 
     const breadcrumbs = [];

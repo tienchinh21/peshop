@@ -2,9 +2,12 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useProducts } from "@/hooks/user/useProducts";
+import { useQuickViewModal } from "@/hooks/useQuickViewModal";
 import PageSection from "@/components/common/PageSection";
 import SectionContainer from "@/components/common/SectionContainer";
 import ProductCard from "@/views/pages/home/components/ProductCard";
+import QuickViewModal from "@/components/common/QuickViewModal";
+import LoadingOverlay from "@/components/common/LoadingOverlay";
 import { ProductSkeleton } from "@/components/skeleton";
 import {
   Pagination,
@@ -16,36 +19,35 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import type { Product } from "@/types/users/product.types";
+import { filterValidProducts, getProductKey } from "@/lib/utils/product.utils";
 
-/**
- * ProductsPage - Client component for product listing with pagination
- * Features: SEO-friendly pagination, fast page loads, clean UI
- */
 export default function ProductsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const currentPage = Number(searchParams.get("page")) || 1;
   const pageSize = 20;
 
+  const {
+    selectedProduct,
+    isModalOpen,
+    isModalLoading,
+    handleQuickView,
+    handleCloseModal,
+    handleModalDataLoaded,
+  } = useQuickViewModal();
+
   const { data, isLoading, isError } = useProducts({
     page: currentPage,
     pageSize,
   });
 
-  const products = data?.data.data ?? [];
+  //@ts-ignore
+  const products = filterValidProducts(data?.data.data ?? []);
   const totalPages = data?.data.totalPages ?? 1;
   const totalCount = data?.data.totalCount ?? 0;
 
   const handlePageChange = (page: number) => {
     router.push(`/san-pham?page=${page}`, { scroll: true });
-  };
-
-  const handleQuickView = (product: Product) => {
-    console.log("Quick view:", product);
-  };
-
-  const handleAddToCart = (product: Product) => {
-    console.log("Add to cart:", product);
   };
 
   const renderPaginationItems = () => {
@@ -163,14 +165,12 @@ export default function ProductsPage() {
 
           {!isLoading && !isError && products.length > 0 && (
             <>
-              {/* Product Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
                 {products.map((product, index) => (
                   <ProductCard
-                    key={product.id}
+                    key={getProductKey(product, index)}
                     product={product}
                     onQuickView={handleQuickView}
-                    onAddToCart={handleAddToCart}
                     priority={index < 10}
                   />
                 ))}
@@ -224,6 +224,21 @@ export default function ProductsPage() {
           )}
         </div>
       </SectionContainer>
+
+      {/* Full Screen Loading Overlay */}
+      <LoadingOverlay
+        isVisible={isModalLoading}
+        message="Đang tải sản phẩm..."
+        subMessage="Vui lòng chờ trong giây lát"
+      />
+
+      {/* Quick View Modal */}
+      <QuickViewModal
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onDataLoaded={handleModalDataLoaded}
+      />
     </>
   );
 }

@@ -4,14 +4,7 @@ import {
   ProductClassification,
 } from "@/types/shops/product.type";
 import { UIVariant } from "@/hooks/useProductCreation";
-import { v4 as uuidv4 } from "uuid";
-
-/**
- * Generate UUID v4 (char36)
- */
-const generateUUID = (): string => {
-  return uuidv4();
-};
+import type { Product } from "@/types/users/product.types";
 
 /**
  * Transform UI variants to new API format
@@ -28,8 +21,9 @@ export const transformVariantsForAPI = (
   classifications: ProductClassification[],
   uploadedVariantImages: { [key: string]: string }
 ): { propertyValues: PropertyValue[]; variants: ProductVariant[] } => {
-  // Step 1: Collect all unique property values and generate IDs
+  // Step 1: Collect all unique property values and assign sequential codes
   const propertyValueMap = new Map<string, PropertyValue>();
+  let codeCounter = 1; // Start code from 1
 
   classifications.forEach((classification, level) => {
     classification.values.forEach((value) => {
@@ -44,11 +38,11 @@ export const transformVariantsForAPI = (
           : null;
 
         propertyValueMap.set(key, {
-          propertyValueId: generateUUID(), // Generate UUID
           value: value,
           propertyProductId: classification.propertyId,
           level: level,
           urlImage: urlImage,
+          code: codeCounter++, // Assign sequential code
         });
       }
     });
@@ -57,15 +51,15 @@ export const transformVariantsForAPI = (
   // Step 2: Convert map to array
   const propertyValues = Array.from(propertyValueMap.values());
 
-  // Step 3: Transform variants to reference propertyValueIds
+  // Step 3: Transform variants to reference property value codes
   const variants: ProductVariant[] = uiVariants.map((variant) => {
-    const propertyValueIds: string[] = variant.values.map((val) => {
+    const codes: number[] = variant.values.map((val) => {
       const key = `${val.propertyId}:${val.value}`;
       const propertyValue = propertyValueMap.get(key);
       if (!propertyValue) {
         throw new Error(`PropertyValue not found for key: ${key}`);
       }
-      return propertyValue.propertyValueId;
+      return propertyValue.code;
     });
 
     return {
@@ -74,7 +68,7 @@ export const transformVariantsForAPI = (
         quantity: variant.stock,
         status: 1, // 1 = active
       },
-      propertyValueIds: propertyValueIds,
+      code: codes,
     };
   });
 
@@ -126,4 +120,51 @@ export const validateProductData = (data: {
   }
 
   return errors;
+};
+
+/**
+ * Type guard to check if a product is valid
+ * Ensures product has required fields including id
+ */
+export const isValidProduct = (product: unknown): product is Product => {
+  if (!product || typeof product !== "object") {
+    return false;
+  }
+
+  const p = product as Partial<Product>;
+
+  return !!(
+    p.id &&
+    typeof p.id === "string" &&
+    p.name &&
+    typeof p.name === "string" &&
+    p.slug &&
+    typeof p.slug === "string" &&
+    typeof p.price === "number" &&
+    p.image &&
+    typeof p.image === "string"
+  );
+};
+
+/**
+ * Filter out invalid products from an array
+ * Returns only products with valid structure and required fields
+ */
+export const filterValidProducts = (products: unknown[]): Product[] => {
+  if (!Array.isArray(products)) {
+    return [];
+  }
+
+  return products.filter(isValidProduct);
+};
+
+/**
+ * Safely get product ID with fallback
+ * Returns product.id if valid, otherwise generates a fallback key
+ */
+export const getProductKey = (product: unknown, index: number): string => {
+  if (isValidProduct(product)) {
+    return product.id;
+  }
+  return `product-fallback-${index}`;
 };

@@ -2,12 +2,15 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import _ from "lodash";
 import { Header, Footer } from "@/components/common";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import {
   logout as logoutAction,
   selectCurrentUser,
+  selectIsAuthenticated,
 } from "@/lib/store/slices/authSlice";
+import { useCartCount } from "@/hooks/user/useCart";
 import { toast } from "sonner";
 
 interface MainLayoutProps {
@@ -18,6 +21,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectCurrentUser);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+
+  // Fetch cart count only when user is authenticated
+  const { data: cartCount } = useCartCount(isAuthenticated);
 
   const handleLogout = () => {
     dispatch(logoutAction());
@@ -37,7 +44,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
               }
             : null
         }
-        cartItemCount={0}
+        cartItemCount={_.get(cartCount, "totalItems", 0)}
         wishlistCount={0}
         onLogout={handleLogout}
       />

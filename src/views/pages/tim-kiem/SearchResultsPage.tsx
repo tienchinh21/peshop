@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useProducts } from "@/hooks/user/useProducts";
+import { useQuickViewModal } from "@/hooks/useQuickViewModal";
 import PageSection from "@/components/common/PageSection";
 import SectionContainer from "@/components/common/SectionContainer";
 import ProductCard from "@/views/pages/home/components/ProductCard";
 import QuickViewModal from "@/components/common/QuickViewModal";
+import LoadingOverlay from "@/components/common/LoadingOverlay";
 import {
   Pagination,
   PaginationContent,
@@ -19,16 +21,21 @@ import { Loader2, SlidersHorizontal } from "lucide-react";
 import SearchFilters from "./components/SearchFilters";
 import { Product } from "@/types/users/product.types";
 import { toast } from "sonner";
+import { filterValidProducts, getProductKey } from "@/lib/utils/product.utils";
 
 export default function SearchResultsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Quick View Modal state
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(
-    null
-  );
-  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  // QuickView modal hook
+  const {
+    selectedProduct,
+    isModalOpen,
+    isModalLoading,
+    handleQuickView,
+    handleCloseModal,
+    handleModalDataLoaded,
+  } = useQuickViewModal();
 
   // Get search keyword from URL
   const keyword = searchParams.get("q") || "";
@@ -53,7 +60,6 @@ export default function SearchResultsPage() {
 
   // Fetch products with filters
   const { data, isLoading, error } = useProducts(filters);
-  console.log(data);
 
   // Update filters when URL changes
   useEffect(() => {
@@ -113,28 +119,13 @@ export default function SearchResultsPage() {
     router.push(`/tim-kiem?q=${encodeURIComponent(keyword)}`);
   };
 
-  const products = data?.data?.products || [];
+  // Filter and validate products from API response
+  const products = filterValidProducts(data?.data?.products || []);
   const totalCount = data?.data?.totalCount || 0;
   const currentPage = data?.data?.currentPage || 1;
   const totalPages = data?.data?.totalPages || 1;
   const hasNextPage = data?.data?.hasNextPage || false;
   const hasPreviousPage = data?.data?.hasPreviousPage || false;
-
-  // Quick View handlers
-  const handleQuickView = (product: Product) => {
-    setQuickViewProduct(product);
-    setIsQuickViewOpen(true);
-  };
-
-  const handleCloseQuickView = () => {
-    setIsQuickViewOpen(false);
-    setTimeout(() => setQuickViewProduct(null), 300);
-  };
-
-  const handleAddToCart = (product: Product) => {
-    toast.success(`Đã thêm "${product.name}" vào giỏ hàng`);
-    console.log("Add to cart:", product);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -219,12 +210,11 @@ export default function SearchResultsPage() {
               {!isLoading && !error && products.length > 0 && (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
-                    {products.map((product: Product) => (
+                    {products.map((product: Product, index: number) => (
                       <ProductCard
-                        key={product.id}
+                        key={getProductKey(product, index)}
                         product={product}
                         onQuickView={handleQuickView}
-                        onAddToCart={handleAddToCart}
                       />
                     ))}
                   </div>
@@ -308,12 +298,19 @@ export default function SearchResultsPage() {
         </div>
       </SectionContainer>
 
+      {/* Full Screen Loading Overlay */}
+      <LoadingOverlay
+        isVisible={isModalLoading}
+        message="Đang tải sản phẩm..."
+        subMessage="Vui lòng chờ trong giây lát"
+      />
+
       {/* Quick View Modal */}
       <QuickViewModal
-        product={quickViewProduct}
-        isOpen={isQuickViewOpen}
-        onClose={handleCloseQuickView}
-        onAddToCart={handleAddToCart}
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onDataLoaded={handleModalDataLoaded}
       />
     </div>
   );

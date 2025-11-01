@@ -125,9 +125,12 @@ export const useSearchWithSuggestions = () => {
         case "Enter":
           e.preventDefault();
           if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
+            // User selected a suggestion with keyboard
             const selectedKeyword = suggestions[selectedIndex].keyword;
             handleSuggestionClick(selectedKeyword);
           }
+          // If no suggestion selected, let the form's onSubmit handle it
+          setShowSuggestions(false);
           break;
         case "Escape":
           setShowSuggestions(false);

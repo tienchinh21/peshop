@@ -42,7 +42,6 @@ export const ContactInfoSection = memo<ContactInfoSectionProps>(
                   ? "border-destructive focus-visible:ring-destructive"
                   : ""
               }`}
-              disabled
             />
           </div>
           {phoneError && (
@@ -71,7 +70,6 @@ export const ContactInfoSection = memo<ContactInfoSectionProps>(
                   ? "border-destructive focus-visible:ring-destructive"
                   : ""
               }`}
-              disabled
             />
           </div>
           {emailError && (
