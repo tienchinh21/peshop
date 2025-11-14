@@ -47,6 +47,11 @@ export const API_ENDPOINTS = {
     SUGGEST: "/Search/suggest",
     SEARCH: "/Search",
   },
+  // Promotion endpoints
+  PROMOTION: {
+    GET_BY_PRODUCT: "/Promotion/get-promotions-by-product",
+    CHECK_IN_ORDER: "/Promotion/check-promotions-in-order",
+  },
 } as const;
 
 // Java API Endpoints

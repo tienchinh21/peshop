@@ -1,12 +1,21 @@
+export interface PromotionProduct {
+  id: string;
+  name: string;
+  imgMain: string;
+}
+
 export interface PromotionGift {
-  productId: string;
+  id?: string;
+  productId?: string;
+  product?: PromotionProduct;
   giftQuantity: number;
-  maxGiftPerOrder: number;
+  maxGiftPerOrder?: number;
 }
 
 export interface PromotionRule {
   id?: string;
-  productId: string;
+  productId?: string;
+  product?: PromotionProduct;
   quantity: number;
 }
 
@@ -38,9 +47,33 @@ export interface CreatePromotionPayload {
 }
 
 export interface UpdatePromotionPayload {
-  promotionCreateDto: PromotionCreateDto;
-  promotionGifts: PromotionGift[];
-  promotionRules: PromotionRule[];
+  promotionUpdateDto: {
+    name: string;
+    status: number;
+    startTime: string;
+    endTime: string;
+    totalUsageLimit: number;
+  };
+  promotionGifts: Array<{
+    id: string;
+    productId: string;
+    giftQuantity: number;
+  }>;
+  promotionRules: Array<{
+    id: string;
+    productId: string;
+    quantity: number;
+  }>;
+}
+
+export interface AddPromotionRulesPayload {
+  productId: string;
+  quantity: number;
+}
+
+export interface AddPromotionGiftsPayload {
+  productId: string;
+  giftQuantity: number;
 }
 
 export interface PromotionListPaginationInfo {

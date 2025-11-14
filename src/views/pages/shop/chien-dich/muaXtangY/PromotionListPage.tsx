@@ -65,10 +65,12 @@ export default function PromotionListPage() {
   };
 
   const handleView = (promotion: Promotion) => {
+    sessionStorage.setItem(`promotion_${promotion.id}`, JSON.stringify(promotion));
     router.push(`/shop/chien-dich/muaXtangY/${promotion.id}`);
   };
 
   const handleEdit = (promotion: Promotion) => {
+    sessionStorage.setItem(`promotion_${promotion.id}`, JSON.stringify(promotion));
     router.push(`/shop/chien-dich/muaXtangY/sua/${promotion.id}`);
   };
 

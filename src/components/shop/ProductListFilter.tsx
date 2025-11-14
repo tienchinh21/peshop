@@ -28,10 +28,6 @@ interface ProductListFilterProps {
   onReset: () => void;
 }
 
-/**
- * Product list filter component
- * Provides search, category filter, status filter, and sorting
- */
 export function ProductListFilter({
   filters,
   onFiltersChange,
@@ -39,7 +35,6 @@ export function ProductListFilter({
 }: ProductListFilterProps) {
   const [searchInput, setSearchInput] = useState(_.get(filters, "search", ""));
 
-  // Fetch categories for filter
   const { data: categoriesData } = useQuery({
     queryKey: ["categories"],
     queryFn: getCategories,
@@ -48,7 +43,6 @@ export function ProductListFilter({
 
   const categories = _.get(categoriesData, "content", []);
 
-  // Debounced search using lodash
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!_.isEqual(searchInput, _.get(filters, "search"))) {
@@ -111,7 +105,6 @@ export function ProductListFilter({
 
   return (
     <div className="space-y-4">
-      {/* Search Bar */}
       <div className="flex gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -133,14 +126,12 @@ export function ProductListFilter({
         </div>
       </div>
 
-      {/* Filters Row */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-gray-500" />
           <span className="text-sm font-medium text-gray-700">Lọc:</span>
         </div>
 
-        {/* Category Filter */}
         <Select
           value={_.get(filters, "categoryId", "all")}
           onValueChange={handleCategoryChange}
@@ -161,7 +152,6 @@ export function ProductListFilter({
           </SelectContent>
         </Select>
 
-        {/* Status Filter */}
         <Select
           value={
             !_.isUndefined(_.get(filters, "status"))
@@ -178,8 +168,8 @@ export function ProductListFilter({
             <SelectItem value={ProductStatus.ACTIVE.toString()}>
               {ProductStatusLabels[ProductStatus.ACTIVE]}
             </SelectItem>
-            <SelectItem value={ProductStatus.HIDDEN.toString()}>
-              {ProductStatusLabels[ProductStatus.HIDDEN]}
+            <SelectItem value={ProductStatus.DELETED.toString()}>
+              {ProductStatusLabels[ProductStatus.DELETED]}
             </SelectItem>
             <SelectItem value={ProductStatus.LOCKED.toString()}>
               {ProductStatusLabels[ProductStatus.LOCKED]}
@@ -187,7 +177,6 @@ export function ProductListFilter({
           </SelectContent>
         </Select>
 
-        {/* Sort By */}
         <Select
           value={_.get(filters, "sortBy", "none")}
           onValueChange={handleSortChange}
@@ -208,7 +197,6 @@ export function ProductListFilter({
           </SelectContent>
         </Select>
 
-        {/* Sort Order */}
         {!_.isNil(_.get(filters, "sortBy")) && (
           <Select
             value={_.get(filters, "sortOrder", SortOrder.ASC)}
@@ -224,7 +212,6 @@ export function ProductListFilter({
           </Select>
         )}
 
-        {/* Reset Button */}
         {hasActiveFilters && (
           <Button
             variant="outline"

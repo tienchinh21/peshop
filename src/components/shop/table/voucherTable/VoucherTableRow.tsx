@@ -90,14 +90,22 @@ export function VoucherTableRow({
       <TableCell className="font-semibold">
         {getDiscountDisplay(voucher.type, voucher.discountValue)}
       </TableCell>
-      <TableCell>{formatPrice(voucher.minimumOrderValue)}</TableCell>
+      {/* <TableCell>
+        {voucher.minimumOrderValue
+          ? formatPrice(voucher.minimumOrderValue)
+          : "-"}
+      </TableCell> */}
       <TableCell>
         <div className="text-center">
           <span className="font-medium">{voucher.quantity}</span>
-          {!_.isNil(voucher.usedCount) && (
-            <span className="text-xs text-gray-500 ml-1">
-              (Đã dùng: {voucher.usedCount})
-            </span>
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="text-center">
+          {!_.isNil(voucher.quantityUsed) ? (
+            <span className="font-medium">{voucher.quantityUsed}</span>
+          ) : (
+            <span className="text-gray-400">0</span>
           )}
         </div>
       </TableCell>

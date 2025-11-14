@@ -1,0 +1,21 @@
+import { useQuery } from "@tanstack/react-query";
+import { getVoucherShopDashboard } from "@/services/api/shops/voucher-dashboard.service";
+import type { VoucherDashboardFilters } from "@/types/shops/voucher-dashboard.type";
+
+export const voucherDashboardKeys = {
+  all: ["voucher-dashboard"] as const,
+  detail: (filters: VoucherDashboardFilters) =>
+    [...voucherDashboardKeys.all, "detail", filters] as const,
+};
+
+export const useVoucherDashboard = (filters: VoucherDashboardFilters) => {
+  return useQuery({
+    queryKey: voucherDashboardKeys.detail(filters),
+    queryFn: () => getVoucherShopDashboard(filters),
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    retry: 1,
+    retryDelay: 1000,
+    refetchOnWindowFocus: false,
+  });
+};

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,20 +14,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, Info, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Info, Plus, Trash2, Loader2 } from "lucide-react";
 import type {
-  UpdatePromotionPayload,
+  Promotion,
   PromotionGift,
   PromotionRule,
 } from "@/types/shops/promotion.type";
 import { ProductSelector } from "@/components/shop/ProductSelector";
 import type { ShopProduct } from "@/types/shops/product-list.type";
-import { useEffect } from "react";
 import {
-  usePromotionDetail,
   useUpdatePromotion,
+  useAddPromotionRules,
+  useAddPromotionGifts,
+  useDeletePromotionRules,
+  useDeletePromotionGifts,
 } from "@/hooks/shop/useShopPromotions";
 import { toast } from "sonner";
+import _ from "lodash";
+
 interface EditPromotionPageProps {
   promotionId: string;
 }
@@ -36,9 +40,13 @@ export default function EditPromotionPage({
   promotionId,
 }: EditPromotionPageProps) {
   const router = useRouter();
-  const { data: promotionData, isLoading } = usePromotionDetail(promotionId);
   const updateMutation = useUpdatePromotion();
+  const addRulesMutation = useAddPromotionRules();
+  const addGiftsMutation = useAddPromotionGifts();
+  const deleteRulesMutation = useDeletePromotionRules();
+  const deleteGiftsMutation = useDeletePromotionGifts();
 
+  const [promotion, setPromotion] = useState<Promotion | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     status: 1,
@@ -47,36 +55,43 @@ export default function EditPromotionPage({
     totalUsageLimit: 0,
   });
 
-  const [rules, setRules] = useState<PromotionRule[]>([
-    { productId: "", quantity: 1 },
-  ]);
+  const [rules, setRules] = useState<PromotionRule[]>([]);
+  const [gifts, setGifts] = useState<PromotionGift[]>([]);
 
-  const [gifts, setGifts] = useState<PromotionGift[]>([
-    { productId: "", giftQuantity: 1, maxGiftPerOrder: 1 },
-  ]);
+  const [rulesToDelete, setRulesToDelete] = useState<string[]>([]);
+  const [giftsToDelete, setGiftsToDelete] = useState<string[]>([]);
 
   useEffect(() => {
-    if (promotionData) {
-      //@ts-ignore
-      const promotion = promotionData.content;
+    const storedData = sessionStorage.getItem(`promotion_${promotionId}`);
+    if (storedData) {
+      try {
+        const promotionData: Promotion = JSON.parse(storedData);
+        setPromotion(promotionData);
 
-      setFormData({
-        name: promotion.name,
-        status: promotion.status,
-        startTime: new Date(promotion.startTime).toISOString().slice(0, 16),
-        endTime: new Date(promotion.endTime).toISOString().slice(0, 16),
-        totalUsageLimit: promotion.totalUsageLimit,
-      });
+        setFormData({
+          name: promotionData.name,
+          status: promotionData.status,
+          startTime: new Date(promotionData.startTime).toISOString().slice(0, 16),
+          endTime: new Date(promotionData.endTime).toISOString().slice(0, 16),
+          totalUsageLimit: promotionData.totalUsageLimit,
+        });
 
-      if (promotion.rules && promotion.rules.length > 0) {
-        setRules(promotion.rules);
+        if (promotionData.rules && promotionData.rules.length > 0) {
+          setRules(promotionData.rules);
+        }
+
+        if (promotionData.gifts && promotionData.gifts.length > 0) {
+          setGifts(promotionData.gifts);
+        }
+      } catch (error) {
+        toast.error("Không thể tải dữ liệu chương trình");
+        router.push("/shop/chien-dich/muaXtangY");
       }
-
-      if (promotion.gifts && promotion.gifts.length > 0) {
-        setGifts(promotion.gifts);
-      }
+    } else {
+      toast.error("Không thể tải dữ liệu chương trình");
+      router.push("/shop/chien-dich/muaXtangY");
     }
-  }, [promotionData]);
+  }, [promotionId, router]);
 
   const handleBack = () => {
     router.push("/shop/chien-dich/muaXtangY");
@@ -87,9 +102,11 @@ export default function EditPromotionPage({
   };
 
   const handleRemoveRule = (index: number) => {
-    if (rules.length > 1) {
-      setRules(rules.filter((_, i) => i !== index));
+    const rule = rules[index];
+    if (rule.id) {
+      setRulesToDelete([...rulesToDelete, rule.id]);
     }
+    setRules(_.filter(rules, (_, i) => i !== index));
   };
 
   const handleRuleChange = (
@@ -108,7 +125,15 @@ export default function EditPromotionPage({
     product: ShopProduct | null
   ) => {
     const newRules = [...rules];
-    newRules[index] = { ...newRules[index], productId };
+    newRules[index] = {
+      ...newRules[index],
+      productId,
+      product: product ? {
+        id: product.id,
+        name: product.name,
+        imgMain: product.imgMain,
+      } : undefined,
+    };
     setRules(newRules);
   };
 
@@ -120,9 +145,11 @@ export default function EditPromotionPage({
   };
 
   const handleRemoveGift = (index: number) => {
-    if (gifts.length > 1) {
-      setGifts(gifts.filter((_, i) => i !== index));
+    const gift = gifts[index];
+    if (gift.id) {
+      setGiftsToDelete([...giftsToDelete, gift.id]);
     }
+    setGifts(_.filter(gifts, (_, i) => i !== index));
   };
 
   const handleGiftChange = (
@@ -141,7 +168,15 @@ export default function EditPromotionPage({
     product: ShopProduct | null
   ) => {
     const newGifts = [...gifts];
-    newGifts[index] = { ...newGifts[index], productId };
+    newGifts[index] = {
+      ...newGifts[index],
+      productId,
+      product: product ? {
+        id: product.id,
+        name: product.name,
+        imgMain: product.imgMain,
+      } : undefined,
+    };
     setGifts(newGifts);
   };
 
@@ -158,37 +193,82 @@ export default function EditPromotionPage({
       return;
     }
 
-    const hasEmptyRules = rules.some((rule) => !rule.productId);
+    const hasEmptyRules = _.some(rules, (rule) => !rule.productId);
     if (hasEmptyRules) {
       toast.error("Vui lòng chọn sản phẩm cho tất cả điều kiện mua");
       return;
     }
 
-    const hasEmptyGifts = gifts.some((gift) => !gift.productId);
+    const hasEmptyGifts = _.some(gifts, (gift) => !gift.productId);
     if (hasEmptyGifts) {
       toast.error("Vui lòng chọn sản phẩm cho tất cả quà tặng");
       return;
     }
 
-    const payload: UpdatePromotionPayload = {
-      promotionCreateDto: {
-        name: formData.name,
-        status: formData.status,
-        startTime: new Date(formData.startTime).toISOString(),
-        endTime: new Date(formData.endTime).toISOString(),
-        totalUsageLimit: formData.totalUsageLimit,
-      },
-      promotionGifts: gifts,
-      promotionRules: rules,
-    };
-
     try {
-      await updateMutation.mutateAsync({ id: promotionId, payload });
+      const promises: Promise<any>[] = [];
+
+      const existingRules = _.filter(rules, (r) => r.id);
+      const newRules = _.filter(rules, (r) => !r.id);
+      const existingGifts = _.filter(gifts, (g) => g.id);
+      const newGifts = _.filter(gifts, (g) => !g.id);
+
+      if (!_.isEmpty(existingRules) || !_.isEmpty(existingGifts)) {
+        const updatePayload = {
+          promotionUpdateDto: {
+            name: formData.name,
+            status: formData.status,
+            startTime: new Date(formData.startTime).toISOString(),
+            endTime: new Date(formData.endTime).toISOString(),
+            totalUsageLimit: formData.totalUsageLimit,
+          },
+          promotionGifts: _.map(existingGifts, (g) => ({
+            id: g.id!,
+            productId: _.get(g, "productId") || _.get(g, "product.id", ""),
+            giftQuantity: g.giftQuantity,
+          })),
+          promotionRules: _.map(existingRules, (r) => ({
+            id: r.id!,
+            productId: _.get(r, "productId") || _.get(r, "product.id", ""),
+            quantity: r.quantity,
+          })),
+        };
+        promises.push(updateMutation.mutateAsync({ id: promotionId, payload: updatePayload }));
+      }
+
+      if (!_.isEmpty(newRules)) {
+        const addRulesPayload = _.map(newRules, (r) => ({
+          productId: _.get(r, "productId") || _.get(r, "product.id", ""),
+          quantity: r.quantity,
+        }));
+        promises.push(addRulesMutation.mutateAsync({ id: promotionId, payload: addRulesPayload }));
+      }
+
+      if (!_.isEmpty(newGifts)) {
+        const addGiftsPayload = _.map(newGifts, (g) => ({
+          productId: _.get(g, "productId") || _.get(g, "product.id", ""),
+          giftQuantity: g.giftQuantity,
+        }));
+        promises.push(addGiftsMutation.mutateAsync({ id: promotionId, payload: addGiftsPayload }));
+      }
+
+      if (!_.isEmpty(rulesToDelete)) {
+        promises.push(deleteRulesMutation.mutateAsync(rulesToDelete));
+      }
+
+      if (!_.isEmpty(giftsToDelete)) {
+        promises.push(deleteGiftsMutation.mutateAsync(giftsToDelete));
+      }
+
+      await Promise.all(promises);
+      toast.success("Cập nhật chương trình thành công");
       router.push("/shop/chien-dich/muaXtangY");
-    } catch (error) {}
+    } catch (error) {
+      // Errors handled by mutations
+    }
   };
 
-  if (isLoading) {
+  if (!promotion) {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
@@ -213,6 +293,13 @@ export default function EditPromotionPage({
       </div>
     );
   }
+
+  const isSubmitting =
+    updateMutation.isPending ||
+    addRulesMutation.isPending ||
+    addGiftsMutation.isPending ||
+    deleteRulesMutation.isPending ||
+    deleteGiftsMutation.isPending;
 
   return (
     <div className="space-y-6">
@@ -350,54 +437,64 @@ export default function EditPromotionPage({
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {rules.map((rule, index) => (
-              <div
-                key={index}
-                className="flex gap-4 items-end p-4 border rounded-lg"
-              >
-                <div className="flex-1">
-                  <ProductSelector
-                    label="Sản phẩm"
-                    placeholder="Chọn sản phẩm"
-                    value={rule.productId}
-                    onChange={(productId, product) =>
-                      handleRuleProductChange(index, productId, product)
-                    }
-                    required
-                    excludeIds={rules
-                      .filter((_, i) => i !== index)
-                      .map((r) => r.productId)
-                      .filter(Boolean)}
-                  />
-                </div>
-                <div className="w-32 space-y-2">
-                  <Label>Số lượng</Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={rule.quantity}
-                    onChange={(e) =>
-                      handleRuleChange(
-                        index,
-                        "quantity",
-                        Number(e.target.value)
-                      )
-                    }
-                    required
-                  />
-                </div>
-                {rules.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemoveRule(index)}
+            {_.isEmpty(rules) ? (
+              <p className="text-sm text-gray-500 text-center py-4">
+                Chưa có điều kiện mua hàng
+              </p>
+            ) : (
+              _.map(rules, (rule, index) => {
+                const productId = _.get(rule, "productId") || _.get(rule, "product.id");
+                return (
+                  <div
+                    key={index}
+                    className="flex gap-4 items-end p-4 border rounded-lg"
                   >
-                    <Trash2 className="h-4 w-4 text-red-500" />
-                  </Button>
-                )}
-              </div>
-            ))}
+                    <div className="flex-1">
+                      <ProductSelector
+                        label="Sản phẩm"
+                        placeholder="Chọn sản phẩm"
+                        value={productId || ""}
+                        onChange={(productId, product) =>
+                          handleRuleProductChange(index, productId, product)
+                        }
+                        required
+                        excludeIds={_.compact(
+                          _.map(rules, (r, i) =>
+                            i !== index ? _.get(r, "productId") || _.get(r, "product.id") : null
+                          )
+                        )}
+                      />
+                    </div>
+                    <div className="w-32 space-y-2">
+                      <Label>Số lượng</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={_.get(rule, "quantity", 1)}
+                        onChange={(e) =>
+                          handleRuleChange(
+                            index,
+                            "quantity",
+                            Number(e.target.value)
+                          )
+                        }
+                        required
+                      />
+                    </div>
+                    {rules.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemoveRule(index)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    )}
+                  </div>
+                );
+              })
+            )}
           </CardContent>
         </Card>
 
@@ -417,70 +514,80 @@ export default function EditPromotionPage({
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {gifts.map((gift, index) => (
-              <div
-                key={index}
-                className="flex gap-4 items-end p-4 border rounded-lg"
-              >
-                <div className="flex-1">
-                  <ProductSelector
-                    label="Sản phẩm quà tặng"
-                    placeholder="Chọn sản phẩm quà tặng"
-                    value={gift.productId}
-                    onChange={(productId, product) =>
-                      handleGiftProductChange(index, productId, product)
-                    }
-                    required
-                    excludeIds={gifts
-                      .filter((_, i) => i !== index)
-                      .map((g) => g.productId)
-                      .filter(Boolean)}
-                  />
-                </div>
-                <div className="w-32 space-y-2">
-                  <Label>Số lượng tặng</Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={gift.giftQuantity}
-                    onChange={(e) =>
-                      handleGiftChange(
-                        index,
-                        "giftQuantity",
-                        Number(e.target.value)
-                      )
-                    }
-                    required
-                  />
-                </div>
-                <div className="w-32 space-y-2">
-                  <Label>Tối đa/đơn</Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={gift.maxGiftPerOrder}
-                    onChange={(e) =>
-                      handleGiftChange(
-                        index,
-                        "maxGiftPerOrder",
-                        Number(e.target.value)
-                      )
-                    }
-                    required
-                  />
-                </div>
-                {gifts.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemoveGift(index)}
+            {_.isEmpty(gifts) ? (
+              <p className="text-sm text-gray-500 text-center py-4">
+                Chưa có quà tặng
+              </p>
+            ) : (
+              _.map(gifts, (gift, index) => {
+                const productId = _.get(gift, "productId") || _.get(gift, "product.id");
+                return (
+                  <div
+                    key={index}
+                    className="flex gap-4 items-end p-4 border rounded-lg"
                   >
-                    <Trash2 className="h-4 w-4 text-red-500" />
-                  </Button>
-                )}
-              </div>
-            ))}
+                    <div className="flex-1">
+                      <ProductSelector
+                        label="Sản phẩm quà tặng"
+                        placeholder="Chọn sản phẩm quà tặng"
+                        value={productId || ""}
+                        onChange={(productId, product) =>
+                          handleGiftProductChange(index, productId, product)
+                        }
+                        required
+                        excludeIds={_.compact(
+                          _.map(gifts, (g, i) =>
+                            i !== index ? _.get(g, "productId") || _.get(g, "product.id") : null
+                          )
+                        )}
+                      />
+                    </div>
+                    <div className="w-32 space-y-2">
+                      <Label>Số lượng tặng</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={_.get(gift, "giftQuantity", 1)}
+                        onChange={(e) =>
+                          handleGiftChange(
+                            index,
+                            "giftQuantity",
+                            Number(e.target.value)
+                          )
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="w-32 space-y-2">
+                      <Label>Tối đa/đơn</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={_.get(gift, "maxGiftPerOrder", 1)}
+                        onChange={(e) =>
+                          handleGiftChange(
+                            index,
+                            "maxGiftPerOrder",
+                            Number(e.target.value)
+                          )
+                        }
+                        required
+                      />
+                    </div>
+                    {gifts.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemoveGift(index)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    )}
+                  </div>
+                );
+              })
+            )}
           </CardContent>
         </Card>
 
@@ -488,10 +595,9 @@ export default function EditPromotionPage({
           <Button type="button" variant="outline" onClick={handleBack}>
             Hủy
           </Button>
-          <Button type="submit" disabled={updateMutation.isPending}>
-            {updateMutation.isPending
-              ? "Đang cập nhật..."
-              : "Cập nhật chương trình"}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}
           </Button>
         </div>
       </form>

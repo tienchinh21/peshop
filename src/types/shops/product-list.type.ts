@@ -54,4 +54,5 @@ export interface ProductListFilters {
   status?: ProductStatus;
   sortBy?: "name" | "price" | "boughtCount" | "createdAt";
   sortOrder?: "asc" | "desc";
+  classify?: number | null;
 }

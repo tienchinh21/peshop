@@ -1,5 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getShopProductDetail } from "@/services/api/shops/product-detail.service";
+import { updateProductFull } from "@/services/api/shops/product.service";
+import type { UpdateProductPayload } from "@/types/shops/product.type";
+import { toast } from "sonner";
+import _ from "lodash";
 
 /**
  * Query keys for shop product detail
@@ -11,7 +15,7 @@ export const shopProductDetailKeys = {
 
 /**
  * Hook to fetch shop product detail
- * 
+ *
  * @param productId - Product ID
  * @returns React Query result
  */
@@ -24,6 +28,30 @@ export const useShopProductDetail = (productId: string) => {
     gcTime: 10 * 60 * 1000, // 10 minutes cache
     retry: 1,
     retryDelay: 1000,
+  });
+};
+
+export const useUpdateProduct = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateProductPayload }) =>
+      updateProductFull(id, payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: shopProductDetailKeys.detail(variables.id),
+      });
+      queryClient.invalidateQueries({ queryKey: ["shop-products"] });
+      toast.success("Cập nhật sản phẩm thành công");
+    },
+    onError: (error: any) => {
+      const errorMessage = _.get(
+        error,
+        "response.data.message",
+        "Cập nhật sản phẩm thất bại"
+      );
+      toast.error(errorMessage);
+    },
   });
 };
 

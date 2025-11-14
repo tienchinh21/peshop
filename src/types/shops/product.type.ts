@@ -29,7 +29,7 @@ export interface VariantCreateDto {
 // ============ Product Variant Types (New API Structure) ============
 export interface ProductVariant {
   variantCreateDto: VariantCreateDto;
-  code: number[]; // Array of property value codes
+  code: number[] | null; // Array of property value codes, null for Level 0
 }
 
 // ============ Main Product Types ============
@@ -61,8 +61,7 @@ export interface ProductPayload {
   height: number;
   length: number;
   width: number;
-  images: ProductImage[];
-  productInformations: ProductInformation[];
+  classify: number; // 0 = no variants, 1 = single classification, 2 = two classifications
 }
 
 // ============ Product Variants Payload ============
@@ -73,8 +72,50 @@ export interface ProductVariantsPayload extends ProductPayload {
 // ============ Complete Product Creation Payload (New API Structure) ============
 export interface CreateProductPayload {
   product: ProductPayload;
-  propertyValues: PropertyValue[]; // All unique property values with IDs
-  variants: ProductVariant[]; // Variants reference propertyValueIds
+  productInformations: ProductInformation[]; // Moved from inside product to root level
+  propertyValues: PropertyValue[] | null; // Null for Level 0 (no classifications)
+  variants: ProductVariant[]; // Variants with code references (null for Level 0)
+  imagesProduct: ProductImage[]; // Renamed from images, moved to root level
+}
+
+// ============ Product Update Types ============
+export interface UpdateProductInformation {
+  id: number;
+  value: string;
+}
+
+export interface UpdatePropertyValue {
+  propertyValueId: string;
+  value: string;
+  urlImage: string;
+}
+
+export interface UpdateVariant {
+  variantId: number;
+  price: number;
+  quantity: number;
+  status: number;
+}
+
+export interface UpdateProductImage {
+  id: string;
+  urlImage: string;
+}
+
+export interface UpdateProductPayload {
+  product: {
+    name: string;
+    description: string;
+    status: number;
+    weight: number;
+    height: number;
+    length: number;
+    width: number;
+  };
+  productInformations: UpdateProductInformation[];
+  propertyValues: UpdatePropertyValue[];
+  variants: UpdateVariant[];
+  imagesProduct: UpdateProductImage[];
 }
 
 // ============ Product Response Types ============
@@ -94,6 +135,7 @@ export interface ProductFilters {
   sortOrder?: "asc" | "desc";
   page?: number;
   limit?: number;
+  classify?: number | null;
 }
 
 // ============ Product Form Types ============

@@ -36,7 +36,7 @@ export const applyShippingFee = async (
     "/FeeShipping/apply-list-fee-shipping",
     payload
   );
-  return response.data;
+  return _.get(response, "data.data", []);
 };
 
 export const calculateOrderTotal = async (
@@ -45,7 +45,7 @@ export const calculateOrderTotal = async (
   const response = await axiosDotnet.get<VirtualOrderResponse>(
     `/Order/Calclulate-order-total?orderId=${orderId}`
   );
-  return _.get(response, "data.data.order");
+  return _.get(response, "data.data.order");  
 };
 
 export const applySystemVoucher = async (payload: {
@@ -56,7 +56,7 @@ export const applySystemVoucher = async (payload: {
     "/Voucher/apply-voucher-system",
     payload
   );
-  return response.data;
+  return _.get(response, "data.data", []);
 };
 
 export const applyShopVoucher = async (payload: {
@@ -68,5 +68,5 @@ export const applyShopVoucher = async (payload: {
     "/Voucher/apply-voucher-shop",
     payload
   );
-  return response.data;
+  return _.get(response, "data.data", []);
 };

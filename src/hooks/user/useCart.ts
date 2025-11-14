@@ -83,7 +83,7 @@ export const useUpdateCart = () => {
 
       return { previousCart };
     },
-    onError: (error: any, _, context) => {
+    onError: (error: any, variables, context) => {
       if (context?.previousCart) {
         queryClient.setQueryData(cartKeys.list(), context.previousCart);
       }

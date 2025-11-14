@@ -4,9 +4,10 @@
 
 Backend đã cập nhật payload structure với những thay đổi chính:
 
-- Thêm field `variantLevel` để xác định số lượng variant levels
+- Thêm field `classify` để xác định số lượng variant levels
 - Tách `productInformations` và `imagesProduct` ra ngoài root level
 - Flat structure thay vì nested structure
+- `propertyValues` và `code` có thể là `null` cho sản phẩm không có phân loại
 
 ---
 
@@ -44,29 +45,29 @@ Backend đã cập nhật payload structure với những thay đổi chính:
     "height": 0,
     "length": 0,
     "width": 0,
-    "variantLevel": 2             // ← Field mới
+    "classify": 2                 // ← Field mới (đổi tên từ variantLevel)
   },
   "productInformations": [...],   // ← Tách ra ngoài
-  "propertyValues": [...],
-  "variants": [...],
+  "propertyValues": [...],        // ← Có thể là null cho level 0
+  "variants": [...],              // ← code có thể là null cho level 0
   "imagesProduct": [...]          // ← Tách ra ngoài, đổi tên
 }
 ```
 
 ---
 
-## 📊 VariantLevel Logic
+## 📊 Classify Logic
 
-### Định nghĩa variantLevel:
+### Định nghĩa classify:
 
 - **0**: Không có variant (sản phẩm đơn giản)
 - **1**: Có 1 level variant (VD: chỉ có màu sắc)
 - **2**: Có 2 level variant (VD: màu sắc + kích thước)
 
-### Cách tính variantLevel:
+### Cách tính classify:
 
 ```typescript
-const calculateVariantLevel = (
+const calculateClassify = (
   classifications: ProductClassification[]
 ): number => {
   return classifications.length;
@@ -89,7 +90,7 @@ const calculateVariantLevel = (
     "height": 1,
     "length": 15,
     "width": 1,
-    "variantLevel": 0
+    "classify": 0
   },
   "productInformations": [
     {
@@ -97,7 +98,7 @@ const calculateVariantLevel = (
       "value": "Nhựa"
     }
   ],
-  "propertyValues": [],
+  "propertyValues": null,
   "variants": [
     {
       "variantCreateDto": {
@@ -105,7 +106,7 @@ const calculateVariantLevel = (
         "quantity": 100,
         "status": 1
       },
-      "code": []
+      "code": null
     }
   ],
   "imagesProduct": [
@@ -129,7 +130,7 @@ const calculateVariantLevel = (
     "height": 2,
     "length": 30,
     "width": 25,
-    "variantLevel": 1
+    "classify": 1
   },
   "productInformations": [
     {
@@ -192,7 +193,7 @@ const calculateVariantLevel = (
     "height": 2,
     "length": 35,
     "width": 30,
-    "variantLevel": 2
+    "classify": 2
   },
   "productInformations": [
     {
@@ -299,7 +300,7 @@ export interface ProductPayload {
   height: number;
   length: number;
   width: number;
-  variantLevel: number; // ← Thêm field mới
+  classify: number; // ← Thêm field mới (đổi tên từ variantLevel)
   // Bỏ images và productInformations
 }
 
@@ -307,10 +308,65 @@ export interface ProductPayload {
 export interface CreateProductPayload {
   product: ProductPayload;
   productInformations: ProductInformation[]; // ← Tách ra ngoài
-  propertyValues: PropertyValue[];
-  variants: ProductVariant[];
-  imagesProduct: ProductImage[]; // ← Đổi tên từ images
+  propertyValues: PropertyValue[] | null;    // ← Có thể null cho level 0
+  variants: ProductVariant[];                // ← code có thể null cho level 0
+  imagesProduct: ProductImage[];             // ← Đổi tên từ images
 }
+```
+
+### 2. Update Payload Building Logic
+
+```typescript
+// ✅ Thêm function tính classify
+const calculateClassify = (
+  classifications: ProductClassification[]
+): number => {
+  return classifications.length;
+};
+
+// ✅ Cập nhật buildPayload function
+const buildPayload = (data: FormData): CreateProductPayload => {
+  const product: ProductPayload = {
+    name: data.name,
+    description: data.description,
+    categoryChildId: data.categoryId,
+    weight: dimensions.weight,
+    length: dimensions.length,
+    width: dimensions.width,
+    height: dimensions.height,
+    classify: calculateClassify(selectedClassifications), // ← Thêm mới
+  };
+
+  return {
+    product,
+    productInformations: data.productInformations, // ← Tách ra ngoài
+    propertyValues: selectedClassifications.length === 0 
+      ? null 
+      : buildPropertyValues(selectedClassifications), // ← Có thể null
+    variants: buildVariants(data.variants, selectedClassifications),
+    imagesProduct: data.images.map((img, index) => ({ // ← Đổi tên
+      urlImage: img.url,
+      sortOrder: index + 1
+    }))
+  };
+};
+
+// ✅ Cập nhật buildVariants function
+const buildVariants = (
+  variants: VariantData[],
+  classifications: ProductClassification[]
+): ProductVariant[] => {
+  return variants.map(variant => ({
+    variantCreateDto: {
+      price: variant.price,
+      quantity: variant.quantity,
+      status: variant.status
+    },
+    code: classifications.length === 0 
+      ? null 
+      : variant.combinationCodes // ← Có thể null cho level 0
+  }));
+};
 ```
 
 ### 2. Update useProductCreation Hook
@@ -318,8 +374,8 @@ export interface CreateProductPayload {
 **File: `src/hooks/useProductCreation.ts`**
 
 ```typescript
-// ✅ Thêm function tính variantLevel
-const calculateVariantLevel = (
+// ✅ Thêm function tính classify
+const calculateClassify = (
   classifications: ProductClassification[]
 ): number => {
   return classifications.length;
@@ -338,7 +394,7 @@ const handleSubmitProduct = async () => {
     length: dimensions.length,
     width: dimensions.width,
     height: dimensions.height,
-    variantLevel: calculateVariantLevel(selectedClassifications), // ← Thêm mới
+    classify: calculateClassify(selectedClassifications), // ← Thêm mới
   };
 
   // Step 5: Build complete payload với structure mới
@@ -373,9 +429,9 @@ export const validateProductData = (data: {
 
   // Existing validations...
 
-  // ✅ Thêm validation cho variantLevel nếu cần
-  const variantLevel = data.selectedClassifications.length;
-  if (variantLevel > 2) {
+  // ✅ Thêm validation cho classify nếu cần
+  const classify = data.selectedClassifications.length;
+  if (classify > 2) {
     errors.push("Chỉ hỗ trợ tối đa 2 cấp phân loại");
   }
 
@@ -402,7 +458,7 @@ export const validateProductData = (data: {
 // ✅ Thêm vào BasicInfoSection hoặc ProductInfoSection
 <div className="mb-4">
   <label className="text-sm font-medium text-gray-700">
-    Cấp độ phân loại: {selectedClassifications.length}
+    Classify: {selectedClassifications.length}
   </label>
   <div className="text-xs text-gray-500 mt-1">
     {selectedClassifications.length === 0 && "Sản phẩm đơn giản"}
@@ -416,27 +472,39 @@ export const validateProductData = (data: {
 
 ## ✅ Testing Checklist
 
-### 1. Test Level 0 (No variants)
+### 1. Test Level 0 (Không có phân loại)
 
 - [ ] Tạo sản phẩm không có phân loại
-- [ ] Kiểm tra `variantLevel: 0`
-- [ ] Kiểm tra `variants` có 1 item với `code: []`
+- [ ] Kiểm tra `classify: 0`
+- [ ] Kiểm tra `propertyValues: null`
+- [ ] Kiểm tra `variants` có 1 item với `code: null`
+- [ ] Kiểm tra `productInformations` và `imagesProduct` tách ra ngoài
 
 ### 2. Test Level 1 (1 variant)
 
 - [ ] Tạo sản phẩm với 1 phân loại (VD: màu sắc)
-- [ ] Kiểm tra `variantLevel: 1`
+- [ ] Kiểm tra `classify: 1`
 - [ ] Kiểm tra `propertyValues` có đúng level 0
-- [ ] Kiểm tra `variants` có đúng code references
+- [ ] Kiểm tra `variants` có đúng code references `[0], [1], ...`
+- [ ] Kiểm tra images có đúng trong `propertyValues` và `imagesProduct`
 
 ### 3. Test Level 2 (2 variants)
 
 - [ ] Tạo sản phẩm với 2 phân loại (VD: màu sắc + size)
-- [ ] Kiểm tra `variantLevel: 2`
+- [ ] Kiểm tra `classify: 2`
 - [ ] Kiểm tra `propertyValues` có đúng level 0 và 1
-- [ ] Kiểm tra `variants` có đúng code combinations
+- [ ] Kiểm tra `variants` có đúng code combinations `[0,0], [0,1], [1,0], [1,1]`
+- [ ] Kiểm tra tất cả combinations được tạo đúng
 
-### 4. Test Payload Structure
+### 4. Test Edge Cases
+
+- [ ] Test với `propertyValues` rỗng → phải là `null`
+- [ ] Test với variants không có classification → `code` phải là `null`
+- [ ] Test validation khi `classify > 2`
+- [ ] Test với images trong `propertyValues` (level 0 có thể có image)
+- [ ] Test với `urlImage: null` trong `propertyValues` (level 1 thường không có image)
+
+### 5. Test Payload Structure
 
 - [ ] Kiểm tra `productInformations` ở root level
 - [ ] Kiểm tra `imagesProduct` ở root level

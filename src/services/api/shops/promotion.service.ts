@@ -4,7 +4,8 @@ import type {
     PromotionListFilters,
     CreatePromotionPayload,
     UpdatePromotionPayload,
-    Promotion,
+    AddPromotionRulesPayload,
+    AddPromotionGiftsPayload,
 } from "@/types/shops/promotion.type";
 
 const buildSortParam = (filters: PromotionListFilters): string => {
@@ -48,11 +49,6 @@ export const getPromotions = async (
     return response.data;
 };
 
-export const getPromotionById = async (id: string): Promise<Promotion> => {
-    const response = await axiosJava.get(`/shop/promotion/${id}`);
-    return response.data;
-};
-
 export const createPromotion = async (payload: CreatePromotionPayload) => {
     const response = await axiosJava.post("/shop/promotion", payload);
     return response.data;
@@ -71,3 +67,38 @@ export const deletePromotion = async (id: string) => {
     return response.data;
 };
 
+export const addPromotionRules = async (
+    id: string,
+    payload: AddPromotionRulesPayload[]
+) => {
+    const response = await axiosJava.post(
+        `/shop/promotion/${id}/rules`,
+        payload
+    );
+    return response.data;
+};
+
+export const addPromotionGifts = async (
+    id: string,
+    payload: AddPromotionGiftsPayload[]
+) => {
+    const response = await axiosJava.post(
+        `/shop/promotion/${id}/gifts`,
+        payload
+    );
+    return response.data;
+};
+
+export const deletePromotionRules = async (ruleIds: string[]) => {
+    const response = await axiosJava.delete("/shop/promotion/rules", {
+        data: ruleIds,
+    });
+    return response.data;
+};
+
+export const deletePromotionGifts = async (giftIds: string[]) => {
+    const response = await axiosJava.delete("/shop/promotion/gifts", {
+        data: giftIds,
+    });
+    return response.data;
+};

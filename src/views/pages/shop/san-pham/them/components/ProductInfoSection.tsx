@@ -11,16 +11,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Plus, X, Upload, Camera, Search, Loader2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Plus, X, Camera, Search } from "lucide-react";
 import {
-  formatCurrency,
   formatInputCurrency,
   parseInputCurrency,
 } from "@/lib/utils";
 import { useProductProperties } from "@/hooks/useProductProperties";
 import {
-  ProductProperty,
   ProductClassification,
 } from "@/types/shops/product.type";
 import { CategoryChild } from "@/types/shops/category.type";
@@ -38,6 +36,10 @@ interface ProductInfoSectionProps {
   setVariants: (variants: any[]) => void;
   variantImages: { [key: string]: VariantImageWithUrl };
   setVariantImages: (images: { [key: string]: VariantImageWithUrl }) => void;
+  simpleProductPrice: number;
+  setSimpleProductPrice: (price: number) => void;
+  simpleProductStock: number;
+  setSimpleProductStock: (stock: number) => void;
 }
 
 export function ProductInfoSection({
@@ -48,6 +50,10 @@ export function ProductInfoSection({
   setVariants,
   variantImages,
   setVariantImages,
+  simpleProductPrice,
+  setSimpleProductPrice,
+  simpleProductStock,
+  setSimpleProductStock,
 }: ProductInfoSectionProps) {
   const { data: properties = [], isLoading: propertiesLoading } =
     useProductProperties();
@@ -159,6 +165,7 @@ export function ProductInfoSection({
       sku: "",
       gtin: "",
       image: null,
+      status: 1,
     }));
 
     setVariants(newVariants);
@@ -434,6 +441,61 @@ export function ProductInfoSection({
         )}
       </div>
 
+      {/* Level 0: Simple Product Price & Stock */}
+      {selectedClassifications.length === 0 && (
+        <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-6">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Thông tin bán hàng
+            </h3>
+            <p className="text-sm text-gray-500 mb-6">
+              Sản phẩm không có phân loại. Vui lòng nhập giá và số lượng.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">
+                <span className="text-red-500">* </span>
+                Giá sản phẩm
+              </Label>
+              <div className="flex items-center space-x-2">
+                <span className="text-gray-500 text-sm">₫</span>
+                <Input
+                  type="text"
+                  placeholder="Nhập giá sản phẩm"
+                  value={
+                    simpleProductPrice
+                      ? formatInputCurrency(simpleProductPrice)
+                      : ""
+                  }
+                  onChange={(e) => {
+                    const rawValue = parseInputCurrency(e.target.value);
+                    setSimpleProductPrice(rawValue);
+                  }}
+                  className="flex-1"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">
+                <span className="text-red-500">* </span>
+                Số lượng
+              </Label>
+              <Input
+                type="number"
+                placeholder="Nhập số lượng"
+                value={simpleProductStock || ""}
+                onChange={(e) => setSimpleProductStock(Number(e.target.value))}
+                min={0}
+                className="flex-1"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Variants Table */}
       {variants.length > 0 && (
         <div className="space-y-6">
@@ -503,7 +565,6 @@ export function ProductInfoSection({
                     </th>
                   )}
 
-                  {/* Second classification column - only show if there are 2 classifications */}
                   {selectedClassifications.length === 2 && (
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
                       <div className="flex items-center space-x-2">
@@ -546,6 +607,9 @@ export function ProductInfoSection({
                   >
                     SKU phân loại
                   </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                    Hoạt động
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -563,9 +627,7 @@ export function ProductInfoSection({
                     ([colorGroup, colorVariants]) =>
                       colorVariants.map((variant, variantIndex) => (
                         <tr key={variant.id} className=" hover:bg-gray-50">
-                          {/* First classification column */}
                           {selectedClassifications.length === 2 ? (
-                            // When 2 classifications: show only for first row of each group with rowSpan
                             variantIndex === 0 && (
                               <td
                                 rowSpan={colorVariants.length}
@@ -779,6 +841,16 @@ export function ProductInfoSection({
                                 updateVariant(variant.id, "sku", e.target.value)
                               }
                               className="w-32"
+                            />
+                          </td>
+
+                          {/* Status column */}
+                          <td className="px-4 py-3">
+                            <Switch
+                              checked={variant.status === 1}
+                              onCheckedChange={(checked) =>
+                                updateVariant(variant.id, "status", checked ? 1 : 0)
+                              }
                             />
                           </td>
                         </tr>

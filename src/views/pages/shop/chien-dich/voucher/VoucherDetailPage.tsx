@@ -179,6 +179,7 @@ export default function VoucherDetailPage({
               </p>
             </div>
             {voucher.type === VoucherType.PERCENTAGE &&
+              voucher.maxDiscountAmount &&
               voucher.maxDiscountAmount > 0 && (
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Giảm tối đa</p>
@@ -190,7 +191,7 @@ export default function VoucherDetailPage({
             <div>
               <p className="text-sm text-gray-500 mb-1">Đơn hàng tối thiểu</p>
               <p className="text-xl font-semibold">
-                {voucher.minimumOrderValue > 0
+                {voucher.minimumOrderValue && voucher.minimumOrderValue > 0
                   ? formatPrice(voucher.minimumOrderValue)
                   : "Không yêu cầu"}
               </p>
@@ -213,26 +214,30 @@ export default function VoucherDetailPage({
               <p className="text-sm text-gray-500 mb-1">Tổng số lượng</p>
               <p className="text-2xl font-bold">{voucher.quantity}</p>
             </div>
-            {!_.isNil(voucher.usedCount) && (
+            {!_.isNil(voucher.quantityUsed) && (
               <div>
                 <p className="text-sm text-gray-500 mb-1">Đã sử dụng</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {voucher.usedCount}
+                  {voucher.quantityUsed}
                 </p>
               </div>
             )}
-            {!_.isNil(voucher.usedCount) && (
+            {!_.isNil(voucher.quantityUsed) && (
               <div>
                 <p className="text-sm text-gray-500 mb-1">Còn lại</p>
                 <p className="text-2xl font-bold text-orange-600">
-                  {voucher.quantity - voucher.usedCount}
+                  {voucher.quantity - voucher.quantityUsed}
                 </p>
               </div>
             )}
-            <div>
-              <p className="text-sm text-gray-500 mb-1">Giới hạn/người dùng</p>
-              <p className="text-xl font-semibold">{voucher.limitForUser}</p>
-            </div>
+            {voucher.limitForUser && (
+              <div>
+                <p className="text-sm text-gray-500 mb-1">
+                  Giới hạn/người dùng
+                </p>
+                <p className="text-xl font-semibold">{voucher.limitForUser}</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -260,7 +265,7 @@ export default function VoucherDetailPage({
       </Card>
 
       {/* Additional Info */}
-      {(!_.isNil(voucher.createdAt) || !_.isNil(voucher.updatedAt)) && (
+      {/* {(!_.isNil(voucher.createdAt) || !_.isNil(voucher.updatedAt)) && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -285,8 +290,7 @@ export default function VoucherDetailPage({
             </div>
           </CardContent>
         </Card>
-      )}
+      )} */}
     </div>
   );
 }
-

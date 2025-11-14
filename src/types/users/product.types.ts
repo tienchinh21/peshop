@@ -10,6 +10,7 @@ export interface Product {
   shopId?: string;
   reviewCount: number;
   reviewPoint: number;
+  hasPromotion: boolean;
 }
 
 // Product Detail Types (for Quick View and Detail Page)
@@ -88,4 +89,61 @@ export interface ProductFilters {
   minPrice?: number;
   maxPrice?: number;
   reviewPoint?: number;
+}
+
+export interface PromotionProduct {
+  quantity: number;
+  id: string;
+  name: string;
+  image: string;
+  reviewCount: number;
+  reviewPoint: number;
+  price: number;
+  boughtCount: number;
+  addressShop: string;
+  slug: string;
+  shopId: string;
+  shopName: string;
+  hasPromotion: boolean | null;
+}
+
+export interface PromotionGiftProduct {
+  id: string;
+  name: string;
+  image: string;
+  reviewCount: number;
+  reviewPoint: number;
+  price: number;
+  boughtCount: number;
+  addressShop: string;
+  slug: string;
+  shopId: string;
+  shopName: string;
+  hasPromotion: boolean | null;
+}
+
+export interface PromotionGift {
+  id: string;
+  giftQuantity: number;
+  product: PromotionGiftProduct;
+}
+
+export interface ProductPromotion {
+  promotionId: string;
+  promotionName: string;
+  products: PromotionProduct[];
+  promotionGifts: PromotionGift;
+}
+
+export interface ProductPromotionsResponse {
+  error: string | null;
+  data: ProductPromotion[];
+}
+
+export interface OrderPromotion {
+  promotionId: string;
+  promotionName: string;
+  products: PromotionProduct[];
+  promotionGifts: PromotionGift;
+  shopId: string;
 }

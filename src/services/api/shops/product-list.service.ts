@@ -16,19 +16,24 @@ const buildFilterExpression = (filters: ProductListFilters): string => {
         expressions.push(`name ~~ '*${filters.search}*'`);
     }
 
-    // Filter by category
     if (filters.categoryId) {
         expressions.push(`category.id : '${filters.categoryId}'`);
     }
 
-    // Filter by category child
     if (filters.categoryChildId) {
         expressions.push(`categoryChild.id : '${filters.categoryChildId}'`);
     }
 
-    // Filter by status
     if (filters.status !== undefined && filters.status !== null) {
         expressions.push(`status : ${filters.status}`);
+    }
+
+    if (filters.classify !== undefined) {
+        if (filters.classify === null) {
+            expressions.push(`classify : null`);
+        } else {
+            expressions.push(`classify : ${filters.classify}`);
+        }
     }
 
     // Combine all expressions with 'and'

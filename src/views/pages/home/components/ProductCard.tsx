@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Eye, ShoppingCart } from "lucide-react";
+import { Eye, ShoppingCart, Gift } from "lucide-react";
 import { usePrefetchProductWithDebounce } from "@/hooks/user/useProducts";
 import { useAddToCart } from "@/hooks/user/useCart";
 import type { Product } from "@/types/users/product.types";
@@ -49,7 +49,10 @@ export default function ProductCard({
       onMouseLeave={onMouseLeave}
     >
       <Link
-        href={`/san-pham/${product.slug}`}
+        href={{
+          pathname: `/san-pham/${product.slug}`,
+          query: { hasPromotion: product.hasPromotion },
+        }}
         className="relative aspect-square overflow-hidden block"
       >
         <Image
@@ -70,10 +73,23 @@ export default function ProductCard({
             </span>
           </div>
         )}
+
+        {product.hasPromotion && (
+          <div className="absolute top-2 right-2">
+            <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center shadow-lg">
+              <Gift className="w-4 h-4 text-white" />
+            </div>
+          </div>
+        )}
       </Link>
 
       <div className="p-3 flex-1 flex flex-col">
-        <Link href={`/san-pham/${product.slug}`}>
+        <Link
+          href={{
+            pathname: `/san-pham/${product.slug}`,
+            query: { hasPromotion: product.hasPromotion },
+          }}
+        >
           <h3
             className="text-sm font-medium text-gray-900 mb-2 leading-tight h-10 overflow-hidden text-ellipsis"
             style={{

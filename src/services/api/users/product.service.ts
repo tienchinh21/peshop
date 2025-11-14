@@ -6,11 +6,11 @@ import type {
     Product,
     ProductDetail,
     ProductDetailApiResponse,
+    ProductPromotion,
+    ProductPromotionsResponse,
+    OrderPromotion,
 } from "@/types/users/product.types";
 
-/**
- * Fetch products with pagination and filters (for general listing)
- */
 export const getProducts = async (
     filters?: ProductFilters,
 ): Promise<ProductsApiResponse> => {
@@ -38,9 +38,7 @@ export const getProducts = async (
     return response.data;
 };
 
-/**
- * Search products with keyword and filters
- */
+
 export const searchProducts = async (
     filters?: ProductFilters,
 ): Promise<ProductsApiResponse> => {
@@ -60,18 +58,14 @@ export const searchProducts = async (
     return response.data;
 };
 
-/**
- * Fetch single product by slug (basic info)
- */
+
 export const getProductBySlug = async (slug: string): Promise<Product> => {
     const url = API_ENDPOINTS.PRODUCTS.DETAIL.replace(":slug", slug);
     const response = await axiosDotnet.get<Product>(url);
     return response.data;
 };
 
-/**
- * Fetch full product details with variants and images (for Quick View)
- */
+
 export const getProductDetail = async (
     slug: string,
 ): Promise<ProductDetail> => {
@@ -83,9 +77,7 @@ export const getProductDetail = async (
     return response.data.data;
 };
 
-/**
- * Fetch similar products by category or shop
- */
+
 export const getSimilarProducts = async (
     productId: string,
     options?: {
@@ -104,4 +96,26 @@ export const getSimilarProducts = async (
     const url = `/Products/similar?${params.toString()}`;
     const response = await axiosDotnet.get<ProductsApiResponse>(url);
     return response.data.data.products;
+};
+
+export const getPromotionsByProduct = async (
+    productId: string,
+): Promise<ProductPromotion[]> => {
+    const params = new URLSearchParams();
+    params.append("productId", productId);
+
+    const url = `${API_ENDPOINTS.PROMOTION.GET_BY_PRODUCT}?${params.toString()}`;
+    const response = await axiosDotnet.get<ProductPromotionsResponse>(url);
+    return response.data.data;
+};
+
+export const checkPromotionsInOrder = async (
+    orderId: string,
+): Promise<OrderPromotion[]> => {
+    const params = new URLSearchParams();
+    params.append("orderId", orderId);
+
+    const url = `${API_ENDPOINTS.PROMOTION.CHECK_IN_ORDER}?${params.toString()}`;
+    const response = await axiosDotnet.get<OrderPromotion[]>(url);
+    return response.data;
 };

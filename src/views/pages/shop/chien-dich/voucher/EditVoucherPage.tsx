@@ -9,9 +9,13 @@ import {
   useVoucherDetail,
   useUpdateVoucher,
 } from "@/hooks/shop/useShopVouchers";
-import type { CreateVoucherPayload } from "@/types/shops/voucher.type";
-import { VoucherType } from "@/lib/utils/enums/eVouchers";
+import type {
+  CreateVoucherPayload,
+  UpdateVoucherPayload,
+} from "@/types/shops/voucher.type";
+import { VoucherType, VoucherStatus } from "@/lib/utils/enums/eVouchers";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 import _ from "lodash";
 
 interface EditVoucherPageProps {
@@ -31,14 +35,40 @@ export default function EditVoucherPage({ voucherId }: EditVoucherPageProps) {
 
   const handleSubmit = async (formData: CreateVoucherPayload) => {
     try {
-      // Nếu voucher là giảm giá tiền trực tiếp, set maxDiscountAmount = null
-      const payload = {
-        ...formData,
-        maxDiscountAmount:
-          formData.type === VoucherType.FIXED_AMOUNT
-            ? (null as any)
-            : formData.maxDiscountAmount,
-      };
+      // Kiểm tra status của voucher
+      const voucherStatus = voucher?.status;
+
+      // Không thể update voucher có status = ENDED/EXPIRED (2)
+      if (voucherStatus === VoucherStatus.EXPIRED) {
+        toast.error("Không thể cập nhật voucher đã hết hạn");
+        return;
+      }
+
+      // Tạo payload dựa trên status
+      let payload: UpdateVoucherPayload = {};
+
+      if (voucherStatus === VoucherStatus.INACTIVE) {
+        // Nếu status = INACTIVE (0): có thể update tất cả field
+        payload = {
+          name: formData.name,
+          discountValue: formData.discountValue,
+          maxDiscountAmount:
+            formData.type === VoucherType.FIXED_AMOUNT
+              ? undefined
+              : formData.maxDiscountAmount,
+          minimumOrderValue: formData.minimumOrderValue,
+          quantity: formData.quantity,
+          startTime: new Date(formData.startTime).toISOString(),
+          endTime: new Date(formData.endTime).toISOString(),
+        };
+      } else if (voucherStatus === VoucherStatus.ACTIVE) {
+        // Nếu status = ACTIVE (1): chỉ có thể update name và quantity
+        payload = {
+          name: formData.name,
+          quantity: formData.quantity,
+        };
+      }
+
       await updateMutation.mutateAsync({
         id: voucherId,
         payload,

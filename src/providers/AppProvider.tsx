@@ -9,11 +9,6 @@ interface AppProviderProps {
   children: React.ReactNode;
 }
 
-/**
- * AppProvider - Combined provider for the entire application
- * Wraps all providers in the correct order
- * Order: Redux → QueryProvider → LayoutProvider
- */
 export function AppProvider({ children }: AppProviderProps) {
   return (
     <ReduxProvider>

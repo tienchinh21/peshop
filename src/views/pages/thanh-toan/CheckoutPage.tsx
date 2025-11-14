@@ -24,6 +24,7 @@ import { AddressSection } from "./components/AddressSection";
 import { OrderItemsSection } from "./components/OrderItemsSection";
 import { ShippingFeeSection } from "./components/ShippingFeeSection";
 import { VoucherSection } from "./components/VoucherSection";
+import { OrderPromotionsSection } from "./components/OrderPromotionsSection";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import type {
@@ -276,6 +277,7 @@ export default function CheckoutPage() {
     _.sumBy(orderData?.itemShops || [], (shop: any) => shop.voucherValue || 0);
   const finalTotal = orderData?.amountTotal || 0;
 
+
   const isCalculating =
     createVirtualOrderMutation.isPending ||
     calculateOrderMutation.isPending ||
@@ -334,6 +336,8 @@ export default function CheckoutPage() {
               formatPrice={formatPrice}
             />
           )}
+
+          <OrderPromotionsSection orderId={orderId} />
 
           <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             <div className="p-6">

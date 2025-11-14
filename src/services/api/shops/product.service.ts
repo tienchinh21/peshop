@@ -3,6 +3,7 @@ import type {
   Product,
   ProductPayload,
   CreateProductPayload,
+  UpdateProductPayload,
   ProductResponse,
   ProductFilters,
   ProductVariant,
@@ -71,7 +72,11 @@ export const getProducts = async (
   if (filters) {
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        params.append(key, value.toString());
+        if (key === "classify" && value === null) {
+          params.append(key, "null");
+        } else {
+          params.append(key, value.toString());
+        }
       }
     });
   }
@@ -88,6 +93,17 @@ export const updateProduct = async (
 ): Promise<ProductResponse> => {
   const response = await axiosJava.put<ProductResponse>(
     `/products/${id}`,
+    data
+  );
+  return response.data;
+};
+
+export const updateProductFull = async (
+  id: string,
+  data: UpdateProductPayload
+): Promise<ProductResponse> => {
+  const response = await axiosJava.put<ProductResponse>(
+    `/shop/product/${id}`,
     data
   );
   return response.data;
@@ -225,25 +241,18 @@ export const createProductWithImages = async (
   productData: CreateProductPayload,
   imageFiles: File[]
 ): Promise<ProductResponse> => {
-  // Upload all images first
   const imageUrls = await uploadImages(imageFiles);
 
-  // Create image objects with URLs and sort orders
   const images = imageUrls.map((url, index) => ({
     urlImage: url,
     sortOrder: index,
   }));
 
-  // Update product data with image URLs
   const updatedProductData: CreateProductPayload = {
     ...productData,
-    product: {
-      ...productData.product,
-      images,
-    },
+    imagesProduct: images,
   };
 
-  // Create the product
   return createProduct(updatedProductData);
 };
 
@@ -261,17 +270,17 @@ export const updateProductWithImages = async (
 ): Promise<ProductResponse> => {
   let updatedData = { ...productData };
 
-  // If new images are provided, upload them
   if (newImageFiles && newImageFiles.length > 0) {
     const imageUrls = await uploadImages(newImageFiles);
     const newImages = imageUrls.map((url, index) => ({
       urlImage: url,
+      // @ts-ignore
       sortOrder: (productData.images?.length || 0) + index,
     }));
 
     updatedData = {
       ...updatedData,
-      images: [...(productData.images || []), ...newImages],
+        images: [...(productData.images || []), ...newImages],
     };
   }
 

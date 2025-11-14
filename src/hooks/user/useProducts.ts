@@ -9,6 +9,8 @@ import {
   getProductBySlug,
   searchProducts,
   getProductDetail,
+  getPromotionsByProduct,
+  checkPromotionsInOrder,
 } from "@/services/api/users/product.service";
 import type {
   ProductFilters,
@@ -29,6 +31,10 @@ export const productKeys = {
     [...productKeys.details(), "full", slug] as const,
   infinite: (filters: ProductFilters) =>
     [...productKeys.all, "infinite", filters] as const,
+  promotions: (productId: string) =>
+    [...productKeys.all, "promotions", productId] as const,
+  orderPromotions: (orderId: string) =>
+    [...productKeys.all, "order-promotions", orderId] as const,
 };
 
 /**
@@ -178,4 +184,27 @@ export const useInvalidateProducts = () => {
   return () => {
     queryClient.invalidateQueries({ queryKey: productKeys.all });
   };
+};
+
+export const useProductPromotions = (
+  productId: string,
+  hasPromotion: boolean
+) => {
+  return useQuery({
+    queryKey: productKeys.promotions(productId),
+    queryFn: () => getPromotionsByProduct(productId),
+    enabled: !!productId && hasPromotion,
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+  });
+};
+
+export const useOrderPromotions = (orderId: string | null) => {
+  return useQuery({
+    queryKey: productKeys.orderPromotions(orderId || ""),
+    queryFn: () => checkPromotionsInOrder(orderId!),
+    enabled: !!orderId,
+    staleTime: 5 * 60 * 1000,
+    retry: 2,
+  });
 };

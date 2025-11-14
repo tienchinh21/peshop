@@ -52,6 +52,12 @@ interface UseProductCreationReturn {
   variantImages: { [key: string]: VariantImageWithUrl };
   setVariantImages: (images: { [key: string]: VariantImageWithUrl }) => void;
 
+  // Level 0 (Simple Product) state
+  simpleProductPrice: number;
+  setSimpleProductPrice: (price: number) => void;
+  simpleProductStock: number;
+  setSimpleProductStock: (stock: number) => void;
+
   // Other Info state
   weight: number;
   setWeight: (weight: number) => void;
@@ -76,6 +82,7 @@ export interface UIVariant {
   price: number;
   stock: number;
   image: string | null;
+  status?: number;
 }
 
 interface AttributeValue {
@@ -114,6 +121,10 @@ export const useProductCreation = (): UseProductCreationReturn => {
   const [variantImages, setVariantImages] = useState<{
     [key: string]: VariantImageWithUrl;
   }>({});
+
+  // Level 0 (Simple Product) state
+  const [simpleProductPrice, setSimpleProductPrice] = useState(0);
+  const [simpleProductStock, setSimpleProductStock] = useState(0);
 
   // Other Info state
   const [weight, setWeight] = useState(0);
@@ -176,9 +187,7 @@ export const useProductCreation = (): UseProductCreationReturn => {
     }
   };
 
-  // Product submission handler - Images are already uploaded as URLs
   const handleSubmitProduct = async () => {
-    // Validate product data
     if (!productName.trim()) {
       toast.error("Vui lòng nhập tên sản phẩm");
       return;
@@ -189,35 +198,74 @@ export const useProductCreation = (): UseProductCreationReturn => {
       return;
     }
 
+    const imagesWithoutUrl = productImages.filter((img) => img.url === null);
+    if (imagesWithoutUrl.length > 0) {
+      toast.error("Vui lòng đợi tải ảnh hoàn tất");
+      return;
+    }
+
     if (!selectedCategory) {
       toast.error("Vui lòng chọn ngành hàng");
       return;
     }
 
-    if (variants.length === 0) {
-      toast.error("Vui lòng thêm ít nhất 1 phân loại sản phẩm");
+    const isLevel0 = selectedClassifications.length === 0;
+
+    if (isLevel0) {
+      if (simpleProductPrice <= 0) {
+        toast.error("Vui lòng nhập giá sản phẩm");
+        return;
+      }
+      if (simpleProductStock <= 0) {
+        toast.error("Vui lòng nhập số lượng sản phẩm");
+        return;
+      }
+    } else {
+      if (variants.length === 0) {
+        toast.error("Vui lòng thêm ít nhất 1 phân loại sản phẩm");
+        return;
+      }
+    }
+
+    if (selectedClassifications.length > 2) {
+      toast.error("Chỉ hỗ trợ tối đa 2 cấp phân loại");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // Step 1: Extract URLs from variantImages for API
-      const variantImageUrls: { [key: string]: string } = {};
-      Object.keys(variantImages).forEach((key) => {
-        const imageData = variantImages[key];
-        if (imageData.url) {
-          variantImageUrls[key] = imageData.url;
-        }
-      });
+      let propertyValues: any = null;
+      let apiVariants: any[] = [];
 
-      // Step 2: Transform variants to new API format (generates propertyValueIds)
-      const { propertyValues, variants: apiVariants } = transformVariantsForAPI(
-        variants,
-        selectedClassifications,
-        variantImageUrls
-      );
+      if (isLevel0) {
+        apiVariants = [
+          {
+            variantCreateDto: {
+              price: simpleProductPrice,
+              quantity: simpleProductStock,
+              status: 1,
+            },
+            code: null,
+          },
+        ];
+      } else {
+        const variantImageUrls: { [key: string]: string } = {};
+        Object.keys(variantImages).forEach((key) => {
+          const imageData = variantImages[key];
+          if (imageData.url) {
+            variantImageUrls[key] = imageData.url;
+          }
+        });
 
-      // Step 3: Build product images with sortOrder (using URLs)
+        const result = transformVariantsForAPI(
+          variants,
+          selectedClassifications,
+          variantImageUrls
+        );
+        propertyValues = result.propertyValues;
+        apiVariants = result.variants;
+      }
+
       const productImagesWithSort = productImages
         .filter((img) => img.url !== null)
         .map((img, index) => ({
@@ -225,33 +273,34 @@ export const useProductCreation = (): UseProductCreationReturn => {
           sortOrder: index,
         }));
 
-      // Step 4: Build product payload
+      console.log("Product images for submission:", productImagesWithSort);
+
       const productPayload: ProductPayload = {
         name: productName,
         description: productDescription,
         categoryChildId: selectedCategory.id,
-        images: productImagesWithSort,
-        productInformations: productInformations.filter(
-          (info) => info.value.trim() !== ""
-        ),
         weight,
         length: dimensions.length,
         width: dimensions.width,
         height: dimensions.height,
+        classify: selectedClassifications.length,
       };
 
-      // Step 5: Build complete payload with new structure
       const createPayload: CreateProductPayload = {
         product: productPayload,
-        propertyValues: propertyValues, // All unique property values with UUIDs
-        variants: apiVariants, // Variants reference propertyValueIds
+        productInformations: productInformations.filter(
+          (info) => info.value.trim() !== ""
+        ),
+        propertyValues: propertyValues,
+        variants: apiVariants,
+        imagesProduct: productImagesWithSort,
       };
 
-      // Step 6: Submit to API
+      console.log("Complete create product payload:", JSON.stringify(createPayload, null, 2));
+
       toast.info("Đang tạo sản phẩm...");
       const response = await createProduct(createPayload);
 
-      // Success
       toast.success("Tạo sản phẩm thành công!", {
         description: `Sản phẩm "${productName}" đã được tạo`,
       });
@@ -298,6 +347,12 @@ export const useProductCreation = (): UseProductCreationReturn => {
     setVariants,
     variantImages,
     setVariantImages,
+
+    // Level 0 (Simple Product) state
+    simpleProductPrice,
+    setSimpleProductPrice,
+    simpleProductStock,
+    setSimpleProductStock,
 
     // Other Info state
     weight,

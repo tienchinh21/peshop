@@ -1,15 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getPromotions,
-  getPromotionById,
   createPromotion,
   updatePromotion,
   deletePromotion,
+  addPromotionRules,
+  addPromotionGifts,
+  deletePromotionRules,
+  deletePromotionGifts,
 } from "@/services/api/shops/promotion.service";
 import type {
   PromotionListFilters,
   CreatePromotionPayload,
   UpdatePromotionPayload,
+  AddPromotionRulesPayload,
+  AddPromotionGiftsPayload,
 } from "@/types/shops/promotion.type";
 import { toast } from "sonner";
 import _ from "lodash";
@@ -35,15 +40,7 @@ export const useShopPromotions = (filters?: PromotionListFilters) => {
   });
 };
 
-export const usePromotionDetail = (id: string) => {
-  return useQuery({
-    queryKey: shopPromotionKeys.detail(id),
-    queryFn: () => getPromotionById(id),
-    enabled: !!id,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-  });
-};
+
 
 export const useCreatePromotion = () => {
   const queryClient = useQueryClient();
@@ -107,3 +104,84 @@ export const useDeletePromotion = () => {
   });
 };
 
+export const useAddPromotionRules = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: AddPromotionRulesPayload[] }) =>
+      addPromotionRules(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: shopPromotionKeys.lists() });
+      toast.success("Thêm điều kiện thành công");
+    },
+    onError: (error: any) => {
+      const errorMessage = _.get(
+        error,
+        "response.data.message",
+        "Thêm điều kiện thất bại"
+      );
+      toast.error(errorMessage);
+    },
+  });
+};
+
+export const useAddPromotionGifts = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: AddPromotionGiftsPayload[] }) =>
+      addPromotionGifts(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: shopPromotionKeys.lists() });
+      toast.success("Thêm quà tặng thành công");
+    },
+    onError: (error: any) => {
+      const errorMessage = _.get(
+        error,
+        "response.data.message",
+        "Thêm quà tặng thất bại"
+      );
+      toast.error(errorMessage);
+    },
+  });
+};
+
+export const useDeletePromotionRules = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (ruleIds: string[]) => deletePromotionRules(ruleIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: shopPromotionKeys.lists() });
+      toast.success("Xóa điều kiện thành công");
+    },
+    onError: (error: any) => {
+      const errorMessage = _.get(
+        error,
+        "response.data.message",
+        "Xóa điều kiện thất bại"
+      );
+      toast.error(errorMessage);
+    },
+  });
+};
+
+export const useDeletePromotionGifts = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (giftIds: string[]) => deletePromotionGifts(giftIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: shopPromotionKeys.lists() });
+      toast.success("Xóa quà tặng thành công");
+    },
+    onError: (error: any) => {
+      const errorMessage = _.get(
+        error,
+        "response.data.message",
+        "Xóa quà tặng thất bại"
+      );
+      toast.error(errorMessage);
+    },
+  });
+};
