@@ -8,6 +8,10 @@ export interface OrderProductItemPayload {
   shopId: string;
 }
 
+export interface CreateOrderPayload {
+  orderId: string;
+  paymentMethod: string;
+};
 export type CreateVirtualOrderPayload = {
   userAddressId: string;
   items: OrderProductItemPayload[];
@@ -59,6 +63,23 @@ export interface VirtualOrderResponse {
     status: boolean;
     message: string;
   };
+}
+
+export interface CalculatedOrderData {
+  orderTotal: number;
+  feeShippingTotal: number;
+  voucherSystemValue: number;
+  amountTotal: number;
+  itemShops: Array<{
+    shopId: string;
+    voucherValue: number;
+  }>;
+}
+
+export interface ApplyVoucherPayload {
+  voucherId: string;
+  orderId: string;
+  shopId?: string;
 }
 
 export interface ShippingFeeProduct {

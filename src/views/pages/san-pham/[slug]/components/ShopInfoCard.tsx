@@ -21,7 +21,9 @@ export const ShopInfoCard = ({ product }: ShopInfoCardProps) => {
               <Store className="h-6 w-6 text-primary" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900">{product.shopName}</h3>
+              <h3 className="font-semibold text-gray-900">
+                {product.shopName}
+              </h3>
               <div className="flex items-center gap-1 text-sm text-gray-600">
                 <Star className="h-3 w-3 fill-orange-500 text-orange-500" />
                 <span>4.8</span>
@@ -55,20 +57,13 @@ export const ShopInfoCard = ({ product }: ShopInfoCardProps) => {
 
           {/* Action Buttons */}
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              className="flex-1"
-              asChild
-            >
-              <Link href={`/shop/${product.shopId}`}>
+            <Button variant="outline" className="flex-1" asChild>
+              <Link href={`/shop-view/${product.shopId}`}>
                 <Store className="mr-2 h-4 w-4" />
                 Xem shop
               </Link>
             </Button>
-            <Button
-              variant="outline"
-              className="flex-1"
-            >
+            <Button variant="outline" className="flex-1">
               <UserPlus className="mr-2 h-4 w-4" />
               Theo dõi
             </Button>
@@ -83,4 +78,3 @@ export const ShopInfoCard = ({ product }: ShopInfoCardProps) => {
     </Card>
   );
 };
-

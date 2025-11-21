@@ -11,3 +11,13 @@ export { VoucherTableRow } from "./voucherTable/VoucherTableRow";
 export { VoucherTableLoading } from "./voucherTable/VoucherTableLoading";
 export { VoucherTableEmpty } from "./voucherTable/VoucherTableEmpty";
 export { VoucherTablePagination } from "./voucherTable/VoucherTablePagination";
+
+
+export {PromotionTable} from "./promotionTable/PromotionTable"
+export {PromotionTableHeader} from "./promotionTable/PromotionTableHeader"
+export {PromotionTableRow} from "./promotionTable/PromotionTableRow"
+export {PromotionTableLoading} from "./promotionTable/PromotionTableLoading"
+export {PromotionTableEmpty} from "./promotionTable/PromotionTableEmpty"
+export {PromotionTablePagination} from "./promotionTable/PromotionTablePagination"
+
+

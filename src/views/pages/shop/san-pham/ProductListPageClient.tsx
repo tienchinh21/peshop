@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback, lazy, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ProductTable } from "@/components/shop/table";
-import { ProductListFilter } from "@/components/shop/ProductListFilter";
 import {
   useShopProducts,
   useDeleteProduct,
@@ -16,17 +15,17 @@ import type {
 } from "@/types/shops/product-list.type";
 import { PlusCircle, Package } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import _ from "lodash";
 
-export default function ProductListPage() {
+const ProductListFilter = lazy(() =>
+  import("@/components/shop/ProductListFilter").then((m) => ({
+    default: m.ProductListFilter,
+  }))
+);
+
+const DeleteConfirmDialog = lazy(() => import("./components/DeleteConfirmDialog"));
+
+export default function ProductListPageClient() {
   const router = useRouter();
 
   const [filters, setFilters] = useState<ProductListFilters>({
@@ -43,57 +42,40 @@ export default function ProductListPage() {
   });
 
   const { data, isLoading, error } = useShopProducts(filters);
-
   const deleteMutation = useDeleteProduct();
 
   const products = _.get(data, "content.response", []) as ShopProduct[];
   const pagination = _.get(data, "content.info");
   const totalProducts = _.get(pagination, "total", 0);
 
-  // Debug: Log when data changes
-  React.useEffect(() => {
-    console.log("Filters changed:", filters);
-    console.log("Data:", data);
-    console.log("Pagination:", pagination);
-  }, [filters, data]);
-
-  // Handlers
-  const handleFiltersChange = (newFilters: ProductListFilters) => {
+  const handleFiltersChange = useCallback((newFilters: ProductListFilters) => {
     setFilters(newFilters);
-  };
+  }, []);
 
-  const handleResetFilters = () => {
-    setFilters({
+  const handleResetFilters = useCallback(() => {
+    setFilters((prev) => ({
       page: 1,
-      size: _.get(filters, "size", 10),
-    });
-  };
+      size: _.get(prev, "size", 10),
+    }));
+  }, []);
 
-  const handlePageChange = (page: number) => {
-    const newFilters = _.assign({}, filters, { page });
-    console.log("Page change:", { from: filters.page, to: page, newFilters });
-    setFilters(newFilters);
-  };
+  const handlePageChange = useCallback((page: number) => {
+    setFilters((prev) => ({ ...prev, page }));
+  }, []);
 
-  const handlePageSizeChange = (size: number) => {
-    const newFilters = _.assign({}, filters, { size, page: 1 });
-    console.log("Page size change:", {
-      from: filters.size,
-      to: size,
-      newFilters,
-    });
-    setFilters(newFilters);
-  };
+  const handlePageSizeChange = useCallback((size: number) => {
+    setFilters((prev) => ({ ...prev, size, page: 1 }));
+  }, []);
 
-  const handleEdit = (product: ShopProduct) => {
+  const handleEdit = useCallback((product: ShopProduct) => {
     router.push(`/shop/san-pham/sua/${product.id}`);
-  };
+  }, [router]);
 
-  const handleDelete = (product: ShopProduct) => {
+  const handleDelete = useCallback((product: ShopProduct) => {
     setDeleteDialog({ open: true, product });
-  };
+  }, []);
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = useCallback(async () => {
     const productToDelete = _.get(deleteDialog, "product");
     if (_.isNil(productToDelete)) return;
 
@@ -103,24 +85,22 @@ export default function ProductListPage() {
     } catch (error) {
       // Error handled by mutation
     }
-  };
+  }, [deleteDialog, deleteMutation]);
 
-  const handleView = (product: ShopProduct) => {
+  const handleView = useCallback((product: ShopProduct) => {
     router.push(`/shop/san-pham/${product.id}`);
-  };
+  }, [router]);
 
-  const handleDuplicate = (product: ShopProduct) => {
+  const handleDuplicate = useCallback((product: ShopProduct) => {
     toast.info("Tính năng nhân bản sản phẩm đang được phát triển");
-    // TODO: Implement duplicate functionality
-  };
+  }, []);
 
-  const handleAddProduct = () => {
+  const handleAddProduct = useCallback(() => {
     router.push("/shop/san-pham/them");
-  };
+  }, [router]);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Quản lý sản phẩm</h1>
@@ -134,18 +114,22 @@ export default function ProductListPage() {
         </Button>
       </div>
 
-      {/* Filters */}
       <Card>
         <CardContent className="pt-6">
-          <ProductListFilter
-            filters={filters}
-            onFiltersChange={handleFiltersChange}
-            onReset={handleResetFilters}
-          />
+          <Suspense
+            fallback={
+              <div className="h-20 animate-pulse bg-gray-100 rounded" />
+            }
+          >
+            <ProductListFilter
+              filters={filters}
+              onFiltersChange={handleFiltersChange}
+              onReset={handleResetFilters}
+            />
+          </Suspense>
         </CardContent>
       </Card>
 
-      {/* Product Table */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -171,7 +155,6 @@ export default function ProductListPage() {
             onPageSizeChange={handlePageSizeChange}
           />
 
-          {/* Error State */}
           {!_.isNil(error) && (
             <div className="rounded-md bg-red-50 p-4 text-center">
               <p className="text-sm text-red-800">
@@ -186,44 +169,17 @@ export default function ProductListPage() {
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={deleteDialog.open}
-        onOpenChange={(open) =>
-          setDeleteDialog({ open, product: deleteDialog.product })
-        }
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Xác nhận xóa sản phẩm</DialogTitle>
-            <DialogDescription>
-              Bạn có chắc chắn muốn xóa sản phẩm{" "}
-              <span className="font-semibold">
-                {_.get(deleteDialog, "product.name", "")}
-              </span>
-              ? Hành động này không thể hoàn tác.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteDialog({ open: false, product: null })}
-              disabled={deleteMutation.isPending}
-            >
-              Hủy
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleConfirmDelete}
-              disabled={_.get(deleteMutation, "isPending", false)}
-            >
-              {_.get(deleteMutation, "isPending", false)
-                ? "Đang xóa..."
-                : "Xóa"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <Suspense fallback={null}>
+        {deleteDialog.open && (
+          <DeleteConfirmDialog
+            open={deleteDialog.open}
+            productName={_.get(deleteDialog, "product.name", "")}
+            isDeleting={deleteMutation.isPending}
+            onConfirm={handleConfirmDelete}
+            onCancel={() => setDeleteDialog({ open: false, product: null })}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }

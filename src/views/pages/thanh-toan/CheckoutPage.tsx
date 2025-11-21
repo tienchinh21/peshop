@@ -1,6 +1,14 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+  lazy,
+  Suspense,
+} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import _ from "lodash";
 import { useAppSelector } from "@/lib/store/hooks";
@@ -22,19 +30,26 @@ import { checkVoucherEligibility } from "@/services/api/users/voucher-check.serv
 import { CheckoutSkeleton } from "@/components/skeleton";
 import { AddressSection } from "./components/AddressSection";
 import { OrderItemsSection } from "./components/OrderItemsSection";
-import { ShippingFeeSection } from "./components/ShippingFeeSection";
-import { VoucherSection } from "./components/VoucherSection";
-import { OrderPromotionsSection } from "./components/OrderPromotionsSection";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { formatPrice } from "@/utils/format.utils";
+import {
+  mapCartItemsToOrderPayload,
+  groupItemsByShop,
+} from "@/helpers/order.helpers";
+import { PaymentMethod, PaymentMethodLabel } from "@/enums/payment.enum";
 import type {
   CreateVirtualOrderPayload,
-  OrderProductItemPayload,
   GetShippingFeePayload,
   ShippingFeeResponse,
+  CalculatedOrderData,
 } from "@/types/users/order.types";
 import type { VoucherEligibilityResponse } from "@/types/users/voucher-check.types";
 import { SectionContainer } from "@/components/common";
+
+const ShippingFeeSection = lazy(() => import("./components/ShippingFeeSection").then(m => ({ default: m.ShippingFeeSection })));
+const VoucherSection = lazy(() => import("./components/VoucherSection").then(m => ({ default: m.VoucherSection })));
+const OrderPromotionsSection = lazy(() => import("./components/OrderPromotionsSection").then(m => ({ default: m.OrderPromotionsSection })));
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -52,7 +67,7 @@ export default function CheckoutPage() {
   const [vouchers, setVouchers] = useState<VoucherEligibilityResponse | null>(
     null
   );
-  const [orderData, setOrderData] = useState<any>(null);
+  const [orderData, setOrderData] = useState<CalculatedOrderData | null>(null);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [selectedShippingIds, setSelectedShippingIds] = useState<
     Record<string, string>
@@ -63,6 +78,10 @@ export default function CheckoutPage() {
   const [selectedShopVoucherIds, setSelectedShopVoucherIds] = useState<
     Record<string, string>
   >({});
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState<PaymentMethod>(PaymentMethod.COD);
+
+  const isRecalculatingRef = useRef(false);
 
   const selectedCartIds = useMemo(() => {
     const itemsParam = searchParams.get("items");
@@ -76,13 +95,6 @@ export default function CheckoutPage() {
 
   const createVirtualOrderMutation = useCreateVirtualOrder();
   const calculateOrderMutation = useCalculateOrderTotal();
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
-  };
 
   useEffect(() => {
     if (cartItems.length === 0 && !isLoadingCart) {
@@ -99,9 +111,22 @@ export default function CheckoutPage() {
     ) {
       initializeCheckout();
     }
-  }, [cartItems, user, defaultAddress, isLoadingCart, isLoadingAddress]);
+  }, [
+    cartItems,
+    user,
+    defaultAddress,
+    isLoadingCart,
+    isLoadingAddress,
+    isInitialized,
+  ]);
 
-  const initializeCheckout = async () => {
+  useEffect(() => {
+    return () => {
+      isRecalculatingRef.current = false;
+    };
+  }, []);
+
+  const initializeCheckout = useCallback(async () => {
     if (!user || !defaultAddress) {
       toast.error("Vui lòng thêm địa chỉ giao hàng");
       return;
@@ -109,16 +134,7 @@ export default function CheckoutPage() {
 
     setIsLoadingData(true);
 
-    const items: OrderProductItemPayload[] = cartItems.map((item) => ({
-      productId: item.productId,
-      variantId: item.variantId ? _.toNumber(item.variantId) : 0,
-      note: "",
-      quantity: item.quantity,
-      priceOriginal: item.price,
-      categoryId: "",
-      shopId: item.shopId,
-    }));
-
+    const items = mapCartItemsToOrderPayload(cartItems);
     const payload: CreateVirtualOrderPayload = {
       userAddressId: defaultAddress.id,
       items,
@@ -131,7 +147,7 @@ export default function CheckoutPage() {
       const newOrderId = virtualOrderResult.orderId;
       setOrderId(newOrderId);
 
-      const groupedByShop = _.groupBy(cartItems, "shopId");
+      const groupedByShop = groupItemsByShop(cartItems);
       const listFeeShipping = Object.entries(groupedByShop).map(
         ([shopId, shopItems]) => ({
           shopId,
@@ -170,90 +186,115 @@ export default function CheckoutPage() {
     } finally {
       setIsLoadingData(false);
     }
-  };
+  }, [user, defaultAddress, cartItems, createVirtualOrderMutation]);
 
-  const recalculateOrder = async () => {
-    if (!orderId) return;
+  const recalculateOrder = useCallback(async () => {
+    if (!orderId || isRecalculatingRef.current) return;
+
+    isRecalculatingRef.current = true;
     try {
       const calculatedOrder = await calculateOrderTotal(orderId);
       setOrderData(calculatedOrder);
     } catch (error) {
       console.error("Failed to recalculate order:", error);
       toast.error("Không thể tính toán đơn hàng. Vui lòng thử lại.");
+    } finally {
+      isRecalculatingRef.current = false;
     }
-  };
+  }, [orderId]);
 
-  const handleShippingChange = async (shopId: string, shippingId: string) => {
-    setSelectedShippingIds((prev) => ({
-      ...prev,
-      [shopId]: shippingId,
-    }));
+  const debouncedRecalculate = useMemo(
+    () => _.debounce(recalculateOrder, 300),
+    [recalculateOrder]
+  );
 
-    if (!orderId) return;
-
-    try {
-      const listFeeShipping = Object.entries({
-        ...selectedShippingIds,
+  const handleShippingChange = useCallback(
+    async (shopId: string, shippingId: string) => {
+      setSelectedShippingIds((prev) => ({
+        ...prev,
         [shopId]: shippingId,
-      }).map(([sid, shid]) => ({
-        shippingId: shid,
-        shopId: sid,
       }));
 
-      await applyShippingFee({
-        orderId,
-        listFeeShipping,
-      });
+      if (!orderId) return;
 
-      await recalculateOrder();
-    } catch (error) {
-      console.error("Failed to apply shipping fee:", error);
-      toast.error("Không thể áp dụng phí vận chuyển. Vui lòng thử lại.");
-    }
-  };
+      try {
+        const listFeeShipping = Object.entries({
+          ...selectedShippingIds,
+          [shopId]: shippingId,
+        }).map(([sid, shid]) => ({
+          shippingId: shid,
+          shopId: sid,
+        }));
 
-  const handleSystemVoucherChange = async (voucherId: string | null) => {
-    setSelectedSystemVoucherId(voucherId);
+        await applyShippingFee({
+          orderId,
+          listFeeShipping,
+        });
 
-    if (!orderId || !voucherId) return;
+        debouncedRecalculate();
+      } catch (error) {
+        console.error("Failed to apply shipping fee:", error);
+        toast.error("Không thể áp dụng phí vận chuyển. Vui lòng thử lại.");
+      }
+    },
+    [orderId, selectedShippingIds, debouncedRecalculate]
+  );
 
-    try {
-      await applySystemVoucher({
-        voucherId,
-        orderId,
-      });
+  const handleSystemVoucherChange = useCallback(
+    async (voucherId: string | null) => {
+      setSelectedSystemVoucherId(voucherId);
 
-      await recalculateOrder();
-    } catch (error) {
-      console.error("Failed to apply system voucher:", error);
-      toast.error("Không thể áp dụng voucher hệ thống. Vui lòng thử lại.");
-    }
-  };
+      if (!orderId) return;
 
-  const handleShopVoucherChange = async (
-    shopId: string,
-    voucherId: string | null
-  ) => {
-    setSelectedShopVoucherIds((prev) => ({
-      ...prev,
-      [shopId]: voucherId || "",
-    }));
+      if (!voucherId) {
+        debouncedRecalculate();
+        return;
+      }
 
-    if (!orderId || !voucherId) return;
+      try {
+        await applySystemVoucher({
+          voucherId,
+          orderId,
+        });
 
-    try {
-      await applyShopVoucher({
-        voucherId,
-        orderId,
-        shopId,
-      });
+        debouncedRecalculate();
+      } catch (error) {
+        console.error("Failed to apply system voucher:", error);
+        toast.error("Không thể áp dụng voucher hệ thống. Vui lòng thử lại.");
+      }
+    },
+    [orderId, debouncedRecalculate]
+  );
 
-      await recalculateOrder();
-    } catch (error) {
-      console.error("Failed to apply shop voucher:", error);
-      toast.error("Không thể áp dụng voucher shop. Vui lòng thử lại.");
-    }
-  };
+  const handleShopVoucherChange = useCallback(
+    async (shopId: string, voucherId: string | null) => {
+      setSelectedShopVoucherIds((prev) => ({
+        ...prev,
+        [shopId]: voucherId || "",
+      }));
+
+      if (!orderId) return;
+
+      if (!voucherId) {
+        debouncedRecalculate();
+        return;
+      }
+
+      try {
+        await applyShopVoucher({
+          voucherId,
+          orderId,
+          shopId,
+        });
+
+        debouncedRecalculate();
+      } catch (error) {
+        console.error("Failed to apply shop voucher:", error);
+        toast.error("Không thể áp dụng voucher shop. Vui lòng thử lại.");
+      }
+    },
+    [orderId, debouncedRecalculate]
+  );
 
   const handleCheckout = async () => {
     if (!user || !defaultAddress || !orderId) {
@@ -262,21 +303,25 @@ export default function CheckoutPage() {
     }
 
     try {
+      const payload = {
+        orderId,
+        paymentMethod: selectedPaymentMethod,
+      };
       await calculateOrderMutation.mutateAsync(orderId);
       toast.success("Đặt hàng thành công!");
       router.push("/don-hang");
     } catch (error) {
       console.error("Checkout failed:", error);
+      toast.error("Đặt hàng thất bại. Vui lòng thử lại.");
     }
   };
 
-  const orderTotal = orderData?.orderTotal || 0;
-  const shippingFee = orderData?.feeShippingTotal || 0;
+  const orderTotal = orderData?.orderTotal ?? 0;
+  const shippingFee = orderData?.feeShippingTotal ?? 0;
   const voucherDiscount =
-    (orderData?.voucherSystemValue || 0) +
-    _.sumBy(orderData?.itemShops || [], (shop: any) => shop.voucherValue || 0);
-  const finalTotal = orderData?.amountTotal || 0;
-
+    (orderData?.voucherSystemValue ?? 0) +
+    _.sumBy(orderData?.itemShops ?? [], (shop) => shop.voucherValue ?? 0);
+  const finalTotal = orderData?.amountTotal ?? 0;
 
   const isCalculating =
     createVirtualOrderMutation.isPending ||
@@ -316,38 +361,105 @@ export default function CheckoutPage() {
 
           <OrderItemsSection items={cartItems} formatPrice={formatPrice} />
 
-          {shippingFees?.listFeeShipping &&
-            shippingFees.listFeeShipping.length > 0 && (
-              <ShippingFeeSection
-                shippingFees={shippingFees.listFeeShipping}
-                selectedShippingIds={selectedShippingIds}
-                onShippingChange={handleShippingChange}
+          <Suspense fallback={<div className="bg-white rounded-lg p-6 animate-pulse h-32" />}>
+            {shippingFees?.listFeeShipping &&
+              shippingFees.listFeeShipping.length > 0 && (
+                <ShippingFeeSection
+                  shippingFees={shippingFees.listFeeShipping}
+                  selectedShippingIds={selectedShippingIds}
+                  onShippingChange={handleShippingChange}
+                  formatPrice={formatPrice}
+                />
+              )}
+          </Suspense>
+
+          <Suspense fallback={<div className="bg-white rounded-lg p-6 animate-pulse h-32" />}>
+            {vouchers && (
+              <VoucherSection
+                vouchers={vouchers}
+                selectedSystemVoucherId={selectedSystemVoucherId}
+                selectedShopVoucherIds={selectedShopVoucherIds}
+                onSystemVoucherChange={handleSystemVoucherChange}
+                onShopVoucherChange={handleShopVoucherChange}
                 formatPrice={formatPrice}
               />
             )}
+          </Suspense>
 
-          {vouchers && (
-            <VoucherSection
-              vouchers={vouchers}
-              selectedSystemVoucherId={selectedSystemVoucherId}
-              selectedShopVoucherIds={selectedShopVoucherIds}
-              onSystemVoucherChange={handleSystemVoucherChange}
-              onShopVoucherChange={handleShopVoucherChange}
-              formatPrice={formatPrice}
-            />
-          )}
-
-          <OrderPromotionsSection orderId={orderId} />
+          <Suspense fallback={<div className="bg-white rounded-lg p-6 animate-pulse h-24" />}>
+            <OrderPromotionsSection orderId={orderId} />
+          </Suspense>
 
           <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-600">Phương thức thanh toán</span>
-                </div>
-                <span className="text-purple-600 font-medium">
-                  Thanh toán khi nhận hàng
-                </span>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Phương thức thanh toán
+              </h3>
+              <div className="space-y-3">
+                {[PaymentMethod.COD, PaymentMethod.VNPAY].map((method) => {
+                  return (
+                    <div
+                      key={method}
+                      onClick={() => {
+                        setSelectedPaymentMethod(method);
+                      }}
+                      className={`flex items-center justify-between p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                        selectedPaymentMethod === method
+                          ? "border-purple-600 bg-purple-50"
+                          : "border-gray-200 hover:border-purple-300"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                            selectedPaymentMethod === method
+                              ? "border-purple-600"
+                              : "border-gray-300"
+                          }`}
+                        >
+                          {selectedPaymentMethod === method && (
+                            <div className="w-3 h-3 rounded-full bg-purple-600" />
+                          )}
+                        </div>
+                        <span
+                          className={`font-medium ${
+                            selectedPaymentMethod === method
+                              ? "text-purple-600"
+                              : "text-gray-700"
+                          }`}
+                        >
+                          {PaymentMethodLabel[method]}
+                        </span>
+                      </div>
+                      {method === PaymentMethod.VNPAY && (
+                        <div className="text-sm text-gray-500">
+                          <svg
+                            className="w-12 h-8"
+                            viewBox="0 0 48 32"
+                            fill="none"
+                          >
+                            <rect
+                              width="48"
+                              height="32"
+                              rx="4"
+                              fill="#0D47A1"
+                            />
+                            <text
+                              x="24"
+                              y="20"
+                              fontSize="10"
+                              fontWeight="bold"
+                              fill="white"
+                              textAnchor="middle"
+                            >
+                              VNPAY
+                            </text>
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

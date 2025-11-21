@@ -1,13 +1,19 @@
 import { Metadata } from "next";
 import { ProductDetailPage } from "@/views/pages/san-pham/[slug]/ProductDetailPage";
 import { getProductDetail } from "@/services/api/users/product.service";
-import { generateMetaDescription, getOgImage, generateProductSchema } from "@/lib/utils/seo.utils";
+import {
+  generateMetaDescription,
+  getOgImage,
+  generateProductSchema,
+} from "@/lib/utils/seo.utils";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   try {
     const { slug } = await params;
     const product = await getProductDetail(slug);
@@ -75,7 +81,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function Page({ params }: PageProps) {
   const { slug } = await params;
 
-  // Generate Product Schema.org JSON-LD for SEO
   let productSchema = null;
   try {
     const product = await getProductDetail(slug);
@@ -87,7 +92,6 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <>
-      {/* Product Schema.org JSON-LD */}
       {productSchema && (
         <script
           type="application/ld+json"
@@ -95,7 +99,6 @@ export default async function Page({ params }: PageProps) {
         />
       )}
 
-      {/* Client Component */}
       <ProductDetailPage slug={slug} />
     </>
   );

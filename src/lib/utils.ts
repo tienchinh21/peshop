@@ -5,17 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/**
- * Format số tiền với dấu ngăn c        ách hàng trăm, hàng ngàn
- * @param amount - Số tiền cần format
- * @param currency - Ký hiệu tiền tệ (mặc định: "₫")
- * @returns Chuỗi tiền đã được format
- *
- * @example
- * formatCurrency(1000000) // "1.000.000 ₫"
- * formatCurrency(1500000, "VND") // "1.500.000 VND"
- * formatCurrency(0) // "0 ₫"
- */
+
 export function formatCurrency(
   amount: number | string,
   currency: string = "₫"

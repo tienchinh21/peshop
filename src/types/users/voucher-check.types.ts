@@ -1,4 +1,4 @@
-// Voucher type theo response API check voucher eligibility/get-vouchers
+
 
 export interface VoucherItem {
   Id: string;

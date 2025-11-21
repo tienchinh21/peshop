@@ -13,7 +13,6 @@ export interface Product {
   hasPromotion: boolean;
 }
 
-// Product Detail Types (for Quick View and Detail Page)
 export interface PropertyValue {
   propertyName: string;
   imgUrl: string;

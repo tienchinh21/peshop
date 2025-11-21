@@ -7,6 +7,7 @@ import type {
   GetShippingFeePayload,
   ShippingFeeResponse,
   ApplyShippingFeePayload,
+  CreateOrderPayload,
 } from "@/types/users/order.types";
 
 export const createVirtualOrder = async (
@@ -14,6 +15,14 @@ export const createVirtualOrder = async (
 ): Promise<VirtualOrderData> => {
   const response = await axiosDotnet.post<VirtualOrderResponse>(
     "/Order/create-virtual-order",
+    payload
+  );
+  return _.get(response, "data.data.order");
+};
+
+export const createOrder = async (payload: CreateOrderPayload): Promise<CreateOrderPayload> => {
+  const response = await axiosDotnet.post<any>(
+    "/Order/create-order",
     payload
   );
   return _.get(response, "data.data.order");

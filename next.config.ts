@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   // Fix routes-manifest issue in Next.js 15
   experimental: {
     turbo: undefined,
+    optimizePackageImports: ['@radix-ui/react-icons', 'lucide-react', '@tabler/icons-react'],
   },
   images: {
     domains: [
@@ -13,6 +14,18 @@ const nextConfig: NextConfig = {
       "localhost",
     ],
   },
+  // Optimize production build
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production" ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
+  // Enable SWC minification
+  swcMinify: true,
+  // Reduce build output
+  productionBrowserSourceMaps: false,
+  // Optimize fonts
+  optimizeFonts: true,
 };
 
 export default nextConfig;
