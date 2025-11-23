@@ -61,7 +61,7 @@ export function ProductSelector({
         size: 20,
         search: search || undefined,
         status: 1,
-        classify: null,
+        classify: 0,
       });
 
       const filteredProducts = _.get(response, "content.response", []).filter(

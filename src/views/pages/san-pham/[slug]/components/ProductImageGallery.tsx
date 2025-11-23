@@ -85,6 +85,8 @@ export const ProductImageGallery = ({
                     className="object-contain"
                     sizes="(max-width: 768px) 100vw, 50vw"
                     priority={index === 0}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    quality={90}
                   />
                 </div>
               </CarouselItem>
@@ -119,6 +121,8 @@ export const ProductImageGallery = ({
               fill
               className="object-cover"
               sizes="(max-width: 768px) 20vw, 10vw"
+              loading="lazy"
+              quality={75}
             />
           </button>
         ))}

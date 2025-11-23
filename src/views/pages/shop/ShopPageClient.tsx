@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { ProductSkeleton } from "@/components/skeleton";
 import type { ShopData } from "@/types/users/get-shop.types";
 import type { Product } from "@/types/users/product.types";
+import SectionContainer from "@/components/common/SectionContainer";
 
 const ProductGrid = lazy(
   () => import("@/views/pages/san-pham/components/ProductGrid")
@@ -45,15 +46,11 @@ export default function ShopPageClient({
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Shop Banner */}
-      <div className="relative h-48 bg-gradient-to-r from-purple-500 to-pink-500">
-        <div className="absolute inset-0 bg-black/20" />
-      </div>
+    <div className="min-h-screen">
 
       {/* Shop Info Card */}
-      <div className="container mx-auto px-4">
-        <div className="relative -mt-20 mb-6">
+      <SectionContainer>
+        <div className="relative mb-6">
           <Card className="p-6">
             <div className="flex flex-col md:flex-row gap-6">
               {/* Shop Avatar */}
@@ -86,19 +83,24 @@ export default function ShopPageClient({
 
                 {/* Shop Stats */}
                 <div className="flex flex-wrap gap-6 mb-4">
+                  {/* Rating - Currently hardcoded as API doesn't return it yet */}
                   <div className="flex items-center gap-2">
                     <Star className="h-4 w-4 fill-orange-500 text-orange-500" />
-                    <span className="font-medium">4.8</span>
+                    <span className="font-medium">5.0</span>
                     <span className="text-sm text-gray-500">
-                      (1.2k đánh giá)
+                      (Đánh giá shop)
                     </span>
                   </div>
                   <div className="text-sm">
-                    <span className="font-medium text-gray-900">120</span>
+                    <span className="font-medium text-gray-900">
+                      {shopData.productCount || 0}
+                    </span>
                     <span className="text-gray-500"> sản phẩm</span>
                   </div>
                   <div className="text-sm">
-                    <span className="font-medium text-gray-900">5.6k</span>
+                    <span className="font-medium text-gray-900">
+                      {shopData.followersCount || 0}
+                    </span>
                     <span className="text-gray-500"> người theo dõi</span>
                   </div>
                 </div>
@@ -175,7 +177,7 @@ export default function ShopPageClient({
             </>
           )}
         </div>
-      </div>
+      </SectionContainer>
     </div>
   );
 }

@@ -7,15 +7,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Calendar, ChevronRight } from "lucide-react";
+import { Calendar } from "lucide-react";
 import type { VoucherDashboardFilters } from "@/types/shops/voucher-dashboard.type";
 import {
   format,
@@ -37,9 +35,6 @@ export function VoucherDateRangePicker({
   onFiltersChange,
 }: VoucherDateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [showDayPicker, setShowDayPicker] = useState(false);
-  const [showWeekPicker, setShowWeekPicker] = useState(false);
-  const [showMonthPicker, setShowMonthPicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [dateRange, setDateRange] = useState<{
     from: Date | undefined;
@@ -371,28 +366,22 @@ export function VoucherDateRangePicker({
 
           <DropdownMenuSeparator className="my-2" />
 
-          {/* Mode Selection with Pickers */}
+          {/* Mode Selection with SubMenus */}
           <div className="space-y-1">
-            {/* Theo ngày - Date Range Picker */}
-            <Popover open={showDayPicker} onOpenChange={setShowDayPicker}>
-              <PopoverTrigger asChild>
-                <DropdownMenuItem
-                  className="flex items-center justify-between cursor-pointer"
-                  onSelect={(e) => e.preventDefault()}
+            {/* Theo ngày */}
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="cursor-pointer">
+                <span
+                  className={
+                    isSelected(undefined, "day")
+                      ? "font-semibold text-red-600"
+                      : ""
+                  }
                 >
-                  <span
-                    className={
-                      isSelected(undefined, "day")
-                        ? "font-semibold text-red-600"
-                        : ""
-                    }
-                  >
-                    Theo ngày
-                  </span>
-                  <ChevronRight className="h-4 w-4" />
-                </DropdownMenuItem>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start" side="right">
+                  Theo ngày
+                </span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="p-0" sideOffset={8}>
                 <CalendarComponent
                   mode="range"
                   selected={dateRange}
@@ -405,7 +394,6 @@ export function VoucherDateRangePicker({
                         period: "past7days",
                         mode: "day",
                       });
-                      setShowDayPicker(false);
                       setIsOpen(false);
                     } else if (range?.from) {
                       setDateRange(range);
@@ -414,29 +402,23 @@ export function VoucherDateRangePicker({
                   numberOfMonths={2}
                   locale={vi}
                 />
-              </PopoverContent>
-            </Popover>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
 
-            {/* Theo tuần - Week Picker */}
-            <Popover open={showWeekPicker} onOpenChange={setShowWeekPicker}>
-              <PopoverTrigger asChild>
-                <DropdownMenuItem
-                  className="flex items-center justify-between cursor-pointer"
-                  onSelect={(e) => e.preventDefault()}
+            {/* Theo tuần */}
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="cursor-pointer">
+                <span
+                  className={
+                    isSelected(undefined, "week")
+                      ? "font-semibold text-red-600"
+                      : ""
+                  }
                 >
-                  <span
-                    className={
-                      isSelected(undefined, "week")
-                        ? "font-semibold text-red-600"
-                        : ""
-                    }
-                  >
-                    Theo tuần
-                  </span>
-                  <ChevronRight className="h-4 w-4" />
-                </DropdownMenuItem>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start" side="right">
+                  Theo tuần
+                </span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="p-0" sideOffset={8}>
                 <CalendarComponent
                   mode="single"
                   selected={selectedDate}
@@ -451,35 +433,28 @@ export function VoucherDateRangePicker({
                         period: "past7days",
                         mode: "week",
                       });
-                      setShowWeekPicker(false);
                       setIsOpen(false);
                     }
                   }}
                   locale={vi}
                 />
-              </PopoverContent>
-            </Popover>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
 
-            {/* Theo tháng - Month Picker */}
-            <Popover open={showMonthPicker} onOpenChange={setShowMonthPicker}>
-              <PopoverTrigger asChild>
-                <DropdownMenuItem
-                  className="flex items-center justify-between cursor-pointer"
-                  onSelect={(e) => e.preventDefault()}
+            {/* Theo tháng */}
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="cursor-pointer">
+                <span
+                  className={
+                    isSelected(undefined, "month")
+                      ? "font-semibold text-red-600"
+                      : ""
+                  }
                 >
-                  <span
-                    className={
-                      isSelected(undefined, "month")
-                        ? "font-semibold text-red-600"
-                        : ""
-                    }
-                  >
-                    Theo tháng
-                  </span>
-                  <ChevronRight className="h-4 w-4" />
-                </DropdownMenuItem>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start" side="right">
+                  Theo tháng
+                </span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="p-0" sideOffset={8}>
                 <CalendarComponent
                   mode="single"
                   selected={selectedDate}
@@ -494,14 +469,13 @@ export function VoucherDateRangePicker({
                         period: "past30days",
                         mode: "month",
                       });
-                      setShowMonthPicker(false);
                       setIsOpen(false);
                     }
                   }}
                   locale={vi}
                 />
-              </PopoverContent>
-            </Popover>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
           </div>
         </div>
       </DropdownMenuContent>

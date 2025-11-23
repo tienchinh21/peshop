@@ -22,6 +22,7 @@ import {
 } from "@/services/api/users/auth.service";
 import type { LoginRequest, RegisterRequest } from "@/types/users/auth.types";
 import { toast } from "sonner";
+import { setAuthTokenCookie, removeAuthTokenCookie } from "@/lib/utils/cookies.utils";
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
@@ -48,9 +49,8 @@ export const useAuth = () => {
         if (response.data) {
           const token = response.data;
 
-          if (typeof window !== "undefined") {
-            localStorage.setItem("auth_token", token);
-          }
+          // Save token to cookie
+          setAuthTokenCookie(token);
 
           const user = await getCurrentUserFromAPI();
 
@@ -65,9 +65,7 @@ export const useAuth = () => {
             toast.success("Đăng nhập thành công!");
             return { success: true };
           } else {
-            if (typeof window !== "undefined") {
-              localStorage.removeItem("auth_token");
-            }
+            removeAuthTokenCookie();
             return { success: false, error: "Không thể lấy thông tin user" };
           }
         }
@@ -77,9 +75,7 @@ export const useAuth = () => {
         console.error("Login error:", error);
         const errorMessage = "Đăng nhập thất bại. Vui lòng thử lại.";
         toast.error(errorMessage);
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("auth_token");
-        }
+        removeAuthTokenCookie();
         return { success: false, error: errorMessage };
       }
     },
@@ -98,9 +94,9 @@ export const useAuth = () => {
 
         if (response.data) {
           const token = response.data;
-          if (typeof window !== "undefined") {
-            localStorage.setItem("auth_token", token);
-          }
+          
+          // Save token to cookie
+          setAuthTokenCookie(token);
 
           const user = await getCurrentUserFromAPI();
 
@@ -115,9 +111,7 @@ export const useAuth = () => {
             toast.success("Đăng ký thành công!");
             return { success: true };
           } else {
-            if (typeof window !== "undefined") {
-              localStorage.removeItem("auth_token");
-            }
+            removeAuthTokenCookie();
             return { success: false, error: "Không thể lấy thông tin user" };
           }
         }
@@ -127,9 +121,7 @@ export const useAuth = () => {
         console.error("Register error:", error);
         const errorMessage = "Đăng ký thất bại. Vui lòng thử lại.";
         toast.error(errorMessage);
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("auth_token");
-        }
+        removeAuthTokenCookie();
         return { success: false, error: errorMessage };
       }
     },

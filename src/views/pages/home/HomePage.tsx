@@ -20,7 +20,13 @@ import SectionContainer from "@/components/common/SectionContainer";
 import PageSection from "@/components/common/PageSection";
 import { toast } from "sonner";
 
-export default function HomePageClient() {
+interface HomePageClientProps {
+  initialProducts?: Product[];
+}
+
+export default function HomePageClient({
+  initialProducts = [],
+}: HomePageClientProps) {
   const {
     selectedProduct,
     isModalOpen,
@@ -38,11 +44,17 @@ export default function HomePageClient() {
     isLoading,
     isError,
   } = useInfiniteProducts({ pageSize: 20 });
+
   const products = useMemo(() => {
-    //@ts-ignore
-    const rawProducts = data?.pages.flatMap((page) => page.data.data) ?? [];
-    return filterValidProducts(rawProducts);
-  }, [data]);
+    // If we have data from infinite query, use it
+    if (data?.pages && data.pages.length > 0) {
+      //@ts-ignore
+      const rawProducts = data.pages.flatMap((page) => page.data.data) ?? [];
+      return filterValidProducts(rawProducts);
+    }
+    // Otherwise use initial products from server
+    return filterValidProducts(initialProducts);
+  }, [data, initialProducts]);
 
   return (
     <SectionContainer>

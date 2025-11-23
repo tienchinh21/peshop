@@ -5,11 +5,26 @@ import {
   getShopServer,
   getProductsByShopIdServer,
 } from "@/services/api/users/get-shop.server";
+import { getTopShopIds } from "@/services/api/users/product.server.cached";
 import ShopPageClient from "@/views/pages/shop/ShopPageClient";
 
 interface ShopPageProps {
   params: Promise<{ shopId: string }>;
   searchParams: Promise<{ page?: string }>;
+}
+
+export const revalidate = 3600;
+
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  try {
+    const shopIds = await getTopShopIds(50);
+    return shopIds.map((shopId) => ({ shopId }));
+  } catch (error) {
+    console.error("Failed to generate static params for shops:", error);
+    return [];
+  }
 }
 
 export async function generateMetadata({
@@ -60,7 +75,7 @@ export default async function ShopPage({
     <Suspense
       fallback={
         <div className="min-h-screen bg-gray-50">
-          <div className="h-48 bg-gradient-to-r from-purple-500 to-pink-500 animate-pulse" />
+          <div className="h-48 bg-gray-200 animate-pulse" />
           <div className="container mx-auto px-4 py-8 space-y-6">
             <div className="h-32 bg-gray-200 animate-pulse rounded-lg" />
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">

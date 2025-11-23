@@ -12,7 +12,7 @@ export const getVoucherShopDashboard = async (
   params.append("endDate", filters.endDate);
   params.append("period", filters.period);
 
-  const url = `/dashboard/voucherShop?${params.toString()}`;
+  const url = `/voucher-shop/dashboard?${params.toString()}`;
   const response = await axiosJava.get<VoucherShopDashboardResponse>(url);
   return response.data;
 };

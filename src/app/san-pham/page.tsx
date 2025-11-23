@@ -1,8 +1,10 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
 import ProductsPageClient from "@/views/pages/san-pham/ProductsPageClient";
-import { getProductsServer } from "@/services/api/users/product.server";
+import { getProductsServerCached } from "@/services/api/users/product.server.cached";
 import { ProductSkeleton } from "@/components/skeleton";
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Tất cả sản phẩm - PeShop | Mua sắm trực tuyến",
@@ -53,7 +55,8 @@ export default async function SanPhamPage({ searchParams }: PageProps) {
   let error = null;
 
   try {
-    const data = await getProductsServer({
+    // Use cached function for better performance
+    const data = await getProductsServerCached({
       page: currentPage,
       pageSize,
     });

@@ -280,7 +280,8 @@ export const updateProductWithImages = async (
 
     updatedData = {
       ...updatedData,
-        images: [...(productData.images || []), ...newImages],
+      // @ts-ignore
+      images: [...(productData.images || []), ...newImages],
     };
   }
 

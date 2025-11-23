@@ -12,6 +12,7 @@ import {
 } from "@/lib/store/slices/authSlice";
 import { useCartCount } from "@/hooks/user/useCart";
 import { toast } from "sonner";
+import ChatWidget from "@/components/chat/ChatWidget";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -54,6 +55,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
       {/* Footer Component */}
       <Footer />
+
+      {/* Chat Widget */}
+      <ChatWidget />
     </div>
   );
 }

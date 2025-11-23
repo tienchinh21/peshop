@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { AuthUser } from "@/types/users/auth.types";
 import { getRolesFromToken, isTokenExpired } from "@/lib/utils/jwt.utils";
 import { STORAGE_KEYS } from "@/lib/config/api.config";
+import { setAuthTokenCookie, getAuthTokenCookie, removeAuthTokenCookie } from "@/lib/utils/cookies.utils";
 
 interface AuthState {
   user: AuthUser | null;
@@ -41,9 +42,11 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.isLoading = false;
 
-      // Save to localStorage
+      // Save token to cookie (for server components)
+      setAuthTokenCookie(token);
+      
+      // Save user data to localStorage (for client-side only, not needed for server)
       if (typeof window !== "undefined") {
-        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
         localStorage.setItem(
           STORAGE_KEYS.USER_DATA,
           JSON.stringify({ ...user, roles })
@@ -76,14 +79,15 @@ const authSlice = createSlice({
         state.user.roles = roles;
       }
 
-      if (typeof window !== "undefined") {
-        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, newToken);
-        if (state.user) {
-          localStorage.setItem(
-            STORAGE_KEYS.USER_DATA,
-            JSON.stringify(state.user)
-          );
-        }
+      // Update token in cookie
+      setAuthTokenCookie(newToken);
+      
+      // Update user data in localStorage
+      if (typeof window !== "undefined" && state.user) {
+        localStorage.setItem(
+          STORAGE_KEYS.USER_DATA,
+          JSON.stringify(state.user)
+        );
       }
     },
 
@@ -94,8 +98,11 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.isLoading = false;
 
+      // Remove token from cookie
+      removeAuthTokenCookie();
+      
+      // Clear localStorage
       if (typeof window !== "undefined") {
-        localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
         localStorage.removeItem(STORAGE_KEYS.USER_DATA);
         localStorage.removeItem(STORAGE_KEYS.AUTH_EXPIRES);
       }
@@ -103,7 +110,8 @@ const authSlice = createSlice({
 
     hydrateAuth: (state) => {
       if (typeof window !== "undefined") {
-        const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+        // Get token from cookie (not localStorage)
+        const token = getAuthTokenCookie();
         const userStr = localStorage.getItem(STORAGE_KEYS.USER_DATA);
 
         if (token && userStr) {
@@ -111,7 +119,7 @@ const authSlice = createSlice({
             // Check if token expired
             if (isTokenExpired(token)) {
               // Clear expired data
-              localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+              removeAuthTokenCookie();
               localStorage.removeItem(STORAGE_KEYS.USER_DATA);
               localStorage.removeItem(STORAGE_KEYS.AUTH_EXPIRES);
               state.isLoading = false;
@@ -127,10 +135,17 @@ const authSlice = createSlice({
             state.isAuthenticated = true;
           } catch (error) {
             console.error("Error parsing user data:", error);
-            localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+            removeAuthTokenCookie();
             localStorage.removeItem(STORAGE_KEYS.USER_DATA);
             localStorage.removeItem(STORAGE_KEYS.AUTH_EXPIRES);
           }
+        } else if (token && !userStr) {
+          // Token exists but no user data - might need to fetch user
+          // For now, just set token
+          const roles = getRolesFromToken(token);
+          state.token = token;
+          state.roles = roles;
+          state.isAuthenticated = true;
         }
       }
       state.isLoading = false;

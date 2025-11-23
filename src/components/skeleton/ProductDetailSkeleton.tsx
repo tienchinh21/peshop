@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function Loading() {
+export default function ProductDetailSkeleton() {
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Breadcrumb Skeleton */}
@@ -115,4 +115,3 @@ export default function Loading() {
     </div>
   );
 }
-

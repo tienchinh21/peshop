@@ -17,7 +17,7 @@ import type { LoginRequest } from "@/types/users/auth.types";
 import { useAppDispatch } from "@/lib/store/hooks";
 import { setCredentials } from "@/lib/store/slices/authSlice";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth.schemas";
-import { STORAGE_KEYS } from "@/lib/config/api.config";
+import { setAuthTokenCookie } from "@/lib/utils/cookies.utils";
 
 const LoginPageComponent: React.FC = () => {
   const router = useRouter();
@@ -79,16 +79,28 @@ const LoginPageComponent: React.FC = () => {
 
       const response = await login(credentials);
 
-      if (!response.error && response.data) {
+      // Check for error in response
+      if (response.error) {
+        const errorMessage = response.error || "Đăng nhập thất bại";
+        toast.error(errorMessage);
+        setErrors({
+          general: errorMessage,
+        });
+        return;
+      }
+
+      // Success case - response has data (token)
+      if (response.data) {
         const token = response.data;
 
-        if (typeof window !== "undefined") {
-          localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
-        }
+        // Save token to cookie
+        setAuthTokenCookie(token);
 
+        // Get user info
         const user = await getCurrentUserFromAPI();
 
         if (user) {
+          // Dispatch to Redux store
           dispatch(
             setCredentials({
               user,
@@ -106,15 +118,11 @@ const LoginPageComponent: React.FC = () => {
           setErrors({
             general: "Không thể lấy thông tin người dùng",
           });
-          if (typeof window !== "undefined") {
-            localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-          }
         }
       } else {
-        const errorMessage = response.error || "Đăng nhập thất bại";
-        toast.error(errorMessage);
+        toast.error("Đăng nhập thất bại");
         setErrors({
-          general: errorMessage,
+          general: "Đăng nhập thất bại",
         });
       }
     } catch (error: any) {
@@ -125,10 +133,6 @@ const LoginPageComponent: React.FC = () => {
         "Đăng nhập thất bại. Vui lòng thử lại.";
       toast.error(errorMessage);
       setErrors({ general: errorMessage });
-
-      if (typeof window !== "undefined") {
-        localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-      }
     } finally {
       setIsLoading(false);
     }

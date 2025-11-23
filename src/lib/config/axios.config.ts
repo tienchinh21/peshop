@@ -9,6 +9,7 @@ import {
   API_CONFIG_JAVA,
   STORAGE_KEYS,
 } from "@/lib/config/api.config";
+import { getAuthTokenCookie, setAuthTokenCookie, removeAuthTokenCookie } from "@/lib/utils/cookies.utils";
 
 // ============ .NET API Axios Instance ============
 const axiosDotnet: AxiosInstance = axios.create({
@@ -29,9 +30,9 @@ const axiosJava: AxiosInstance = axios.create({
 // ============ Request Interceptor for .NET API ============
 axiosDotnet.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Add auth token to request headers
+    // Add auth token to request headers from cookie
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      const token = getAuthTokenCookie();
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -47,9 +48,9 @@ axiosDotnet.interceptors.request.use(
 // ============ Request Interceptor for Java API ============
 axiosJava.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Add auth token to request headers
+    // Add auth token to request headers from cookie
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      const token = getAuthTokenCookie();
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -88,8 +89,8 @@ axiosDotnet.interceptors.response.use(
         if (!response.data.error && response.data.data) {
           const newAccessToken = response.data.data;
 
-          // Save new access token
-          localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, newAccessToken);
+          // Save new access token to cookie
+          setAuthTokenCookie(newAccessToken);
 
           // Update authorization header
           if (originalRequest.headers) {
@@ -100,10 +101,12 @@ axiosDotnet.interceptors.response.use(
           return axiosDotnet(originalRequest);
         }
       } catch (refreshError) {
-        // Refresh token failed - clear storage and redirect to login
-        localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-        localStorage.removeItem(STORAGE_KEYS.USER_DATA);
-        localStorage.removeItem(STORAGE_KEYS.AUTH_EXPIRES);
+        // Refresh token failed - clear cookie and redirect to login
+        removeAuthTokenCookie();
+        if (typeof window !== "undefined") {
+          localStorage.removeItem(STORAGE_KEYS.USER_DATA);
+          localStorage.removeItem(STORAGE_KEYS.AUTH_EXPIRES);
+        }
 
         // Redirect to login page
         if (typeof window !== "undefined") {
@@ -146,7 +149,7 @@ export const axiosDotnetFormData = async (
     );
   }
 
-  const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+  const token = getAuthTokenCookie();
 
   const config = {
     baseURL: API_CONFIG.BASE_URL,
@@ -178,7 +181,7 @@ export const axiosJavaFormData = async (
     );
   }
 
-  const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+  const token = getAuthTokenCookie();
 
   const config = {
     baseURL: API_CONFIG_JAVA.BASE_URL,

@@ -26,7 +26,10 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
 
   const isShopRegistrationPage = pathname === "/shop/dang-ky";
 
-  const isShopPage = pathname.startsWith("/shop") && !isShopRegistrationPage;
+  const isShopPage =
+    pathname.startsWith("/shop") &&
+    !pathname.startsWith("/shop-view") &&
+    !isShopRegistrationPage;
 
   const isAuthPage = AUTH_PAGES.some((route) => pathname.startsWith(route));
 

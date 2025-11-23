@@ -2,57 +2,55 @@
 
 import { useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { useProductDetail } from "@/hooks/user/useProducts";
 import { ProductImageGallery } from "./components/ProductImageGallery";
 import { ProductInfoSection } from "./components/ProductInfoSection";
 import { ShopInfoCard } from "./components/ShopInfoCard";
 import { PromotionGiftSection } from "./components/PromotionGiftSection";
 import { PromotionRequirementSection } from "./components/PromotionRequirementSection";
-import { ProductDetailSkeleton } from "@/components/skeleton/ProductSkeleton";
+import type { ProductDetail } from "@/types/users/product.types";
 
 interface ProductDetailClientProps {
   slug: string;
+  initialData: ProductDetail;
 }
 
 const extractProductImages = (product: any): string[] => {
   const imageSet = new Set<string>();
 
   if (product.imgMain) imageSet.add(product.imgMain);
-  
+
   product.imgList?.forEach((img: string) => img && imageSet.add(img));
-  
+
   product.variants?.forEach((variant: any) => {
     variant.variantValues
-      .filter((vv: any) => vv.propertyValue.level === 0 && vv.propertyValue.imgUrl)
+      .filter(
+        (vv: any) => vv.propertyValue.level === 0 && vv.propertyValue.imgUrl
+      )
       .forEach((vv: any) => imageSet.add(vv.propertyValue.imgUrl));
   });
-  
+
   const images = Array.from(imageSet);
   return images.length > 0 ? images : ["/placeholder-product.png"];
 };
 
-export const ProductDetailClient = ({ slug }: ProductDetailClientProps) => {
+export const ProductDetailClient = ({
+  slug,
+  initialData,
+}: ProductDetailClientProps) => {
   const searchParams = useSearchParams();
   const hasPromotionParam = searchParams.get("hasPromotion") === "true";
-  const { data: product, isLoading } = useProductDetail(slug);
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
 
+  // Use initialData from server instead of fetching again
+  const product = initialData;
+
   const allImages = useMemo(() => {
-    if (!product) return [];
     return extractProductImages(product);
   }, [product]);
 
   const handleVariantChange = (variantIndex: number) => {
     setSelectedVariantIndex(variantIndex);
   };
-
-  if (isLoading) {
-    return <ProductDetailSkeleton />;
-  }
-
-  if (!product) {
-    return null;
-  }
 
   return (
     <div className="grid gap-6 lg:grid-cols-12">

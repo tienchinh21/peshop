@@ -3,14 +3,16 @@
 import React, { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-// Create a client
+// Create a client with optimized settings for ISR strategy
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60 * 1000, // 1 minute
-      gcTime: 5 * 60 * 1000, // 5 minutes
-      retry: 1,
-      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes - align with ISR revalidate times
+      gcTime: 10 * 60 * 1000, // 10 minutes - keep data in cache longer
+      retry: 2, // Retry failed requests twice
+      refetchOnWindowFocus: false, // Don't refetch on window focus (we have ISR)
+      refetchOnMount: false, // Don't refetch on mount if data is fresh
+      refetchOnReconnect: false, // Don't refetch on reconnect
     },
   },
 });

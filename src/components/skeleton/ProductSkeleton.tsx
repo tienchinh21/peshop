@@ -49,13 +49,4 @@ export default function ProductSkeleton() {
   );
 }
 
-export const ProductDetailSkeleton = () => {
-  return (
-    <div className="container mx-auto px-4 py-6">
-      <ProductSkeleton />
-      <ProductSkeleton />
-      <ProductSkeleton />
-      <ProductSkeleton />
-    </div>
-  );
-};
+

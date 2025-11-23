@@ -1,6 +1,9 @@
 import { Metadata } from "next";
 import { ProductDetailPage } from "@/views/pages/san-pham/[slug]/ProductDetailPage";
-import { getProductDetail } from "@/services/api/users/product.service";
+import {
+  getProductDetailCached,
+  getTopProductSlugs,
+} from "@/services/api/users/product.server.cached";
 import {
   generateMetaDescription,
   getOgImage,
@@ -11,12 +14,37 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+// Enable ISR with 1 hour revalidation
+export const revalidate = 3600;
+
+// Allow dynamic params for products not in generateStaticParams
+export const dynamicParams = true;
+
+// Generate static params for top 100 products at build time
+export async function generateStaticParams() {
+  try {
+    const slugs = await getTopProductSlugs(100);
+    return slugs.map((slug) => ({ slug }));
+  } catch (error) {
+    console.error("Failed to generate static params:", error);
+    return [];
+  }
+}
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   try {
     const { slug } = await params;
-    const product = await getProductDetail(slug);
+    const product = await getProductDetailCached(slug);
+
+    // Handle case where product is null (401 or not found)
+    if (!product) {
+      return {
+        title: "Sản phẩm không tồn tại | PeShop",
+        description: "Sản phẩm bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.",
+      };
+    }
 
     const title = `${product.productName} | PeShop`;
     const description = generateMetaDescription(product);
@@ -81,13 +109,19 @@ export async function generateMetadata({
 export default async function Page({ params }: PageProps) {
   const { slug } = await params;
 
+  let product = null;
   let productSchema = null;
+
   try {
-    const product = await getProductDetail(slug);
-    const url = `${process.env.NEXT_PUBLIC_SITE_URL}/san-pham/${slug}`;
-    productSchema = generateProductSchema(product, url);
+    // Use cached function - will be deduplicated with generateMetadata call
+    product = await getProductDetailCached(slug);
+    if (product) {
+      const url = `${process.env.NEXT_PUBLIC_SITE_URL}/san-pham/${slug}`;
+      productSchema = generateProductSchema(product, url);
+    }
   } catch (error) {
-    // Product not found, schema will be null
+    // Product not found, will show error in ProductDetailPage
+    console.error("Failed to fetch product:", error);
   }
 
   return (
@@ -99,7 +133,7 @@ export default async function Page({ params }: PageProps) {
         />
       )}
 
-      <ProductDetailPage slug={slug} />
+      <ProductDetailPage slug={slug} initialData={product} />
     </>
   );
 }

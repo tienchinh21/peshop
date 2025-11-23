@@ -7,7 +7,7 @@ export interface MetricData {
   value: number;
   oldValue: number;
   increment: number;
-  change_rate: number;
+  changeRate: number;
   points: TimeSeriesPoint[];
 }
 

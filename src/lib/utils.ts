@@ -7,9 +7,13 @@ export function cn(...inputs: ClassValue[]) {
 
 
 export function formatCurrency(
-  amount: number | string,
+  amount: number | string | null | undefined,
   currency: string = "₫"
 ): string {
+  if (amount === null || amount === undefined) {
+    return `0 ${currency}`;
+  }
+
   // Chuyển đổi thành số nếu là string
   const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
 
@@ -36,7 +40,11 @@ export function formatCurrency(
  * formatNumber(1000000) // "1.000.000"
  * formatNumber(1500000.5) // "1.500.000"
  */
-export function formatNumber(amount: number | string): string {
+export function formatNumber(amount: number | string | null | undefined): string {
+  if (amount === null || amount === undefined) {
+    return "0";
+  }
+
   const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
 
   if (isNaN(numAmount)) {
@@ -58,7 +66,11 @@ export function formatNumber(amount: number | string): string {
  * formatInputCurrency(1000000) // "1.000.000"
  * formatInputCurrency("1500000") // "1.500.000"
  */
-export function formatInputCurrency(amount: number | string): string {
+export function formatInputCurrency(amount: number | string | null | undefined): string {
+  if (amount === null || amount === undefined) {
+    return "";
+  }
+
   const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
 
   if (isNaN(numAmount)) {
