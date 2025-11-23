@@ -86,7 +86,7 @@ export function OrderTableRow({
           )}
         </div>
       </TableCell>
-      <TableCell>{formatCurrency(order.salePrice)}</TableCell>
+      <TableCell>{formatCurrency(order.revenue)}</TableCell>
       <TableCell>
         {format(new Date(order.createdAt), "dd/MM/yyyy HH:mm")}
       </TableCell>

@@ -14,7 +14,7 @@ export interface OrderDetail {
 export interface Order {
   id: string;
   orderCode: string | null;
-  salePrice: number | null;
+  revenue: number | null;
   statusOrder: OrderStatus;
   createdAt: string;
   note: string | null;

@@ -23,11 +23,8 @@ export function OrderTablePagination({
 }: OrderTablePaginationProps) {
   const { page, size, pages, total } = pagination;
 
-  // Check if API returns 1-based page index (heuristic: if page > 0 but startItem > total when treated as 0-based)
-  // However, standard Spring Page is 0-based.
-  // If the user sees "Trang 2/1", it means page=1, pages=1. This implies page is 1-based.
-
-  const isOneBased = page === 1 && pages === 1 && total > 0;
+  // API returns 1-based page index
+  const isOneBased = true;
   const effectivePage = isOneBased ? page - 1 : page;
 
   const currentPage = effectivePage + 1;
