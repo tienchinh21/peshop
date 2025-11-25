@@ -45,30 +45,22 @@ interface PageProps {
   searchParams: Promise<{ page?: string }>;
 }
 
-export default async function SanPhamPage({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const currentPage = Number(params.page) || 1;
-  const pageSize = 20;
-
-  let products = [];
-  let totalPages = 1;
-  let error = null;
-
+async function ProductListContent({ page }: { page: number }) {
   try {
-    // Use cached function for better performance
-    const data = await getProductsServerCached({
-      page: currentPage,
-      pageSize,
-    });
+    const data = await getProductsServerCached({ page, pageSize: 20 });
     //@ts-ignore
-    products = data.data.data || [];
-    totalPages = data.data.totalPages || 1;
-  } catch (err) {
-    error = err;
-    console.error("Failed to fetch products:", err);
-  }
+    const products = data.data.data || [];
+    const totalPages = data.data.totalPages || 1;
 
-  if (error) {
+    return (
+      <ProductsPageClient
+        initialProducts={products}
+        initialPage={page}
+        initialTotalPages={totalPages}
+      />
+    );
+  } catch (error) {
+    console.error("Failed to fetch products:", error);
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -78,6 +70,11 @@ export default async function SanPhamPage({ searchParams }: PageProps) {
       </div>
     );
   }
+}
+
+export default async function SanPhamPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const currentPage = Number(params.page) || 1;
 
   return (
     <Suspense
@@ -91,11 +88,7 @@ export default async function SanPhamPage({ searchParams }: PageProps) {
         </div>
       }
     >
-      <ProductsPageClient
-        initialProducts={products}
-        initialPage={currentPage}
-        initialTotalPages={totalPages}
-      />
+      <ProductListContent page={currentPage} />
     </Suspense>
   );
 }

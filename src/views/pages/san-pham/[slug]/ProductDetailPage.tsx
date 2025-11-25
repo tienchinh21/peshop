@@ -1,17 +1,18 @@
 "use client";
 
-import { Suspense, lazy } from "react";
+// import { Suspense, lazy } from "react";
 import { SectionContainer } from "@/components/common";
 import { BreadcrumbNavigation } from "./components/BreadcrumbNavigation";
 import { ProductDetailClient } from "./ProductDetailClient";
+import ProductTabs from "./components/ProductTabs";
 import type { ProductDetail } from "@/types/users/product.types";
 
-const ProductTabs = lazy(() => import("./components/ProductTabs"));
-const SimilarProducts = lazy(() =>
-  import("./components/SimilarProducts").then((m) => ({
-    default: m.SimilarProducts,
-  }))
-);
+// Lazy load SimilarProducts to not block hydration
+// const SimilarProducts = lazy(() =>
+//   import("./components/SimilarProducts").then((mod) => ({
+//     default: mod.SimilarProducts,
+//   }))
+// );
 
 interface ProductDetailPageProps {
   slug: string;
@@ -49,25 +50,28 @@ export const ProductDetailPage = ({
 
       <ProductDetailClient slug={slug} initialData={initialData} />
 
+      {/* Defer non-critical content */}
       <div className="mt-12">
-        <Suspense
-          fallback={
-            <div className="bg-white rounded-lg p-6 animate-pulse h-64" />
-          }
-        >
-          <ProductTabs product={initialData} />
-        </Suspense>
+        <ProductTabs product={initialData} />
       </div>
 
-      <div className="mt-12">
+      {/* TODO: Enable SimilarProducts later when needed */}
+      {/* <div className="mt-12">
         <Suspense
           fallback={
-            <div className="h-64 animate-pulse bg-gray-100 rounded-lg" />
+            <div className="space-y-4">
+              <div className="h-8 w-48 bg-gray-200 rounded animate-pulse" />
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="h-64 bg-gray-100 rounded animate-pulse" />
+                ))}
+              </div>
+            </div>
           }
         >
           <SimilarProducts productId={initialData.productId} />
         </Suspense>
-      </div>
+      </div> */}
     </SectionContainer>
   );
 };

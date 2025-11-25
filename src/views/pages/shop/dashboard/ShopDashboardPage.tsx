@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { DashboardFilter } from "./components/DashboardFilter";
 import { DashboardStats } from "./components/DashboardStats";
-import { DashboardCharts } from "./components/DashboardCharts";
+import { DashboardCharts } from "@/components/dynamic";
 import { TodoList } from "./components/TodoList";
 import { DashboardPageSkeleton } from "@/components/skeleton";
 import {

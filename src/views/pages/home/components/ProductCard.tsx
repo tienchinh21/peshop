@@ -8,7 +8,6 @@ import { Eye, ShoppingCart, Gift } from "lucide-react";
 import { usePrefetchProductWithDebounce } from "@/hooks/user/useProducts";
 import { useAddToCart } from "@/hooks/user/useCart";
 import type { Product } from "@/types/users/product.types";
-import _ from "lodash";
 
 interface ProductCardProps {
   product: Product;

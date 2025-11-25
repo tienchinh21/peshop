@@ -1,5 +1,4 @@
 import { API_CONFIG, API_ENDPOINTS } from "@/lib/config/api.config";
-import { getAuthTokenFromServerCookies } from "@/lib/utils/cookies.utils";
 import { createCachedFetcher, CACHE_REVALIDATION } from "@/services/core/cache";
 import type {
   ProductsApiResponse,
@@ -22,20 +21,12 @@ export const getProductDetailCached = createCachedFetcher(async (slug: string): 
 
     const url = `${baseUrl}${API_ENDPOINTS.PRODUCTS.DETAIL_FULL}?${params.toString()}`;
 
-
-    const token = await getAuthTokenFromServerCookies();
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-    };
-
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-
     const response = await fetch(url, {
       method: "GET",
-      headers,
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
       credentials: "include",
       next: {
         revalidate: CACHE_REVALIDATION.PRODUCT_DETAIL,
@@ -43,7 +34,6 @@ export const getProductDetailCached = createCachedFetcher(async (slug: string): 
     });
 
     if (!response.ok) {
-    
       if (response.status === 401) {
         console.warn(`Product detail endpoint requires authentication for slug: ${slug}`);
         return null;

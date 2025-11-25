@@ -7,7 +7,7 @@ import { useQuickViewModal } from "@/hooks/useQuickViewModal";
 import PageSection from "@/components/common/PageSection";
 import SectionContainer from "@/components/common/SectionContainer";
 import ProductCard from "@/views/pages/home/components/ProductCard";
-import QuickViewModal from "@/components/common/QuickViewModal";
+import { QuickViewModal } from "@/components/dynamic";
 import LoadingOverlay from "@/components/common/LoadingOverlay";
 import {
   Pagination,

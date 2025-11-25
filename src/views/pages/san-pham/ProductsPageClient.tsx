@@ -1,6 +1,6 @@
 "use client";
 
-import { lazy, Suspense, useMemo, useCallback, useState } from "react";
+import { Suspense, useMemo, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuickViewModal } from "@/hooks/useQuickViewModal";
 import PageSection from "@/components/common/PageSection";
@@ -8,11 +8,10 @@ import SectionContainer from "@/components/common/SectionContainer";
 import { ProductSkeleton } from "@/components/skeleton";
 import { filterValidProducts } from "@/lib/utils/product.utils";
 import type { Product } from "@/types/users/product.types";
-
-const QuickViewModal = lazy(() => import("@/components/common/QuickViewModal"));
-const LoadingOverlay = lazy(() => import("@/components/common/LoadingOverlay"));
-const ProductsPagination = lazy(() => import("./components/ProductsPagination"));
-const ProductGrid = lazy(() => import("./components/ProductGrid"));
+import { QuickViewModal } from "@/components/dynamic";
+import LoadingOverlay from "@/components/common/LoadingOverlay";
+import ProductsPagination from "./components/ProductsPagination";
+import ProductGrid from "./components/ProductGrid";
 
 interface ProductsPageClientProps {
   initialProducts: Product[];
@@ -79,27 +78,13 @@ export default function ProductsPageClient({
 
           {!isNavigating && products.length > 0 && (
             <>
-              <Suspense
-                fallback={
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
-                    {renderSkeletons}
-                  </div>
-                }
-              >
-                <ProductGrid products={products} onQuickView={handleQuickView} />
-              </Suspense>
+              <ProductGrid products={products} onQuickView={handleQuickView} />
 
-              <Suspense
-                fallback={
-                  <div className="h-16 animate-pulse bg-gray-100 rounded" />
-                }
-              >
-                <ProductsPagination
-                  currentPage={initialPage}
-                  totalPages={initialTotalPages}
-                  onPageChange={handlePageChange}
-                />
-              </Suspense>
+              <ProductsPagination
+                currentPage={initialPage}
+                totalPages={initialTotalPages}
+                onPageChange={handlePageChange}
+              />
 
               <div className="text-center mt-4 text-sm text-gray-600">
                 Hiển thị {products.length} sản phẩm
@@ -109,26 +94,20 @@ export default function ProductsPageClient({
         </div>
       </SectionContainer>
 
-      <Suspense fallback={null}>
-        {isModalLoading && (
-          <LoadingOverlay
-            isVisible={isModalLoading}
-            message="Đang tải sản phẩm..."
-            subMessage="Vui lòng chờ trong giây lát"
-          />
-        )}
-      </Suspense>
+      {isModalLoading && (
+        <LoadingOverlay
+          isVisible={isModalLoading}
+          message="Đang tải sản phẩm..."
+          subMessage="Vui lòng chờ trong giây lát"
+        />
+      )}
 
-      <Suspense fallback={null}>
-        {isModalOpen && (
-          <QuickViewModal
-            product={selectedProduct}
-            isOpen={isModalOpen}
-            onClose={handleCloseModal}
-            onDataLoaded={handleModalDataLoaded}
-          />
-        )}
-      </Suspense>
+      <QuickViewModal
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onDataLoaded={handleModalDataLoaded}
+      />
     </>
   );
 }

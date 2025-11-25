@@ -1,5 +1,4 @@
 import { API_CONFIG } from "@/lib/config/api.config";
-import { getAuthTokenFromServerCookies } from "@/lib/utils/cookies.utils";
 import { CACHE_REVALIDATION } from "@/services/core/cache";
 import _ from "lodash";
 import type { GetShopResponse, ShopData } from "@/types/users/get-shop.types";
@@ -16,18 +15,11 @@ export const getShopServer = async (shopId: string): Promise<ShopData | null> =>
   try {
     const url = `${baseUrl}/Shop/get-shop-detail?shopId=${shopId}`;
     
-    const token = await getAuthTokenFromServerCookies();
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-    };
-
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-    
     const response = await fetch(url, {
       method: "GET",
-      headers,
+      headers: {
+        "Content-Type": "application/json",
+      },
       credentials: "include",
       next: {
         revalidate: CACHE_REVALIDATION.SHOP_DETAIL,
@@ -66,19 +58,12 @@ export const getProductsByShopIdServer = async (
 
     const url = `${baseUrl}/Product/get-products-by-shop?${params.toString()}`;
     
-    const token = await getAuthTokenFromServerCookies();
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-    };
-
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-    
     const response = await fetch(url, {
       method: "GET",
-      headers,
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
       credentials: "include",
       next: {
         revalidate: CACHE_REVALIDATION.PRODUCT_LIST,

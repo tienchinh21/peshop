@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Store } from "lucide-react";
-import _ from "lodash";
+import { groupBy, get } from "lodash";
 import type { CartItem } from "@/types/users/cart.types";
 
 interface OrderItemsSectionProps {
@@ -14,7 +14,7 @@ export function OrderItemsSection({
   items,
   formatPrice,
 }: OrderItemsSectionProps) {
-  const groupedByShop = _.groupBy(items, "shopId");
+  const groupedByShop = groupBy(items, "shopId");
 
   return (
     <Card>
@@ -23,7 +23,7 @@ export function OrderItemsSection({
 
         <div className="space-y-6">
           {Object.entries(groupedByShop).map(([shopId, shopItems]) => {
-            const shopName = _.get(shopItems, "[0].shopName", "Cửa hàng");
+            const shopName = get(shopItems, "[0].shopName", "Cửa hàng");
 
             return (
               <div key={shopId} className="space-y-3">
@@ -66,7 +66,7 @@ export function OrderItemsSection({
                             <p className="text-xs text-gray-500 mt-1">
                               {item.variantValues
                                 .map((vv) =>
-                                  _.get(vv, "propertyValue.value", "")
+                                  get(vv, "propertyValue.value", "")
                                 )
                                 .filter(Boolean)
                                 .join(", ")}

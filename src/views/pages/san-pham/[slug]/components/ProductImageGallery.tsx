@@ -47,6 +47,7 @@ export const ProductImageGallery = ({
       api.off("select", handleCarouselSelect);
       api.off("reInit", handleCarouselSelect);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api]);
 
   useEffect(() => {

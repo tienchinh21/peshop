@@ -1,10 +1,10 @@
 "use client";
 
-import { IconGift, IconShoppingCart } from "@tabler/icons-react";
+import { Gift, ShoppingCart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useProductPromotions } from "@/hooks/user/useProducts";
-import _ from "lodash";
+import { isEmpty, filter, get, map, last } from "lodash";
 import Image from "next/image";
 
 interface PromotionRequirementSectionProps {
@@ -21,16 +21,16 @@ export const PromotionRequirementSection = ({
     hasPromotion
   );
 
-  if (isLoading || !promotions || _.isEmpty(promotions)) {
+  if (isLoading || !promotions || isEmpty(promotions)) {
     return null;
   }
 
-  const requirementPromotions = _.filter(
+  const requirementPromotions = filter(
     promotions,
-    (p) => !_.isEmpty(_.get(p, "products", []))
+    (p) => !isEmpty(get(p, "products", []))
   );
 
-  if (_.isEmpty(requirementPromotions)) {
+  if (isEmpty(requirementPromotions)) {
     return null;
   }
 
@@ -45,19 +45,19 @@ export const PromotionRequirementSection = ({
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
-          <IconGift className="w-5 h-5 text-primary" />
+          <Gift className="w-5 h-5 text-primary" />
           Khuyến mãi combo
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {_.map(requirementPromotions, (promotion) => {
-          const giftProduct = _.get(promotion, "promotionGifts.product");
-          const giftQuantity = _.get(
+        {map(requirementPromotions, (promotion) => {
+          const giftProduct = get(promotion, "promotionGifts.product");
+          const giftQuantity = get(
             promotion,
             "promotionGifts.giftQuantity",
             0
           );
-          const requiredProducts = _.get(promotion, "products", []);
+          const requiredProducts = get(promotion, "products", []);
 
           if (!giftProduct) return null;
 
@@ -67,10 +67,10 @@ export const PromotionRequirementSection = ({
 
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <IconShoppingCart className="w-4 h-4" />
+                  <ShoppingCart className="w-4 h-4" />
                   <span>Mua kèm:</span>
                 </div>
-                {_.map(requiredProducts, (product) => (
+                {map(requiredProducts, (product) => (
                   <div
                     key={product.id}
                     className="flex items-center gap-2 pl-6"
@@ -95,7 +95,7 @@ export const PromotionRequirementSection = ({
 
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <IconGift className="w-4 h-4" />
+                  <Gift className="w-4 h-4" />
                   <span>Nhận quà:</span>
                 </div>
                 <div className="flex gap-3 pl-6">
@@ -118,7 +118,7 @@ export const PromotionRequirementSection = ({
                 </div>
               </div>
 
-              {promotion !== _.last(requirementPromotions) && (
+              {promotion !== last(requirementPromotions) && (
                 <Separator className="mt-4" />
               )}
             </div>

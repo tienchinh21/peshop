@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import _ from "lodash";
+import { groupBy, get } from "lodash";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -38,7 +38,7 @@ export default function CartPage() {
   const [selectedItems, setSelectedItems] = React.useState<string[]>([]);
 
   const groupedByShop = useMemo(() => {
-    return _.groupBy(cartItems, "shopId");
+    return groupBy(cartItems, "shopId");
   }, [cartItems]);
 
   const formatPrice = (price: number) => {
@@ -133,7 +133,7 @@ export default function CartPage() {
             Không thể tải giỏ hàng
           </h3>
           <p className="text-gray-600 mb-4">
-            {_.get(error, "message", "Đã có lỗi xảy ra. Vui lòng thử lại.")}
+            {get(error, "message", "Đã có lỗi xảy ra. Vui lòng thử lại.")}
           </p>
           <Button onClick={() => window.location.reload()}>Thử lại</Button>
         </Card>
@@ -202,7 +202,7 @@ export default function CartPage() {
           </Card>
 
           {Object.entries(groupedByShop).map(([shopId, items]) => {
-            const shopName = _.get(items, "[0].shopName", "Cửa hàng");
+            const shopName = get(items, "[0].shopName", "Cửa hàng");
 
             return (
               <Card key={shopId}>
@@ -324,7 +324,7 @@ function CartItemRow({
             <p className="text-sm text-gray-500 mt-1">
               Phân loại:{" "}
               {item.variantValues
-                .map((vv) => _.get(vv, "propertyValue.value", ""))
+                .map((vv) => get(vv, "propertyValue.value", ""))
                 .filter(Boolean)
                 .join(", ")}
             </p>

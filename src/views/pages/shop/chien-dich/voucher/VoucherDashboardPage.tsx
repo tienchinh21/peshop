@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VoucherDashboardMetrics } from "./components/VoucherDashboardMetrics";
-import { VoucherDashboardCharts } from "./components/VoucherDashboardCharts";
+import { VoucherDashboardCharts } from "@/components/dynamic";
 import { useVoucherDashboard } from "@/hooks/shop/useVoucherDashboard";
 import type { VoucherDashboardFilters } from "@/types/shops/voucher-dashboard.type";
 import { Calendar, TrendingUp } from "lucide-react";

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import _ from "lodash";
+import { size, get, toNumber } from "lodash";
 import { useProductDetail } from "@/hooks/user/useProducts";
 import { useAddToCart } from "@/hooks/user/useCart";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -184,18 +184,18 @@ export default function QuickViewModal({
     if (!productDetail) return;
 
     // Check if product has variants and user selected one
-    const hasVariants = _.size(_.get(productDetail, "variants", [])) > 0;
+    const hasVariants = size(get(productDetail, "variants", [])) > 0;
     if (hasVariants && !selectedVariant) {
       return; // Button should be disabled in this case
     }
 
     // Prepare payload
     const payload = {
-      productId: _.get(productDetail, "productId", ""),
+      productId: get(productDetail, "productId", ""),
       price: currentPrice,
       quantity,
       variantId: selectedVariant
-        ? _.toNumber(_.get(selectedVariant, "variantId"))
+        ? toNumber(get(selectedVariant, "variantId"))
         : null,
     };
 

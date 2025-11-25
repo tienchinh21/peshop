@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { RichTextEditor, ImageCropModal } from "@/components/common";
+import { ImageCropModal } from "@/components/common";
+import { RichTextEditor } from "@/components/dynamic";
 import { Button } from "@/components/ui/button";
 import {
   Upload,
@@ -16,7 +17,7 @@ import {
   Loader2,
   Edit2,
 } from "lucide-react";
-import { CategorySelectionModal } from "@/components/common/Modal/CategorySelectionModal";
+import { CategorySelectionModal } from "@/components/dynamic";
 import { Category, CategoryChild } from "@/types/shops/category.type";
 import { uploadImage } from "@/services/api/shops/product.service";
 import { toast } from "sonner";

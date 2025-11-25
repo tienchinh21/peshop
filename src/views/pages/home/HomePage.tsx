@@ -8,7 +8,7 @@ import TrailRunningBanner from "./components/TrailRunningBanner";
 import VacuumBanner from "./components/VacuumBanner";
 import FlashSale from "./components/FlashSale";
 import ProductList from "@/components/common/ProductList";
-import QuickViewModal from "@/components/common/QuickViewModal";
+import { QuickViewModal } from "@/components/dynamic";
 import LoadingOverlay from "@/components/common/LoadingOverlay";
 import { ProductSkeleton } from "@/components/skeleton";
 import { useInfiniteProducts } from "@/hooks/user/useProducts";

@@ -1,10 +1,10 @@
 "use client";
 
-import { IconGift } from "@tabler/icons-react";
+import { Gift } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useProductPromotions } from "@/hooks/user/useProducts";
-import _ from "lodash";
+import { isEmpty, filter, get, map } from "lodash";
 import Image from "next/image";
 
 interface PromotionGiftSectionProps {
@@ -21,16 +21,16 @@ export const PromotionGiftSection = ({
     hasPromotion
   );
 
-  if (isLoading || !promotions || _.isEmpty(promotions)) {
+  if (isLoading || !promotions || isEmpty(promotions)) {
     return null;
   }
 
-  const freeGiftPromotions = _.filter(
+  const freeGiftPromotions = filter(
     promotions,
-    (p) => _.isEmpty(_.get(p, "products", []))
+    (p) => isEmpty(get(p, "products", []))
   );
 
-  if (_.isEmpty(freeGiftPromotions)) {
+  if (isEmpty(freeGiftPromotions)) {
     return null;
   }
 
@@ -45,14 +45,14 @@ export const PromotionGiftSection = ({
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
-          <IconGift className="w-5 h-5 text-primary" />
+          <Gift className="w-5 h-5 text-primary" />
           Quà tặng kèm
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {_.map(freeGiftPromotions, (promotion) => {
-          const giftProduct = _.get(promotion, "promotionGifts.product");
-          const giftQuantity = _.get(
+        {map(freeGiftPromotions, (promotion) => {
+          const giftProduct = get(promotion, "promotionGifts.product");
+          const giftQuantity = get(
             promotion,
             "promotionGifts.giftQuantity",
             0

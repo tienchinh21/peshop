@@ -1,7 +1,6 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { sanitizeHtml } from "@/lib/utils/html.utils";
 
 interface ProductTabsProps {
   product: {
@@ -23,12 +22,10 @@ export default function ProductTabs({ product }: ProductTabsProps) {
       </TabsList>
 
       <TabsContent value="description" className="mt-6">
-        <div
-          className="prose max-w-none"
-          dangerouslySetInnerHTML={{
-            __html: sanitizeHtml(product.description),
-          }}
-        />
+        <div className="prose max-w-none">
+          {/* Render as text first to avoid DOMPurify blocking hydration */}
+          <div dangerouslySetInnerHTML={{ __html: product.description }} />
+        </div>
       </TabsContent>
 
       <TabsContent value="reviews" className="mt-6">
