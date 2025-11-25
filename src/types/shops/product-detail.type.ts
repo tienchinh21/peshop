@@ -34,6 +34,7 @@ export interface ProductVariantDetail {
 }
 
 export interface ShopProductDetail {
+  priceOriginal(priceOriginal: any): import("react").ReactNode;
   id: string;
   name: string;
   description: string;
@@ -42,6 +43,7 @@ export interface ShopProductDetail {
   status: number;
   categoryChildId: string;
   categoryChildName: string;
+  productName: string;
   weight: number;
   height: number;
   length: number;
@@ -50,6 +52,7 @@ export interface ShopProductDetail {
   productInformations: ProductInformation[];
   options: ProductOption[];
   variants: ProductVariantDetail[];
+  quantity?: number;
 }
 
 export interface ShopProductDetailResponse {

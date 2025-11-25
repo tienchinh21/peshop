@@ -5,7 +5,10 @@ import { Star, Minus, Plus, ShoppingCart, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import type { ProductDetail, ProductVariantDetail } from "@/types/users/product.types";
+import type {
+  ProductDetail,
+  ProductVariantDetail,
+} from "@/types/users/product.types";
 import { useAddToCart } from "@/hooks/user/useCart";
 
 interface ProductInfoSectionProps {
@@ -19,7 +22,7 @@ export const ProductInfoSection = ({
 }: ProductInfoSectionProps) => {
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  
+
   const addToCartMutation = useAddToCart();
 
   const selectedVariant = product.variants[selectedVariantIndex];
@@ -28,17 +31,17 @@ export const ProductInfoSection = ({
   // Group variants by level
   const variantsByLevel = useMemo(() => {
     const grouped: Record<number, any[]> = {};
-    
+
     product.variants.forEach((variant, index) => {
       variant.variantValues.forEach((vv) => {
         if (!grouped[vv.propertyValue.level]) {
           grouped[vv.propertyValue.level] = [];
         }
-        
+
         const existing = grouped[vv.propertyValue.level].find(
           (item) => item.value === vv.propertyValue.value
         );
-        
+
         if (!existing) {
           grouped[vv.propertyValue.level].push({
             value: vv.propertyValue.value,
@@ -49,7 +52,7 @@ export const ProductInfoSection = ({
         }
       });
     });
-    
+
     return grouped;
   }, [product.variants]);
 
@@ -68,31 +71,36 @@ export const ProductInfoSection = ({
 
   const handleAddToCart = () => {
     if (!selectedVariant) return;
-    
+
     addToCartMutation.mutate({
       productId: product.productId,
+      //@ts-ignore
       variantId: selectedVariant.variantId,
       quantity,
     });
   };
 
   const isInStock = maxQuantity > 0;
-  const priceFormatted = new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
+  const priceFormatted = new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
   }).format(selectedVariant?.price || product.price);
 
   return (
     <div className="flex flex-col gap-6">
       {/* Product Name */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">{product.productName}</h1>
+        <h1 className="text-2xl font-bold text-gray-900">
+          {product.productName}
+        </h1>
       </div>
 
       {/* Rating & Stats */}
       <div className="flex items-center gap-4 text-sm">
         <div className="flex items-center gap-1">
-          <span className="font-semibold text-orange-500">{product.reviewPoint.toFixed(1)}</span>
+          <span className="font-semibold text-orange-500">
+            {product.reviewPoint.toFixed(1)}
+          </span>
           <Star className="h-4 w-4 fill-orange-500 text-orange-500" />
         </div>
         <div className="h-4 w-px bg-gray-300" />
@@ -119,7 +127,7 @@ export const ProductInfoSection = ({
           <div className="flex flex-wrap gap-2">
             {options.map((option, index) => {
               const isSelected = selectedVariantIndex === option.variantIndex;
-              
+
               return (
                 <button
                   key={index}
@@ -197,22 +205,13 @@ export const ProductInfoSection = ({
           <ShoppingCart className="mr-2 h-5 w-5" />
           Thêm vào giỏ hàng
         </Button>
-        <Button
-          size="lg"
-          disabled={!isInStock}
-          className="flex-1"
-        >
+        <Button size="lg" disabled={!isInStock} className="flex-1">
           Mua ngay
         </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-12 w-12"
-        >
+        <Button variant="outline" size="icon" className="h-12 w-12">
           <Heart className="h-5 w-5" />
         </Button>
       </div>
     </div>
   );
 };
-

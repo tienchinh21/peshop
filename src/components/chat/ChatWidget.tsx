@@ -167,14 +167,15 @@ export default function ChatWidget() {
         ref={widgetRef}
         className={cn(
           "fixed bottom-24 right-6 z-40 transition-all duration-300 ease-in-out origin-bottom-right",
+          "max-sm:bottom-20 max-sm:right-4 max-sm:left-4",
           isOpen
             ? "opacity-100 scale-100 translate-y-0"
             : "opacity-0 scale-95 translate-y-4 pointer-events-none"
         )}
       >
-        <Card className="w-[800px] h-[600px] shadow-2xl border-0 flex flex-row overflow-hidden rounded-xl ring-1 ring-black/5 bg-white p-0 gap-0">
+        <Card className="w-full max-w-[600px] h-[70vh] max-h-[500px] max-sm:max-w-full max-sm:h-[calc(100vh-120px)] shadow-2xl border-0 flex flex-row overflow-hidden rounded-xl ring-1 ring-black/5 bg-white p-0 gap-0">
           {/* Left Sidebar: Conversation List */}
-          <div className="w-[300px] flex flex-col border-r border-gray-100 bg-white shrink-0">
+          <div className="w-[300px] max-lg:w-[240px] max-md:hidden flex flex-col border-r border-gray-100 bg-white shrink-0">
             {/* Sidebar Header */}
             <div className="p-4 border-b border-gray-100 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">

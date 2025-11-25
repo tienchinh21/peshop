@@ -40,27 +40,27 @@ export default function FlashSale() {
   }, []);
 
   return (
-    <div className="bg-white rounded-lg p-6">
+    <div className="bg-white rounded-lg p-4 md:p-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 md:mb-6 gap-3 md:gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
             Flash Deals
           </h2>
 
           {/* Countdown Timer */}
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Ends in</span>
+            <span className="text-xs sm:text-sm text-gray-600">Ends in</span>
             <div className="flex items-center gap-1">
-              <div className="bg-gray-800 text-white px-3 py-1.5 rounded-lg text-sm font-mono font-bold min-w-[2.5rem] text-center">
+              <div className="bg-gray-800 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-mono font-bold min-w-[2rem] sm:min-w-[2.5rem] text-center">
                 {timeLeft.hours.toString().padStart(2, "0")}
               </div>
               <span className="text-gray-600 font-bold">:</span>
-              <div className="bg-gray-800 text-white px-3 py-1.5 rounded-lg text-sm font-mono font-bold min-w-[2.5rem] text-center">
+              <div className="bg-gray-800 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-mono font-bold min-w-[2rem] sm:min-w-[2.5rem] text-center">
                 {timeLeft.minutes.toString().padStart(2, "0")}
               </div>
               <span className="text-gray-600 font-bold">:</span>
-              <div className="bg-gray-800 text-white px-3 py-1.5 rounded-lg text-sm font-mono font-bold min-w-[2.5rem] text-center">
+              <div className="bg-gray-800 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-mono font-bold min-w-[2rem] sm:min-w-[2.5rem] text-center">
                 {timeLeft.seconds.toString().padStart(2, "0")}
               </div>
             </div>
@@ -69,7 +69,7 @@ export default function FlashSale() {
 
         <Button
           variant="ghost"
-          className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 font-medium"
+          className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 font-medium text-sm self-start sm:self-auto"
         >
           See All Products
         </Button>
@@ -87,7 +87,7 @@ export default function FlashSale() {
           {mockProducts.map((product) => (
             <CarouselItem
               key={product.id}
-              className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3 xl:basis-1/4 2xl:basis-1/5"
+              className="pl-2 md:pl-4 basis-1/2 sm:basis-1/3 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 2xl:basis-1/6"
             >
               <ProductSaleCard
                 {...product}
@@ -97,8 +97,8 @@ export default function FlashSale() {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="left-0" />
-        <CarouselNext className="right-0" />
+        <CarouselPrevious className="left-0 hidden sm:flex" />
+        <CarouselNext className="right-0 hidden sm:flex" />
       </Carousel>
     </div>
   );

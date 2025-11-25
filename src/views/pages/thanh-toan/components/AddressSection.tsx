@@ -85,7 +85,7 @@ export function AddressSection({
   };
 
   const handleSelectAddress = (addr: UserAddress) => {
-    const fullAddress = _.get(addr, "fullOldAddress", "");
+    const fullAddress = _.get(addr, "fullOldAddress") || "";
     onAddressChange(fullAddress);
     setSelectedAddressId(addr.id);
     setIsListModalOpen(false);

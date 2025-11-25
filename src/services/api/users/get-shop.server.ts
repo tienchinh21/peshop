@@ -1,12 +1,10 @@
 import { API_CONFIG } from "@/lib/config/api.config";
 import { getAuthTokenFromServerCookies } from "@/lib/utils/cookies.utils";
+import { CACHE_REVALIDATION } from "@/services/core/cache";
 import _ from "lodash";
 import type { GetShopResponse, ShopData } from "@/types/users/get-shop.types";
-import type { Product, ProductsApiResponse } from "@/types/users/product.types";
+import type { Product } from "@/types/users/product.types";
 
-/**
- * Server-side shop data fetching for SSR
- */
 export const getShopServer = async (shopId: string): Promise<ShopData | null> => {
   const baseUrl = API_CONFIG.BASE_URL;
 
@@ -18,13 +16,11 @@ export const getShopServer = async (shopId: string): Promise<ShopData | null> =>
   try {
     const url = `${baseUrl}/Shop/get-shop-detail?shopId=${shopId}`;
     
-    // Get auth token from cookies for server-side requests
     const token = await getAuthTokenFromServerCookies();
     const headers: HeadersInit = {
       "Content-Type": "application/json",
     };
 
-    // Add Authorization header if token exists
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -34,7 +30,7 @@ export const getShopServer = async (shopId: string): Promise<ShopData | null> =>
       headers,
       credentials: "include",
       next: {
-        revalidate: 60, // Cache 60 seconds
+        revalidate: CACHE_REVALIDATION.SHOP_DETAIL,
       },
     });
 
@@ -49,9 +45,6 @@ export const getShopServer = async (shopId: string): Promise<ShopData | null> =>
   }
 };
 
-/**
- * Server-side shop products fetching for SSR
- */
 export const getProductsByShopIdServer = async (
   shopId: string,
   page: number = 1,
@@ -73,14 +66,12 @@ export const getProductsByShopIdServer = async (
 
     const url = `${baseUrl}/Product/get-products-by-shop?${params.toString()}`;
     
-    // Get auth token from cookies for server-side requests
     const token = await getAuthTokenFromServerCookies();
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       "Accept": "application/json",
     };
 
-    // Add Authorization header if token exists
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -88,9 +79,9 @@ export const getProductsByShopIdServer = async (
     const response = await fetch(url, {
       method: "GET",
       headers,
-      credentials: "include", // Include cookies if available
+      credentials: "include",
       next: {
-        revalidate: 30, // Cache 30 seconds
+        revalidate: CACHE_REVALIDATION.PRODUCT_LIST,
       },
     });
 

@@ -20,12 +20,8 @@ const nextConfig: NextConfig = {
       exclude: ['error', 'warn'],
     } : false,
   },
-  // Enable SWC minification
-  swcMinify: true,
   // Reduce build output
   productionBrowserSourceMaps: false,
-  // Optimize fonts
-  optimizeFonts: true,
 };
 
 export default nextConfig;

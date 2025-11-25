@@ -38,6 +38,7 @@ export interface Promotion {
   gifts?: PromotionGift[];
   createdAt?: string;
   updatedAt?: string;
+  usedCount?: number;
 }
 
 export interface CreatePromotionPayload {

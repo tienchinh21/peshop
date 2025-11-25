@@ -4,10 +4,6 @@ import type {
   ProductFilters,
 } from "@/types/users/product.types";
 
-/**
- * Server-side product fetching (for SSR/SSG)
- * This runs on the server and doesn't use axios client
- */
 export const getProductsServer = async (
   filters?: ProductFilters
 ): Promise<ProductsApiResponse> => {
@@ -38,9 +34,8 @@ export const getProductsServer = async (
     headers: {
       "Content-Type": "application/json",
     },
-    // Enable caching for better performance
     next: {
-      revalidate: 60, // Revalidate every 60 seconds
+      revalidate: 60,
     },
   });
 

@@ -12,8 +12,6 @@ import type {
     AuthUser,
 } from "@/types/users/auth.types";
 
-// ============ Auth API Functions ============
-
 export const sendOtp = async (
     data: SendOtpRequest,
 ): Promise<SendOtpResponse> => {
@@ -84,6 +82,10 @@ export const getCurrentUserFromAPI = async (): Promise<AuthUser | null> => {
     }
 };
 
+/**
+ * @deprecated Use refreshAuthToken from @/services/core/auth instead
+ * This is kept for backward compatibility
+ */
 export const refreshAuthToken = async (): Promise<LoginResponse> => {
     const response = await axiosDotnet.post<LoginResponse>(
         API_ENDPOINTS.AUTH.REFRESH_TOKEN,

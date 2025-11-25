@@ -18,7 +18,7 @@ import {
   getProvinces,
   getDistrictsByProvince,
   getWardsByDistrict,
-} from "@/services/api/address.service";
+} from "@/services/core/external";
 import type { UserAddress } from "@/types/users/address.types";
 import _ from "lodash";
 

@@ -20,7 +20,7 @@ import {
   getProvinces,
   getDistrictsByProvince,
   getWardsByDistrict,
-} from "@/services/api/address.service";
+} from "@/services/core/external";
 
 export interface AddressSelection {
   provinceId: string;

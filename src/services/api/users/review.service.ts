@@ -7,9 +7,6 @@ import type {
   Review
 } from '@/types/users/review.types';
 
-/**
- * Fetch product reviews with filters and pagination
- */
 export const getProductReviews = async (
   params: ReviewFilterParams
 ): Promise<ReviewsResponse> => {
@@ -29,9 +26,6 @@ export const getProductReviews = async (
   return response.data;
 };
 
-/**
- * Create a new product review
- */
 export const createReview = async (
   payload: CreateReviewPayload
 ): Promise<Review> => {
@@ -60,9 +54,6 @@ export const createReview = async (
   return response.data;
 };
 
-/**
- * Update an existing review
- */
 export const updateReview = async (
   payload: UpdateReviewPayload
 ): Promise<Review> => {
@@ -93,16 +84,10 @@ export const updateReview = async (
   return response.data;
 };
 
-/**
- * Delete a review
- */
 export const deleteReview = async (reviewId: string): Promise<void> => {
   await axiosDotnet.delete(`/Reviews/${reviewId}`);
 };
 
-/**
- * Mark review as helpful
- */
 export const markReviewHelpful = async (reviewId: string): Promise<void> => {
   await axiosDotnet.post(`/Reviews/${reviewId}/helpful`);
 };

@@ -1,6 +1,6 @@
-import { cache } from 'react';
 import { API_CONFIG, API_ENDPOINTS } from "@/lib/config/api.config";
 import { getAuthTokenFromServerCookies } from "@/lib/utils/cookies.utils";
+import { createCachedFetcher, CACHE_REVALIDATION } from "@/services/core/cache";
 import type {
   ProductsApiResponse,
   ProductFilters,
@@ -8,11 +8,7 @@ import type {
   ProductDetailApiResponse,
 } from "@/types/users/product.types";
 
-/**
- * Cached server-side product detail fetching
- * Uses React cache() to deduplicate requests between generateMetadata and page component
- */
-export const getProductDetailCached = cache(async (slug: string): Promise<ProductDetail | null> => {
+export const getProductDetailCached = createCachedFetcher(async (slug: string): Promise<ProductDetail | null> => {
   const baseUrl = API_CONFIG.BASE_URL;
   
   if (!baseUrl) {
@@ -26,14 +22,13 @@ export const getProductDetailCached = cache(async (slug: string): Promise<Produc
 
     const url = `${baseUrl}${API_ENDPOINTS.PRODUCTS.DETAIL_FULL}?${params.toString()}`;
 
-    // Get auth token from cookies for server-side requests
+
     const token = await getAuthTokenFromServerCookies();
     const headers: HeadersInit = {
       "Content-Type": "application/json",
       "Accept": "application/json",
     };
 
-    // Add Authorization header if token exists
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -41,14 +36,14 @@ export const getProductDetailCached = cache(async (slug: string): Promise<Produc
     const response = await fetch(url, {
       method: "GET",
       headers,
-      credentials: "include", // Include cookies if available (for SSR with auth)
+      credentials: "include",
       next: {
-        revalidate: 3600, // Cache for 1 hour (ISR)
+        revalidate: CACHE_REVALIDATION.PRODUCT_DETAIL,
       },
     });
 
     if (!response.ok) {
-      // Handle 401 Unauthorized gracefully - product might require auth or endpoint might be misconfigured
+    
       if (response.status === 401) {
         console.warn(`Product detail endpoint requires authentication for slug: ${slug}`);
         return null;
@@ -65,11 +60,8 @@ export const getProductDetailCached = cache(async (slug: string): Promise<Produc
   }
 });
 
-/**
- * Cached server-side products list fetching
- * Uses React cache() for deduplication
- */
-export const getProductsServerCached = cache(async (
+
+export const getProductsServerCached = createCachedFetcher(async (
   filters?: ProductFilters
 ): Promise<ProductsApiResponse> => {
   const baseUrl = API_CONFIG.BASE_URL;
@@ -100,7 +92,7 @@ export const getProductsServerCached = cache(async (
       "Content-Type": "application/json",
     },
     next: {
-      revalidate: 300, // Cache for 5 minutes
+      revalidate: CACHE_REVALIDATION.PRODUCT_LIST,
     },
   });
 
@@ -111,11 +103,8 @@ export const getProductsServerCached = cache(async (
   return response.json();
 });
 
-/**
- * Get top products for static generation
- * This should be called during build time
- */
-export const getTopProductSlugs = cache(async (limit: number = 100): Promise<string[]> => {
+
+export const getTopProductSlugs = createCachedFetcher(async (limit: number = 100): Promise<string[]> => {
   const baseUrl = API_CONFIG.BASE_URL;
   
   if (!baseUrl) {
@@ -124,10 +113,8 @@ export const getTopProductSlugs = cache(async (limit: number = 100): Promise<str
   }
 
   try {
-    // Fetch first page of products (assuming they are sorted by popularity)
     const response = await getProductsServerCached({ page: 1, pageSize: limit });
     
-    // Extract slugs from products
 
     const products = response.data?.products || [];
     return products
@@ -139,10 +126,8 @@ export const getTopProductSlugs = cache(async (limit: number = 100): Promise<str
   }
 });
 
-/**
- * Get top shop IDs for static generation
- */
-export const getTopShopIds = cache(async (limit: number = 50): Promise<string[]> => {
+
+export const getTopShopIds = createCachedFetcher(async (limit: number = 50): Promise<string[]> => {
   const baseUrl = API_CONFIG.BASE_URL;
   
   if (!baseUrl) {
@@ -151,7 +136,6 @@ export const getTopShopIds = cache(async (limit: number = 50): Promise<string[]>
   }
 
   try {
-    // Fetch products and extract unique shop IDs
     const response = await getProductsServerCached({ page: 1, pageSize: 100 });
     const products = response.data?.products || [];
     

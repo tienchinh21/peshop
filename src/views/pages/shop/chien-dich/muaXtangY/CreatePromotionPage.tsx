@@ -300,11 +300,13 @@ export default function CreatePromotionPage() {
                   <ProductSelector
                     label="Sản phẩm"
                     placeholder="Chọn sản phẩm"
+                    //@ts-ignore
                     value={rule.productId}
                     onChange={(productId, product) =>
                       handleRuleProductChange(index, productId, product)
                     }
                     required
+                    //@ts-ignore
                     excludeIds={rules
                       .filter((_, i) => i !== index)
                       .map((r) => r.productId)
@@ -367,11 +369,13 @@ export default function CreatePromotionPage() {
                   <ProductSelector
                     label="Sản phẩm quà tặng"
                     placeholder="Chọn sản phẩm quà tặng"
+                    //@ts-ignore
                     value={gift.productId}
                     onChange={(productId, product) =>
                       handleGiftProductChange(index, productId, product)
                     }
                     required
+                    //@ts-ignore
                     excludeIds={gifts
                       .filter((_, i) => i !== index)
                       .map((g) => g.productId)

@@ -6,10 +6,26 @@ import { Button } from "@/components/ui/button";
 import { useProductCreation } from "@/hooks/useProductCreation";
 import { Loader2 } from "lucide-react";
 
-const ScrollBasedTabs = lazy(() => import("./components/ScrollBasedTabs").then(m => ({ default: m.ScrollBasedTabs })));
-const BasicInfoSection = lazy(() => import("./components/BasicInfoSection").then(m => ({ default: m.BasicInfoSection })));
-const ProductInfoSection = lazy(() => import("./components/ProductInfoSection").then(m => ({ default: m.ProductInfoSection })));
-const OtherInfoSection = lazy(() => import("./components/OtherInfoSection").then(m => ({ default: m.OtherInfoSection })));
+const ScrollBasedTabs = lazy(() =>
+  import("./components/ScrollBasedTabs").then((m) => ({
+    default: m.ScrollBasedTabs,
+  }))
+);
+const BasicInfoSection = lazy(() =>
+  import("./components/BasicInfoSection").then((m) => ({
+    default: m.BasicInfoSection,
+  }))
+);
+const ProductInfoSection = lazy(() =>
+  import("./components/ProductInfoSection").then((m) => ({
+    default: m.ProductInfoSection,
+  }))
+);
+const OtherInfoSection = lazy(() =>
+  import("./components/OtherInfoSection").then((m) => ({
+    default: m.OtherInfoSection,
+  }))
+);
 const SuggestionsPanel = lazy(() => import("./components/SuggestionsPanel"));
 
 const tabs = [
@@ -71,7 +87,9 @@ export default function CreateProductPageClient() {
     <div className="min-h-screen bg-gray-50">
       <div className="sticky top-14 z-40 bg-white border-b">
         <div className="container mx-auto px-4">
-          <Suspense fallback={<div className="h-12 bg-gray-100 animate-pulse" />}>
+          <Suspense
+            fallback={<div className="h-12 bg-gray-100 animate-pulse" />}
+          >
             <ScrollBasedTabs
               tabs={tabs}
               activeTab={activeTab}
@@ -113,6 +131,7 @@ export default function CreateProductPageClient() {
               >
                 <CardContent className="p-6">
                   <ProductInfoSection
+                    selectedCategory={selectedCategory}
                     selectedClassifications={selectedClassifications}
                     setSelectedClassifications={setSelectedClassifications}
                     variants={variants}
@@ -135,6 +154,7 @@ export default function CreateProductPageClient() {
               >
                 <CardContent className="p-6">
                   <OtherInfoSection
+                    selectedCategory={selectedCategory}
                     weight={weight}
                     setWeight={setWeight}
                     dimensions={dimensions}
@@ -171,7 +191,11 @@ export default function CreateProductPageClient() {
             </Card>
           </div>
 
-          <Suspense fallback={<div className="w-80 h-64 bg-gray-100 animate-pulse rounded" />}>
+          <Suspense
+            fallback={
+              <div className="w-80 h-64 bg-gray-100 animate-pulse rounded" />
+            }
+          >
             <SuggestionsPanel />
           </Suspense>
         </div>

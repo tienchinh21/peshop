@@ -9,19 +9,11 @@ import type {
     CartCountData,
 } from "@/types/users/cart.types";
 
-/**
- * Get user's shopping cart
- * GET /Cart/get-cart
- */
 export const getCart = async (): Promise<CartItem[]> => {
     const response = await axiosDotnet.get<CartResponse>("/Cart/get-cart");
     return _.get(response, "data.data", []);
 };
 
-/**
- * Add item to cart
- * POST /Cart/add-cart
- */
 export const addToCart = async (
     payload: AddToCartPayload,
 ): Promise<CartResponse> => {
@@ -32,10 +24,6 @@ export const addToCart = async (
     return response.data;
 };
 
-/**
- * Update cart item quantity
- * PUT /Cart/update-cart
- */
 export const updateCart = async (
     payload: UpdateCartPayload,
 ): Promise<CartResponse> => {
@@ -52,28 +40,16 @@ export const updateCart = async (
     return response.data;
 };
 
-/**
- * Delete cart item
- * DELETE /Cart/delete-cart
- */
 export const deleteCart = async (cartId: string): Promise<void> => {
     await axiosDotnet.delete(`/Cart/delete-cart`, {
         params: { cartId },
     });
 };
 
-/**
- * Clear entire cart
- * DELETE /Cart/clear-cart
- */
 export const clearCart = async (): Promise<void> => {
     await axiosDotnet.delete("/Cart/clear-cart");
 };
 
-/**
- * Get cart count (total items and quantity)
- * GET /Cart/get-cart-count
- */
 export const getCartCount = async (): Promise<CartCountData> => {
     const response = await axiosDotnet.get<CartCountResponse>(
         "/Cart/get-cart-count",

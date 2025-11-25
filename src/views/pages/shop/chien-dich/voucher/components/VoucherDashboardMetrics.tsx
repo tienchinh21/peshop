@@ -20,7 +20,7 @@ export function MetricCard({
   icon,
   color = "text-blue-600",
 }: MetricCardProps) {
-  const { value, oldValue, increment, change_rate } = data;
+  const { value, oldValue, increment, changeRate } = data;
   const isPositive = increment >= 0;
   const hasChange = oldValue !== 0;
 
@@ -48,7 +48,7 @@ export function MetricCard({
                   }`}
                 >
                   {isPositive ? "+" : ""}
-                  {change_rate.toFixed(1)}%
+                  {changeRate.toFixed(1)}%
                 </span>
                 <span className="text-sm text-gray-500">so với kỳ trước</span>
               </div>

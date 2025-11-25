@@ -30,7 +30,6 @@ import {
   useDeletePromotionGifts,
 } from "@/hooks/shop/useShopPromotions";
 import { toast } from "sonner";
-import _ from "lodash";
 
 interface EditPromotionPageProps {
   promotionId: string;
@@ -71,7 +70,9 @@ export default function EditPromotionPage({
         setFormData({
           name: promotionData.name,
           status: promotionData.status,
-          startTime: new Date(promotionData.startTime).toISOString().slice(0, 16),
+          startTime: new Date(promotionData.startTime)
+            .toISOString()
+            .slice(0, 16),
           endTime: new Date(promotionData.endTime).toISOString().slice(0, 16),
           totalUsageLimit: promotionData.totalUsageLimit,
         });
@@ -106,7 +107,7 @@ export default function EditPromotionPage({
     if (rule.id) {
       setRulesToDelete([...rulesToDelete, rule.id]);
     }
-    setRules(_.filter(rules, (_, i) => i !== index));
+    setRules(rules.filter((_, i) => i !== index));
   };
 
   const handleRuleChange = (
@@ -128,11 +129,13 @@ export default function EditPromotionPage({
     newRules[index] = {
       ...newRules[index],
       productId,
-      product: product ? {
-        id: product.id,
-        name: product.name,
-        imgMain: product.imgMain,
-      } : undefined,
+      product: product
+        ? {
+            id: product.id,
+            name: product.name,
+            imgMain: product.imgMain,
+          }
+        : undefined,
     };
     setRules(newRules);
   };
@@ -149,7 +152,7 @@ export default function EditPromotionPage({
     if (gift.id) {
       setGiftsToDelete([...giftsToDelete, gift.id]);
     }
-    setGifts(_.filter(gifts, (_, i) => i !== index));
+    setGifts(gifts.filter((_, i) => i !== index));
   };
 
   const handleGiftChange = (
@@ -171,11 +174,13 @@ export default function EditPromotionPage({
     newGifts[index] = {
       ...newGifts[index],
       productId,
-      product: product ? {
-        id: product.id,
-        name: product.name,
-        imgMain: product.imgMain,
-      } : undefined,
+      product: product
+        ? {
+            id: product.id,
+            name: product.name,
+            imgMain: product.imgMain,
+          }
+        : undefined,
     };
     setGifts(newGifts);
   };
@@ -193,13 +198,13 @@ export default function EditPromotionPage({
       return;
     }
 
-    const hasEmptyRules = _.some(rules, (rule) => !rule.productId);
+    const hasEmptyRules = rules.some((rule) => !rule.productId);
     if (hasEmptyRules) {
       toast.error("Vui lòng chọn sản phẩm cho tất cả điều kiện mua");
       return;
     }
 
-    const hasEmptyGifts = _.some(gifts, (gift) => !gift.productId);
+    const hasEmptyGifts = gifts.some((gift) => !gift.productId);
     if (hasEmptyGifts) {
       toast.error("Vui lòng chọn sản phẩm cho tất cả quà tặng");
       return;
@@ -208,12 +213,12 @@ export default function EditPromotionPage({
     try {
       const promises: Promise<any>[] = [];
 
-      const existingRules = _.filter(rules, (r) => r.id);
-      const newRules = _.filter(rules, (r) => !r.id);
-      const existingGifts = _.filter(gifts, (g) => g.id);
-      const newGifts = _.filter(gifts, (g) => !g.id);
+      const existingRules = rules.filter((r) => r.id);
+      const newRules = rules.filter((r) => !r.id);
+      const existingGifts = gifts.filter((g) => g.id);
+      const newGifts = gifts.filter((g) => !g.id);
 
-      if (!_.isEmpty(existingRules) || !_.isEmpty(existingGifts)) {
+      if (existingRules.length > 0 || existingGifts.length > 0) {
         const updatePayload = {
           promotionUpdateDto: {
             name: formData.name,
@@ -222,41 +227,56 @@ export default function EditPromotionPage({
             endTime: new Date(formData.endTime).toISOString(),
             totalUsageLimit: formData.totalUsageLimit,
           },
-          promotionGifts: _.map(existingGifts, (g) => ({
+          promotionGifts: existingGifts.map((g) => ({
             id: g.id!,
-            productId: _.get(g, "productId") || _.get(g, "product.id", ""),
+            productId: g.productId || g.product?.id || "",
             giftQuantity: g.giftQuantity,
           })),
-          promotionRules: _.map(existingRules, (r) => ({
+          promotionRules: existingRules.map((r) => ({
             id: r.id!,
-            productId: _.get(r, "productId") || _.get(r, "product.id", ""),
+            productId: r.productId || r.product?.id || "",
             quantity: r.quantity,
           })),
         };
-        promises.push(updateMutation.mutateAsync({ id: promotionId, payload: updatePayload }));
+        promises.push(
+          updateMutation.mutateAsync({
+            id: promotionId,
+            payload: updatePayload,
+          })
+        );
       }
 
-      if (!_.isEmpty(newRules)) {
-        const addRulesPayload = _.map(newRules, (r) => ({
-          productId: _.get(r, "productId") || _.get(r, "product.id", ""),
+      if (newRules.length > 0) {
+        const addRulesPayload = newRules.map((r) => ({
+          productId: r.productId || r.product?.id || "",
           quantity: r.quantity,
         }));
-        promises.push(addRulesMutation.mutateAsync({ id: promotionId, payload: addRulesPayload }));
+        promises.push(
+          addRulesMutation.mutateAsync({
+            id: promotionId,
+            payload: addRulesPayload,
+          })
+        );
       }
 
-      if (!_.isEmpty(newGifts)) {
-        const addGiftsPayload = _.map(newGifts, (g) => ({
-          productId: _.get(g, "productId") || _.get(g, "product.id", ""),
+      if (newGifts.length > 0) {
+        const addGiftsPayload = newGifts.map((g) => ({
+          productId: g.productId || g.product?.id || "",
           giftQuantity: g.giftQuantity,
         }));
-        promises.push(addGiftsMutation.mutateAsync({ id: promotionId, payload: addGiftsPayload }));
+        promises.push(
+          addGiftsMutation.mutateAsync({
+            id: promotionId,
+            payload: addGiftsPayload,
+          })
+        );
       }
 
-      if (!_.isEmpty(rulesToDelete)) {
+      if (rulesToDelete.length > 0) {
         promises.push(deleteRulesMutation.mutateAsync(rulesToDelete));
       }
 
-      if (!_.isEmpty(giftsToDelete)) {
+      if (giftsToDelete.length > 0) {
         promises.push(deleteGiftsMutation.mutateAsync(giftsToDelete));
       }
 
@@ -437,13 +457,13 @@ export default function EditPromotionPage({
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {_.isEmpty(rules) ? (
+            {rules.length === 0 ? (
               <p className="text-sm text-gray-500 text-center py-4">
                 Chưa có điều kiện mua hàng
               </p>
             ) : (
-              _.map(rules, (rule, index) => {
-                const productId = _.get(rule, "productId") || _.get(rule, "product.id");
+              rules.map((rule, index) => {
+                const productId = rule.productId || rule.product?.id;
                 return (
                   <div
                     key={index}
@@ -458,11 +478,10 @@ export default function EditPromotionPage({
                           handleRuleProductChange(index, productId, product)
                         }
                         required
-                        excludeIds={_.compact(
-                          _.map(rules, (r, i) =>
-                            i !== index ? _.get(r, "productId") || _.get(r, "product.id") : null
-                          )
-                        )}
+                        excludeIds={rules
+                          .filter((_, i) => i !== index)
+                          .map((r) => r.productId || r.product?.id)
+                          .filter((id): id is string => !!id)}
                       />
                     </div>
                     <div className="w-32 space-y-2">
@@ -470,7 +489,7 @@ export default function EditPromotionPage({
                       <Input
                         type="number"
                         min="1"
-                        value={_.get(rule, "quantity", 1)}
+                        value={rule.quantity ?? 1}
                         onChange={(e) =>
                           handleRuleChange(
                             index,
@@ -514,13 +533,13 @@ export default function EditPromotionPage({
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {_.isEmpty(gifts) ? (
+            {gifts.length === 0 ? (
               <p className="text-sm text-gray-500 text-center py-4">
                 Chưa có quà tặng
               </p>
             ) : (
-              _.map(gifts, (gift, index) => {
-                const productId = _.get(gift, "productId") || _.get(gift, "product.id");
+              gifts.map((gift, index) => {
+                const productId = gift.productId || gift.product?.id;
                 return (
                   <div
                     key={index}
@@ -535,11 +554,10 @@ export default function EditPromotionPage({
                           handleGiftProductChange(index, productId, product)
                         }
                         required
-                        excludeIds={_.compact(
-                          _.map(gifts, (g, i) =>
-                            i !== index ? _.get(g, "productId") || _.get(g, "product.id") : null
-                          )
-                        )}
+                        excludeIds={gifts
+                          .filter((_, i) => i !== index)
+                          .map((g) => g.productId || g.product?.id)
+                          .filter((id): id is string => !!id)}
                       />
                     </div>
                     <div className="w-32 space-y-2">
@@ -547,7 +565,7 @@ export default function EditPromotionPage({
                       <Input
                         type="number"
                         min="1"
-                        value={_.get(gift, "giftQuantity", 1)}
+                        value={gift.giftQuantity ?? 1}
                         onChange={(e) =>
                           handleGiftChange(
                             index,
@@ -563,7 +581,7 @@ export default function EditPromotionPage({
                       <Input
                         type="number"
                         min="1"
-                        value={_.get(gift, "maxGiftPerOrder", 1)}
+                        value={gift.maxGiftPerOrder ?? 1}
                         onChange={(e) =>
                           handleGiftChange(
                             index,

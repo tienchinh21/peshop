@@ -52,7 +52,10 @@ export default function PromotionDetailPage({
 
   const handleEdit = () => {
     if (promotion) {
-      sessionStorage.setItem(`promotion_${promotionId}`, JSON.stringify(promotion));
+      sessionStorage.setItem(
+        `promotion_${promotionId}`,
+        JSON.stringify(promotion)
+      );
       router.push(`/shop/chien-dich/muaXtangY/sua/${promotionId}`);
     }
   };
@@ -116,8 +119,12 @@ export default function PromotionDetailPage({
             Quay lại
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{promotion.name}</h1>
-            <p className="text-sm text-gray-500">Chi tiết chương trình khuyến mãi</p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {promotion.name}
+            </h1>
+            <p className="text-sm text-gray-500">
+              Chi tiết chương trình khuyến mãi
+            </p>
           </div>
         </div>
         <Button onClick={handleEdit} className="gap-2">
@@ -145,7 +152,9 @@ export default function PromotionDetailPage({
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <p className="text-sm font-medium text-gray-500">Tên chương trình</p>
+              <p className="text-sm font-medium text-gray-500">
+                Tên chương trình
+              </p>
               <p className="mt-1 text-base font-semibold">{promotion.name}</p>
             </div>
 
@@ -155,7 +164,9 @@ export default function PromotionDetailPage({
             </div>
 
             <div>
-              <p className="text-sm font-medium text-gray-500">Giới hạn sử dụng</p>
+              <p className="text-sm font-medium text-gray-500">
+                Giới hạn sử dụng
+              </p>
               <p className="mt-1 text-base">
                 {promotion.totalUsageLimit === 0
                   ? "Không giới hạn"
@@ -165,7 +176,7 @@ export default function PromotionDetailPage({
 
             <div>
               <p className="text-sm font-medium text-gray-500">Đã sử dụng</p>
-              <p className="mt-1 text-base">{promotion.usedCount || 0} lượt</p>
+              <p className="mt-1 text-base">{!promotion.usedCount} lượt</p>
             </div>
           </CardContent>
         </Card>
@@ -180,7 +191,9 @@ export default function PromotionDetailPage({
           <CardContent className="space-y-4">
             <div>
               <p className="text-sm font-medium text-gray-500">Bắt đầu</p>
-              <p className="mt-1 text-base">{formatDate(promotion.startTime)}</p>
+              <p className="mt-1 text-base">
+                {formatDate(promotion.startTime)}
+              </p>
             </div>
 
             <div>
@@ -195,7 +208,8 @@ export default function PromotionDetailPage({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
-            Điều kiện mua hàng ({_.size(_.get(promotion, "rules", [])) || 0} sản phẩm)
+            Điều kiện mua hàng ({_.size(_.get(promotion, "rules", [])) || 0} sản
+            phẩm)
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -205,7 +219,8 @@ export default function PromotionDetailPage({
             <div className="space-y-3">
               {_.map(_.get(promotion, "rules", []), (rule, index) => {
                 const product = _.get(rule, "product");
-                const productId = _.get(rule, "productId") || _.get(product, "id");
+                const productId =
+                  _.get(rule, "productId") || _.get(product, "id");
                 const productName = _.get(product, "name");
                 const productImage = _.get(product, "imgMain");
 
@@ -255,7 +270,8 @@ export default function PromotionDetailPage({
             <div className="space-y-3">
               {_.map(_.get(promotion, "gifts", []), (gift, index) => {
                 const product = _.get(gift, "product");
-                const productId = _.get(gift, "productId") || _.get(product, "id");
+                const productId =
+                  _.get(gift, "productId") || _.get(product, "id");
                 const productName = _.get(product, "name");
                 const productImage = _.get(product, "imgMain");
 
@@ -295,4 +311,3 @@ export default function PromotionDetailPage({
     </div>
   );
 }
-

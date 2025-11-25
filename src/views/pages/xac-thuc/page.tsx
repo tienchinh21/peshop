@@ -79,7 +79,6 @@ const LoginPageComponent: React.FC = () => {
 
       const response = await login(credentials);
 
-      // Check for error in response
       if (response.error) {
         const errorMessage = response.error || "Đăng nhập thất bại";
         toast.error(errorMessage);
@@ -89,18 +88,14 @@ const LoginPageComponent: React.FC = () => {
         return;
       }
 
-      // Success case - response has data (token)
       if (response.data) {
         const token = response.data;
 
-        // Save token to cookie
         setAuthTokenCookie(token);
 
-        // Get user info
         const user = await getCurrentUserFromAPI();
 
         if (user) {
-          // Dispatch to Redux store
           dispatch(
             setCredentials({
               user,

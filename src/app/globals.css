@@ -168,14 +168,27 @@
 
 /* Animation for OTP input caret */
 @keyframes caret-blink {
-  0%, 70%, 100% {
+  0%,
+  70%,
+  100% {
     opacity: 1;
   }
-  20%, 50% {
+  20%,
+  50% {
     opacity: 0;
   }
 }
 
 .animate-caret-blink {
   animation: caret-blink 1s ease-out infinite;
+}
+
+/* Hide scrollbar while maintaining scroll functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

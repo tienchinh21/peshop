@@ -60,6 +60,8 @@ export const API_ENDPOINTS_JAVA = {
   SHOPS: {
     CREATE: "/shop",
     PUT: "/shop/:id",
+    DASHBOARD: "/shop/homepage/dashboard",
+    TODO_LIST: "/shop/homepage/todo-list",
   },
 } as const;
 

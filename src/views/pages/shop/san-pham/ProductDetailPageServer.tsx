@@ -135,7 +135,7 @@ export default function ProductDetailPageServer({
               Danh mục
             </label>
             <p className="mt-1 text-gray-900">
-              {product.categoryChild?.name || "Chưa có danh mục"}
+              {product.categoryChildName || "Chưa có danh mục"}
             </p>
           </div>
           <div>
@@ -191,10 +191,10 @@ export default function ProductDetailPageServer({
                             .join(" - ") || "Mặc định"}
                         </td>
                         <td className="px-4 py-2 text-sm font-medium">
-                          {formatPrice(variant.priceOriginal)}
+                          {formatPrice(variant.price)}
                         </td>
                         <td className="px-4 py-2 text-sm">
-                          {variant.stock || 0}
+                          {variant.quantity || 0}
                         </td>
                       </tr>
                     ))}
@@ -209,7 +209,7 @@ export default function ProductDetailPageServer({
                   Giá bán
                 </label>
                 <p className="mt-1 text-lg font-semibold text-gray-900">
-                  {formatPrice(product.priceOriginal)}
+                  {formatPrice(product.price)}
                 </p>
               </div>
               <div>
@@ -217,7 +217,7 @@ export default function ProductDetailPageServer({
                   Tồn kho
                 </label>
                 <p className="mt-1 text-lg font-semibold text-gray-900">
-                  {product.stock || 0}
+                  {product.quantity || 0}
                 </p>
               </div>
             </div>
@@ -243,7 +243,9 @@ export default function ProductDetailPageServer({
             </p>
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700">Kích thước</label>
+            <label className="text-sm font-medium text-gray-700">
+              Kích thước
+            </label>
             <p className="mt-1 text-gray-900">
               {product.length && product.width && product.height
                 ? `${product.length} x ${product.width} x ${product.height} cm`

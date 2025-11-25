@@ -6,12 +6,6 @@ import type {
     SearchFilters,
 } from "@/types/users/search.types";
 
-/**
- * Get search suggestions based on keyword
- * Used for autocomplete dropdown
- * @param keyword - Search keyword
- * @returns Promise<SearchSuggestionsResponse>
- */
 export const getSearchSuggestions = async (
     keyword: string,
 ): Promise<SearchSuggestionsResponse> => {
@@ -23,20 +17,13 @@ export const getSearchSuggestions = async (
     return response.data;
 };
 
-/**
- * Search for products and shops
- * @param filters - Search filters including keyword, pagination, etc.
- * @returns Promise<SearchResultsResponse>
- */
 export const searchProducts = async (
     filters: SearchFilters,
 ): Promise<SearchResultsResponse> => {
     const params = new URLSearchParams();
 
-    // Required parameter
     params.append("keyword", filters.keyword);
 
-    // Optional parameters
     if (filters.page) params.append("page", filters.page.toString());
     if (filters.pageSize)
         params.append("pageSize", filters.pageSize.toString());

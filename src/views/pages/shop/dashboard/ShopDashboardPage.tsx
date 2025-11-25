@@ -1,119 +1,138 @@
 "use client";
 
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useEffect, useState } from "react";
+import { DashboardFilter } from "./components/DashboardFilter";
+import { DashboardStats } from "./components/DashboardStats";
+import { DashboardCharts } from "./components/DashboardCharts";
+import { TodoList } from "./components/TodoList";
+import { DashboardPageSkeleton } from "@/components/skeleton";
+import {
+  getDashboardStats,
+  getTodoList,
+} from "@/services/api/shops/dashboard.service";
+import {
+  DashboardData,
+  DashboardPeriod,
+  TodoListContent,
+} from "@/types/shops/dashboard.type";
+import { subDays, format } from "date-fns";
+import { toast } from "sonner";
 
 const ShopDashboardPage: React.FC = () => {
+  const [period, setPeriod] = useState<DashboardPeriod>("past7days");
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [todoData, setTodoData] = useState<TodoListContent | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isTodoLoading, setIsTodoLoading] = useState(true);
+
+  const calculateDateRange = (period: DashboardPeriod) => {
+    const today = new Date();
+    let start = new Date();
+    let end = new Date();
+
+    switch (period) {
+      case "today_or_yesterday":
+        start = today;
+        end = today;
+        break;
+      case "past7days":
+        start = subDays(today, 6); // 6 days ago + today = 7 days
+        end = today;
+        break;
+      case "past30days":
+        start = subDays(today, 29); // 29 days ago + today = 30 days
+        end = today;
+        break;
+    }
+
+    return {
+      startDate: format(start, "yyyy-MM-dd"),
+      endDate: format(end, "yyyy-MM-dd"),
+    };
+  };
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const { startDate, endDate } = calculateDateRange(period);
+      const response = await getDashboardStats({
+        startDate,
+        endDate,
+        period,
+      });
+
+      if (response.content) {
+        setData(response.content);
+      }
+    } catch (error) {
+      console.error("Failed to fetch dashboard stats:", error);
+      toast.error("Không thể tải dữ liệu thống kê");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchTodoList = async () => {
+    setIsTodoLoading(true);
+    try {
+      const response = await getTodoList();
+      if (response.content) {
+        setTodoData(response.content);
+      }
+    } catch (error) {
+      console.error("Failed to fetch todo list:", error);
+      toast.error("Không thể tải danh sách công việc");
+    } finally {
+      setIsTodoLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [period]);
+
+  useEffect(() => {
+    fetchTodoList();
+  }, []);
+
+  // Show skeleton when either loading
+  const isAnyLoading = isLoading || isTodoLoading;
+
+  if (isAnyLoading) {
+    return <DashboardPageSkeleton />;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Dashboard Shop
-          </h1>
-          <p className="text-gray-600">Quản lý cửa hàng của bạn</p>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Total Products */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                Tổng sản phẩm
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-gray-900">0</div>
-              <p className="text-xs text-gray-500 mt-1">Sản phẩm đang bán</p>
-            </CardContent>
-          </Card>
-
-          {/* Total Orders */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                Đơn hàng
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-gray-900">0</div>
-              <p className="text-xs text-gray-500 mt-1">Đơn hàng mới</p>
-            </CardContent>
-          </Card>
-
-          {/* Revenue */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                Doanh thu
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-gray-900">0₫</div>
-              <p className="text-xs text-gray-500 mt-1">Tháng này</p>
-            </CardContent>
-          </Card>
-
-          {/* Rating */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                Đánh giá
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-gray-900">0.0</div>
-              <p className="text-xs text-gray-500 mt-1">Trung bình</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Thao tác nhanh</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <button className="p-4 border rounded-lg hover:bg-gray-50 transition-colors text-left">
-                <div className="text-lg font-semibold mb-1">Thêm sản phẩm</div>
-                <div className="text-sm text-gray-600">
-                  Thêm sản phẩm mới vào shop
-                </div>
-              </button>
-
-              <button className="p-4 border rounded-lg hover:bg-gray-50 transition-colors text-left">
-                <div className="text-lg font-semibold mb-1">
-                  Quản lý đơn hàng
-                </div>
-                <div className="text-sm text-gray-600">
-                  Xem và xử lý đơn hàng
-                </div>
-              </button>
-
-              <button className="p-4 border rounded-lg hover:bg-gray-50 transition-colors text-left">
-                <div className="text-lg font-semibold mb-1">Cài đặt shop</div>
-                <div className="text-sm text-gray-600">
-                  Cập nhật thông tin shop
-                </div>
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Coming Soon Notice */}
-        <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
-          <h3 className="text-lg font-semibold text-yellow-800 mb-2">
-            🚧 Đang phát triển
-          </h3>
-          <p className="text-yellow-700">
-            Dashboard đầy đủ sẽ được cập nhật sớm với nhiều tính năng quản lý
-            hơn!
-          </p>
-        </div>
+    <div className="max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Dashboard Shop
+        </h1>
+        <p className="text-gray-600">Quản lý cửa hàng của bạn</p>
       </div>
+
+      {/* Filter */}
+      <DashboardFilter
+        period={period}
+        onPeriodChange={setPeriod}
+        isLoading={isLoading}
+      />
+
+      {/* Todo List */}
+      {todoData && <TodoList data={todoData} />}
+
+      {/* Content */}
+      {data ? (
+        <>
+          <DashboardStats data={data} />
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <DashboardCharts data={data} period={period} />
+          </div>
+        </>
+      ) : (
+        <div className="text-center py-12 text-gray-500">Không có dữ liệu</div>
+      )}
     </div>
   );
 };

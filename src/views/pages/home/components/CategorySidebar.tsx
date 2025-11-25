@@ -175,79 +175,113 @@ export default function CategorySidebar() {
   }, []);
 
   return (
-    <div className="ml-5 relative">
-      <aside className="w-full md:w-60 bg-white">
-        <div className="space-y-1 p-3">
+    <>
+      {/* Mobile/Tablet: Horizontal Scrollable Categories */}
+      <div className="lg:hidden w-full mb-4">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           {categories.map((category, index) => (
-            <Button
+            <button
               key={index}
+              className="flex-shrink-0 flex flex-col items-center justify-center gap-1.5 p-3 bg-white rounded-lg hover:bg-gray-50 transition-colors min-w-[80px]"
+            >
+              <div
+                className={`w-10 h-10 rounded-full ${category.color} flex items-center justify-center`}
+              >
+                <category.icon className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xs font-medium text-gray-800 text-center line-clamp-2">
+                {category.label}
+              </span>
+            </button>
+          ))}
+          <button className="flex-shrink-0 flex flex-col items-center justify-center gap-1.5 p-3 bg-white rounded-lg hover:bg-gray-50 transition-colors min-w-[80px]">
+            <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center">
+              <Menu className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xs font-medium text-gray-800 text-center">
+              All
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* Desktop: Vertical Sidebar */}
+      <div className="hidden lg:block relative">
+        <aside className="w-full lg:w-60 xl:w-64 bg-white rounded-lg overflow-hidden">
+          <div className="space-y-1 p-3">
+            {categories.map((category, index) => (
+              <Button
+                key={index}
+                variant="ghost"
+                className="w-full justify-between p-2 h-auto hover:bg-gray-50"
+                onMouseEnter={() => handleMouseEnter(index)}
+                onMouseLeave={handleMouseLeave}
+              >
+                <div className="flex items-center space-x-3">
+                  <div
+                    className={`w-8 h-8 rounded-full ${category.color} flex items-center justify-center`}
+                  >
+                    <category.icon className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-gray-800 font-medium text-sm">
+                    {category.label}
+                  </span>
+                </div>
+                <span className="text-gray-400 text-lg">›</span>
+              </Button>
+            ))}
+
+            <Button
               variant="ghost"
-              className="w-full justify-between p-2 h-auto hover:bg-gray-50"
-              onMouseEnter={() => handleMouseEnter(index)}
-              onMouseLeave={handleMouseLeave}
+              className="w-full justify-between p-2 h-auto hover:bg-gray-50 mt-3"
             >
               <div className="flex items-center space-x-3">
-                <div
-                  className={`w-6 h-6 md:w-8 md:h-8 rounded-full ${category.color} flex items-center justify-center`}
-                >
-                  <category.icon className="w-3 h-3 md:w-4 md:h-4 text-white" />
+                <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center">
+                  <Menu className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-gray-800 font-medium text-xs md:text-sm">
-                  {category.label}
+                <span className="text-gray-800 font-medium text-sm">
+                  All Categories
                 </span>
               </div>
-              <span className="text-gray-400 text-sm md:text-lg">›</span>
+              <span className="text-gray-400 text-lg">›</span>
             </Button>
-          ))}
+          </div>
+        </aside>
 
-          <Button
-            variant="ghost"
-            className="w-full justify-between p-2 h-auto hover:bg-gray-50 mt-3"
+        {/* Category Modal - Desktop only */}
+        {isModalVisible && hoveredCategory !== null && (
+          <div
+            className="absolute left-60 top-0 bg-white shadow-lg border border-gray-200 z-50 transition-opacity duration-200 ease-in-out"
+            style={{
+              width: "min(900px, calc(100vw - 20rem))",
+              height: "100%",
+            }}
+            onMouseEnter={handleModalMouseEnter}
+            onMouseLeave={handleModalMouseLeave}
           >
-            <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gray-800 flex items-center justify-center">
-                <Menu className="w-3 h-3 md:w-4 md:h-4 text-white" />
-              </div>
-              <span className="text-gray-800 font-medium text-xs md:text-sm">
-                All Categories
-              </span>
-            </div>
-            <span className="text-gray-400 text-sm md:text-lg">›</span>
-          </Button>
-        </div>
-      </aside>
-
-      {/* Category Modal - Hidden on mobile */}
-      {isModalVisible && hoveredCategory !== null && (
-        <div
-          className="hidden md:block absolute left-60 top-0 bg-white shadow-lg border border-gray-200 z-50 transition-opacity duration-200 ease-in-out"
-          style={{
-            width: "min(900px, calc(100vw - 20rem))",
-            height: "100%",
-          }}
-          onMouseEnter={handleModalMouseEnter}
-          onMouseLeave={handleModalMouseLeave}
-        >
-          <div className="p-4">
-            <div className="space-y-2">
-              <h3 className="font-semibold text-gray-900 text-sm mb-3">
-                {categories[hoveredCategory].label}
-              </h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-1">
-                {categories[hoveredCategory].children.map((item, itemIndex) => (
-                  <a
-                    key={itemIndex}
-                    href="#"
-                    className="block text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 p-2 rounded"
-                  >
-                    {item}
-                  </a>
-                ))}
+            <div className="p-4">
+              <div className="space-y-2">
+                <h3 className="font-semibold text-gray-900 text-sm mb-3">
+                  {categories[hoveredCategory].label}
+                </h3>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-1">
+                  {categories[hoveredCategory].children.map(
+                    (item, itemIndex) => (
+                      <a
+                        key={itemIndex}
+                        href="#"
+                        className="block text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 p-2 rounded"
+                      >
+                        {item}
+                      </a>
+                    )
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
