@@ -3,10 +3,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 import {
@@ -16,8 +14,11 @@ import {
 import type { LoginRequest } from "@/types/users/auth.types";
 import { useAppDispatch } from "@/lib/store/hooks";
 import { setCredentials } from "@/lib/store/slices/authSlice";
-import { loginSchema, type LoginInput } from "@/lib/validations/auth.schemas";
 import { setAuthTokenCookie } from "@/lib/utils/cookies.utils";
+import { FormField } from "@/components/auth/FormField";
+import { PasswordField } from "@/components/auth/PasswordField";
+import { useFormValidation } from "@/hooks/useFormValidation";
+import { VALIDATION_PATTERNS, VALIDATION_MESSAGES } from "@/lib/validations/html5-patterns";
 
 const LoginPageComponent: React.FC = () => {
   const router = useRouter();
@@ -26,9 +27,9 @@ const LoginPageComponent: React.FC = () => {
     email: "",
     password: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [generalError, setGeneralError] = useState<string>("");
+  const { errors, validate, clearError, clearAllErrors } = useFormValidation();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -37,29 +38,36 @@ const LoginPageComponent: React.FC = () => {
       [name]: value,
     }));
 
+    // Clear error when user starts typing
     if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
+      clearError(name);
     }
   };
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    const result = loginSchema.safeParse(formData);
-
-    if (!result.success) {
-      result.error.issues.forEach((issue) => {
-        if (issue.path[0]) {
-          newErrors[issue.path[0] as string] = issue.message;
+    clearAllErrors();
+    
+    const emailValid = validate("email", formData.email, {
+      required: true,
+      pattern: new RegExp(VALIDATION_PATTERNS.email),
+      custom: (value) => {
+        if (!value) return VALIDATION_MESSAGES.email.required;
+        if (!new RegExp(VALIDATION_PATTERNS.email).test(value)) {
+          return VALIDATION_MESSAGES.email.pattern;
         }
-      });
-    }
+        return null;
+      },
+    });
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const passwordValid = validate("password", formData.password, {
+      required: true,
+      custom: (value) => {
+        if (!value) return VALIDATION_MESSAGES.password.required;
+        return null;
+      },
+    });
+
+    return emailValid && passwordValid;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,9 +90,7 @@ const LoginPageComponent: React.FC = () => {
       if (response.error) {
         const errorMessage = response.error || "Đăng nhập thất bại";
         toast.error(errorMessage);
-        setErrors({
-          general: errorMessage,
-        });
+        setGeneralError(errorMessage);
         return;
       }
 
@@ -110,15 +116,11 @@ const LoginPageComponent: React.FC = () => {
           setTimeout(() => router.push("/"), 500);
         } else {
           toast.error("Không thể lấy thông tin người dùng");
-          setErrors({
-            general: "Không thể lấy thông tin người dùng",
-          });
+          setGeneralError("Không thể lấy thông tin người dùng");
         }
       } else {
         toast.error("Đăng nhập thất bại");
-        setErrors({
-          general: "Đăng nhập thất bại",
-        });
+        setGeneralError("Đăng nhập thất bại");
       }
     } catch (error: any) {
       console.error("Login error:", error);
@@ -127,7 +129,7 @@ const LoginPageComponent: React.FC = () => {
         error?.response?.data?.message ||
         "Đăng nhập thất bại. Vui lòng thử lại.";
       toast.error(errorMessage);
-      setErrors({ general: errorMessage });
+      setGeneralError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -175,82 +177,38 @@ const LoginPageComponent: React.FC = () => {
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {/* General Error */}
-                    {errors.general && (
+                    {generalError && (
                       <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                        <p className="text-sm text-red-600">{errors.general}</p>
+                        <p className="text-sm text-red-600">{generalError}</p>
                       </div>
                     )}
 
                     {/* Email Field */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="email"
-                        className="text-sm font-medium text-gray-700"
-                      >
-                        Email
-                      </Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          placeholder="Nhập email của bạn"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          className={`pl-10 ${
-                            errors.email
-                              ? "border-red-500 focus:ring-red-500"
-                              : ""
-                          }`}
-                        />
-                      </div>
-                      {errors.email && (
-                        <p className="text-sm text-red-600">{errors.email}</p>
-                      )}
-                    </div>
+                    <FormField
+                      id="email"
+                      name="email"
+                      type="email"
+                      label="Email"
+                      placeholder="Nhập email của bạn"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      error={errors.email}
+                      icon={<Mail className="h-4 w-4" />}
+                      required
+                      pattern={VALIDATION_PATTERNS.email}
+                    />
 
                     {/* Password Field */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="password"
-                        className="text-sm font-medium text-gray-700"
-                      >
-                        Mật khẩu
-                      </Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <Input
-                          id="password"
-                          name="password"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Nhập mật khẩu của bạn"
-                          value={formData.password}
-                          onChange={handleInputChange}
-                          className={`pl-10 pr-10 ${
-                            errors.password
-                              ? "border-red-500 focus:ring-red-500"
-                              : ""
-                          }`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </button>
-                      </div>
-                      {errors.password && (
-                        <p className="text-sm text-red-600">
-                          {errors.password}
-                        </p>
-                      )}
-                    </div>
+                    <PasswordField
+                      id="password"
+                      name="password"
+                      label="Mật khẩu"
+                      placeholder="Nhập mật khẩu của bạn"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      error={errors.password}
+                      required
+                    />
 
                     {/* Remember Me & Forgot Password */}
                     <div className="flex items-center justify-between">

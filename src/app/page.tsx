@@ -7,14 +7,12 @@ export const metadata: Metadata = {
   description: "Chào mừng đến với PeShop",
 };
 
-// Enable ISR with 3 minutes revalidation for homepage
 export const revalidate = 180;
 
 export default async function HomePage() {
   let initialProducts = [];
 
   try {
-    // Fetch initial products on server for better performance
     const data = await getProductsServerCached({ page: 1, pageSize: 20 });
     //@ts-ignore
     initialProducts = data.data?.data || [];

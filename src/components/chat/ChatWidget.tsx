@@ -103,14 +103,13 @@ export default function ChatWidget() {
     ? (MOCK_MESSAGES as any)[activeConversationId] || []
     : [];
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [currentMessages, activeConversationId, isOpen]);
 
-  // Click outside to close
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (

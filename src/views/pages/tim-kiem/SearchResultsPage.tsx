@@ -27,7 +27,6 @@ export default function SearchResultsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // QuickView modal hook
   const {
     selectedProduct,
     isModalOpen,
@@ -37,10 +36,9 @@ export default function SearchResultsPage() {
     handleModalDataLoaded,
   } = useQuickViewModal();
 
-  // Get search keyword from URL
   const keyword = searchParams.get("q") || "";
 
-  // Filter states - keyword should ALWAYS be included if present in URL
+  
   const [filters, setFilters] = useState({
     keyword: keyword || undefined,
     page: parseInt(searchParams.get("page") || "1"),

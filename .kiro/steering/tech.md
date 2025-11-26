@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 # Technology Stack
 
 ## Framework & Core
@@ -71,3 +72,65 @@ Required in `.env.local`:
 - Image optimization with Next.js Image component
 - React Query caching strategies (staleTime, gcTime)
 - Production source maps disabled
+=======
+# Tech Stack
+
+## Framework & Core
+
+- **Next.js 15.5.4** (App Router) - React framework with server-side rendering
+- **React 19.1.0** - UI library
+- **TypeScript 5** - Type-safe JavaScript
+
+## State Management
+
+- **Redux Toolkit 2.9.0** - Global state management (auth state)
+- **TanStack Query 5.90.2** - Server state management, data fetching, caching
+
+## Styling & UI
+
+- **Tailwind CSS 4** - Utility-first CSS framework
+- **Radix UI** - Headless UI components (dialogs, dropdowns, selects, etc.)
+- **shadcn/ui** - Pre-built component library based on Radix
+- **Lucide React** - Icon library
+- **Geist Font** - Typography (Geist Sans & Geist Mono)
+
+## Data Fetching & API
+
+- **Axios 1.12.2** - HTTP client
+- Dual backend integration: .NET API and Java API
+- JWT-based authentication with cookie storage
+
+## Key Libraries
+
+- **react-quill** - Rich text editor
+- **recharts** - Data visualization/charts
+- **dnd-kit** - Drag and drop functionality
+- **react-easy-crop** - Image cropping
+- **zod** - Schema validation
+- **date-fns** - Date manipulation
+- **sonner** - Toast notifications
+
+## Development Tools
+
+- **PostCSS** - CSS processing
+- **SWC** - Fast TypeScript/JavaScript compiler
+
+## Common Commands
+
+```bash
+# Development
+npm run dev          # Start dev server at http://localhost:3000
+
+# Production
+npm run build        # Build for production
+npm start            # Start production server
+```
+
+## Environment Variables
+
+The project uses `.env`, `.env.example`, and `.env.production` files for configuration. Key variables include API endpoints for .NET and Java backends.
+
+## Path Aliases
+
+- `@/*` maps to `./src/*` for clean imports
+>>>>>>> Stashed changes
