@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { Button } from "@/shared/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/shared/components/ui/select";
 import { Search, X, Filter } from "lucide-react";
 import {
   ProductStatus,
@@ -19,7 +19,7 @@ import {
 } from "@/lib/utils/enums/eProducts";
 import type { ProductListFilters } from "@/types/shops/product-list.type";
 import { useQuery } from "@tanstack/react-query";
-import { getCategories } from "@/services/api/shops/category.service";
+import { getCategories } from "@/features/shop/categories";
 import _ from "lodash";
 
 interface ProductListFilterProps {

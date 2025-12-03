@@ -1,0 +1,51 @@
+/**
+ * Example Types Template
+ * 
+ * This is an example of feature type definitions.
+ * Rename this file and update the content for your feature.
+ */
+
+/**
+ * Base feature interface
+ */
+export interface Feature {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Detailed feature interface with additional fields
+ */
+export interface FeatureDetail extends Feature {
+  additionalData: string;
+  metadata: Record<string, unknown>;
+}
+
+/**
+ * Feature list response with pagination
+ */
+export interface FeatureListResponse {
+  data: Feature[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+/**
+ * Feature creation payload
+ */
+export interface CreateFeaturePayload {
+  name: string;
+  description: string;
+}
+
+/**
+ * Feature update payload
+ */
+export interface UpdateFeaturePayload {
+  name?: string;
+  description?: string;
+}

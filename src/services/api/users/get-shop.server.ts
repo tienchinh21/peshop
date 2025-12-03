@@ -1,8 +1,8 @@
 import { API_CONFIG } from "@/lib/config/api.config";
-import { CACHE_REVALIDATION } from "@/services/core/cache";
+import { CACHE_REVALIDATION } from "@/shared/services/cache";
 import _ from "lodash";
 import type { GetShopResponse, ShopData } from "@/types/users/get-shop.types";
-import type { Product } from "@/types/users/product.types";
+import type { Product } from "@/features/customer/products";
 
 export const getShopServer = async (shopId: string): Promise<ShopData | null> => {
   const baseUrl = API_CONFIG.BASE_URL;

@@ -1,0 +1,53 @@
+/**
+ * Example Service Template
+ * 
+ * This is an example of a feature service for API calls.
+ * Rename this file and update the content for your feature.
+ */
+
+import { axiosDotnet, axiosJava } from '@/shared/services/http';
+import type { Feature, FeatureDetail, FeatureListResponse } from '../types';
+
+/**
+ * Feature API Service
+ */
+export const FeatureService = {
+  /**
+   * Get all features
+   */
+  async getAll(): Promise<FeatureListResponse> {
+    const response = await axiosDotnet.get('/api/features');
+    return response.data;
+  },
+
+  /**
+   * Get feature by ID
+   */
+  async getById(id: string): Promise<FeatureDetail> {
+    const response = await axiosDotnet.get(`/api/features/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Create new feature
+   */
+  async create(data: Partial<Feature>): Promise<Feature> {
+    const response = await axiosDotnet.post('/api/features', data);
+    return response.data;
+  },
+
+  /**
+   * Update feature
+   */
+  async update(id: string, data: Partial<Feature>): Promise<Feature> {
+    const response = await axiosDotnet.put(`/api/features/${id}`, data);
+    return response.data;
+  },
+
+  /**
+   * Delete feature
+   */
+  async delete(id: string): Promise<void> {
+    await axiosDotnet.delete(`/api/features/${id}`);
+  },
+};

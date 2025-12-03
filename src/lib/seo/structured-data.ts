@@ -1,340 +1,319 @@
-// import { Product } from "@/lib/store/slices/productsSlice";
-// import { Article } from "@/lib/api/articles";
-// import { Event } from "@/types/events";
-// import { stripHtml } from "./metadata";
+/**
+ * Schema.org Structured Data Generators for PeShop
+ * 
+ * This module provides functions to generate JSON-LD structured data
+ * for various page types following Schema.org specifications.
+ * 
+ * Requirements: 1.2, 2.1, 2.5, 8.1, 8.3, 8.5
+ */
 
-// const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://webcoreinc.com";
+import type { ProductDetail } from '@/features/customer/products';
+import type { ShopData } from '@/features/customer/shop-view';
+import type {
+  ProductSchema,
+  LocalBusinessSchema,
+  BreadcrumbSchema,
+  OrganizationSchema,
+  WebSiteSchema,
+  AggregateRatingSchema,
+  BreadcrumbItem,
+  AggregateOfferSchema,
+  OfferSchema,
+} from './types';
+import { seoConfig, getBaseUrl } from './config';
+import { stripHtml } from '@/lib/utils/html.utils';
 
-// // Organization Schema (for all pages)
-// export const organizationSchema = {
-//   "@context": "https://schema.org",
-//   "@type": "Organization",
-//   name: "Incom",
-//   alternateName: "Incom",
-//   url: BASE_URL,
-//   logo: `${BASE_URL}/logo.png`,
-//   description:
-//     "Demo platform showcasing e-commerce, booking system, and blog functionality",
-//   address: {
-//     "@type": "PostalAddress",
-//     streetAddress: "Your Street Address",
-//     addressLocality: "Ho Chi Minh City",
-//     addressRegion: "Ho Chi Minh",
-//     postalCode: "700000",
-//     addressCountry: "VN",
-//   },
-//   contactPoint: {
-//     "@type": "ContactPoint",
-//     telephone: "+84-xxx-xxx-xxx",
-//     contactType: "customer service",
-//     availableLanguage: ["Vietnamese", "English"],
-//   },
-//   sameAs: [
-//     "https://facebook.com/webcoreinc",
-//     "https://linkedin.com/company/webcoreinc",
-//     "https://twitter.com/webcoreinc",
-//   ],
-// };
+/**
+ * Generate Product structured data (Schema.org Product)
+ * 
+ * Creates comprehensive product schema including:
+ * - Basic product information
+ * - Price and availability
+ * - Aggregate ratings (if available)
+ * - Brand information
+ * - Multiple variants support
+ * 
+ * @param product - Product detail data
+ * @param url - Absolute URL of the product page
+ * @returns ProductSchema object
+ * 
+ * @example
+ * const schema = generateProductSchema(productData, 'https://peshop.vn/san-pham/product-slug');
+ */
+export function generateProductSchema(
+  product: ProductDetail,
+  url: string
+): ProductSchema {
+  // Prepare image array
+  const images = [product.imgMain, ...product.imgList].filter(Boolean);
 
-// // Website Schema
-// export const websiteSchema = {
-//   "@context": "https://schema.org",
-//   "@type": "WebSite",
-//   name: "WebCore Inc",
-//   alternateName: "Incom Demo Platform",
-//   url: BASE_URL,
-//   description:
-//     "Demo platform showcasing e-commerce, booking system, and blog functionality",
-//   publisher: {
-//     "@type": "Organization",
-//     name: "WebCore Inc",
-//   },
-//   potentialAction: {
-//     "@type": "SearchAction",
-//     target: {
-//       "@type": "EntryPoint",
-//       urlTemplate: `${BASE_URL}/san-pham?search={search_term_string}`,
-//     },
-//     "query-input": "required name=search_term_string",
-//   },
-// };
+  // Calculate availability based on variants
+  const hasStock = product.variants.some((v) => v.quantity > 0);
+  const availability = hasStock
+    ? 'https://schema.org/InStock'
+    : 'https://schema.org/OutOfStock';
 
-// // Product Schema Generator
-// export const generateProductSchema = (product: Product) => {
-//   const schema = {
-//     "@context": "https://schema.org",
-//     "@type": "Product",
-//     name: product.name,
-//     description: product.description
-//       ? stripHtml(product.description)
-//       : `Khám phá ${product.name} với chất lượng vượt trội`,
-//     image: product.images,
-//     sku: product.id,
-//     mpn: product.id,
-//     brand: {
-//       "@type": "Brand",
-//       name: "WebCore Inc",
-//     },
-//     manufacturer: {
-//       "@type": "Organization",
-//       name: "WebCore Inc",
-//     },
-//     offers: {
-//       "@type": "Offer",
-//       price: product.discountPrice || product.price,
-//       priceCurrency: "VND",
-//       availability: product.inStock
-//         ? "https://schema.org/InStock"
-//         : "https://schema.org/OutOfStock",
-//       seller: {
-//         "@type": "Organization",
-//         name: "WebCore Inc",
-//       },
-//       url: `${BASE_URL}/san-pham/${product.slug}`,
-//       priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-//         .toISOString()
-//         .split("T")[0], // 30 days from now
-//       ...(product.originalPrice &&
-//         product.discountPrice && {
-//           priceSpecification: {
-//             "@type": "UnitPriceSpecification",
-//             price: product.originalPrice,
-//             priceCurrency: "VND",
-//           },
-//         }),
-//     },
-//     category: product.category,
-//     ...(product.rating && {
-//       aggregateRating: {
-//         "@type": "AggregateRating",
-//         ratingValue: product.rating,
-//         reviewCount: product.reviewCount || 1,
-//         bestRating: 5,
-//         worstRating: 1,
-//       },
-//     }),
-//   };
+  // Determine if we need AggregateOffer (multiple variants) or single Offer
+  const hasMultipleVariants = product.variants.length > 1;
+  
+  let offers: OfferSchema | AggregateOfferSchema;
 
-//   return schema;
-// };
+  if (hasMultipleVariants) {
+    // Calculate price range from variants
+    const prices = product.variants.map((v) => v.price);
+    const lowPrice = Math.min(...prices);
+    const highPrice = Math.max(...prices);
 
-// // Article Schema Generator
-// export const generateArticleSchema = (article: Article) => {
-//   const schema = {
-//     "@context": "https://schema.org",
-//     "@type": "Article",
-//     headline: article.title,
-//     description: stripHtml(
-//       article.summarizeContent || article.content
-//     ).substring(0, 160),
-//     image: article.bannerImage ? [article.bannerImage] : [],
-//     author: {
-//       "@type": "Person",
-//       name: article.author || "WebCore Inc",
-//     },
-//     publisher: {
-//       "@type": "Organization",
-//       name: "WebCore Inc",
-//       logo: {
-//         "@type": "ImageObject",
-//         url: `${BASE_URL}/logo.png`,
-//         width: 200,
-//         height: 60,
-//       },
-//     },
-//     datePublished: article.createdDate,
-//     dateModified: article.lastModifiedDate || article.createdDate,
-//     mainEntityOfPage: {
-//       "@type": "WebPage",
-//       "@id": `${BASE_URL}/bai-viet/${article.id}`,
-//     },
-//     articleSection: "Technology",
-//     wordCount: stripHtml(article.content).split(" ").length,
-//     articleBody: stripHtml(article.content).substring(0, 500),
-//   };
+    offers = {
+      '@type': 'AggregateOffer',
+      url,
+      priceCurrency: 'VND',
+      lowPrice,
+      highPrice,
+      availability,
+      seller: {
+        '@type': 'Organization',
+        name: product.shopName,
+      },
+    };
+  } else {
+    offers = {
+      '@type': 'Offer',
+      url,
+      priceCurrency: 'VND',
+      price: product.price,
+      availability,
+      seller: {
+        '@type': 'Organization',
+        name: product.shopName,
+      },
+    };
+  }
 
-//   return schema;
-// };
+  // Build the schema
+  const schema: ProductSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.productName,
+    image: images,
+    description: product.description
+      ? stripHtml(product.description)
+      : `Mua ${product.productName} chính hãng tại ${product.shopName}. Giá tốt, giao hàng nhanh.`,
+    sku: product.productId,
+    brand: {
+      '@type': 'Brand',
+      name: product.shopName,
+    },
+    offers,
+  };
 
-// // Event Schema Generator
-// export const generateEventSchema = (event: Event) => {
-//   const schema = {
-//     "@context": "https://schema.org",
-//     "@type": "Event",
-//     name: event.title,
-//     description: stripHtml(event.content).substring(0, 160),
-//     image: event.banner ? [event.banner] : [],
-//     startDate: event.startTime,
-//     endDate: event.endTime,
-//     eventStatus: event.isActive
-//       ? "https://schema.org/EventScheduled"
-//       : "https://schema.org/EventCancelled",
-//     eventAttendanceMode:
-//       event.type === 1
-//         ? "https://schema.org/OnlineEventAttendanceMode"
-//         : "https://schema.org/OfflineEventAttendanceMode",
-//     organizer: {
-//       "@type": "Organization",
-//       name: "WebCore Inc",
-//       url: BASE_URL,
-//     },
-//     ...(event.type === 1 &&
-//       event.meetingLink && {
-//         location: {
-//           "@type": "VirtualLocation",
-//           url: event.meetingLink,
-//         },
-//       }),
-//     ...(event.type === 2 &&
-//       event.address && {
-//         location: {
-//           "@type": "Place",
-//           name: "WebCore Inc Office",
-//           address: {
-//             "@type": "PostalAddress",
-//             streetAddress: event.address,
-//             addressLocality: "Ho Chi Minh City",
-//             addressCountry: "VN",
-//           },
-//           ...(event.googleMapURL && {
-//             url: event.googleMapURL,
-//           }),
-//         },
-//       }),
-//     offers: {
-//       "@type": "Offer",
-//       price: "0",
-//       priceCurrency: "VND",
-//       availability: "https://schema.org/InStock",
-//       url: `${BASE_URL}/su-kien/${event.id}`,
-//     },
-//   };
+  // Add aggregate rating if available
+  if (product.reviewCount > 0 && product.reviewPoint > 0) {
+    schema.aggregateRating = generateAggregateRating(
+      product.reviewPoint,
+      product.reviewCount
+    );
+  }
 
-//   return schema;
-// };
+  return schema;
+}
 
-// // Breadcrumb Schema Generator
-// export const generateBreadcrumbSchema = (
-//   breadcrumbs: Array<{ name: string; url: string }>
-// ) => {
-//   const schema = {
-//     "@context": "https://schema.org",
-//     "@type": "BreadcrumbList",
-//     itemListElement: breadcrumbs.map((crumb, index) => ({
-//       "@type": "ListItem",
-//       position: index + 1,
-//       name: crumb.name,
-//       item: crumb.url.startsWith("http")
-//         ? crumb.url
-//         : `${BASE_URL}${crumb.url}`,
-//     })),
-//   };
+/**
+ * Generate AggregateRating structured data
+ * 
+ * @param ratingValue - Average rating value (0-5)
+ * @param reviewCount - Total number of reviews
+ * @returns AggregateRatingSchema object
+ */
+export function generateAggregateRating(
+  ratingValue: number,
+  reviewCount: number
+): AggregateRatingSchema {
+  return {
+    '@type': 'AggregateRating',
+    ratingValue: Math.max(0, Math.min(5, ratingValue)), // Clamp between 0-5
+    reviewCount: Math.max(1, reviewCount), // Minimum 1 review
+    bestRating: 5,
+    worstRating: 1,
+  };
+}
 
-//   return schema;
-// };
+/**
+ * Generate LocalBusiness structured data for shop pages
+ * 
+ * Creates shop/store schema including:
+ * - Business information
+ * - Address
+ * - Contact details
+ * - Ratings (if available)
+ * 
+ * @param shop - Shop data
+ * @param url - Absolute URL of the shop page
+ * @returns LocalBusinessSchema object
+ * 
+ * @example
+ * const schema = generateShopSchema(shopData, 'https://peshop.vn/shop-view/shop-id');
+ */
+export function generateShopSchema(
+  shop: ShopData,
+  url: string
+): LocalBusinessSchema {
+  const baseUrl = getBaseUrl();
+  
+  // Parse address or use default
+  const addressParts = shop.address?.split(',').map(s => s.trim()) || [];
+  const streetAddress = addressParts[0] || shop.address || 'Việt Nam';
+  const addressLocality = addressParts[1] || 'Hồ Chí Minh';
+  const addressRegion = addressParts[2] || 'Hồ Chí Minh';
 
-// // FAQ Schema Generator (for product pages)
-// export const generateFAQSchema = (
-//   faqs: Array<{ question: string; answer: string }>
-// ) => {
-//   const schema = {
-//     "@context": "https://schema.org",
-//     "@type": "FAQPage",
-//     mainEntity: faqs.map((faq) => ({
-//       "@type": "Question",
-//       name: faq.question,
-//       acceptedAnswer: {
-//         "@type": "Answer",
-//         text: faq.answer,
-//       },
-//     })),
-//   };
+  const schema: LocalBusinessSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: shop.name || 'Cửa hàng PeShop',
+    image: shop.logo ? `${baseUrl}${shop.logo}` : `${baseUrl}/logo.png`,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress,
+      addressLocality,
+      addressRegion,
+      postalCode: '700000',
+      addressCountry: 'VN',
+    },
+    url,
+  };
 
-//   return schema;
-// };
+  // Add price range if we have product count
+  if (shop.productCount && shop.productCount > 0) {
+    schema.priceRange = '$$';
+  }
 
-// // Local Business Schema (for contact/about pages)
-// export const localBusinessSchema = {
-//   "@context": "https://schema.org",
-//   "@type": "LocalBusiness",
-//   name: "WebCore Inc",
-//   description:
-//     "Demo platform showcasing e-commerce, booking system, and blog functionality",
-//   url: BASE_URL,
-//   telephone: "+84-xxx-xxx-xxx",
-//   email: "contact@webcoreinc.com",
-//   address: {
-//     "@type": "PostalAddress",
-//     streetAddress: "Your Street Address",
-//     addressLocality: "Ho Chi Minh City",
-//     addressRegion: "Ho Chi Minh",
-//     postalCode: "700000",
-//     addressCountry: "VN",
-//   },
-//   geo: {
-//     "@type": "GeoCoordinates",
-//     latitude: "10.8231",
-//     longitude: "106.6297",
-//   },
-//   openingHours: ["Mo-Fr 08:00-18:00", "Sa 08:00-12:00"],
-//   priceRange: "$$",
-//   paymentAccepted: ["Cash", "Credit Card", "Bank Transfer"],
-//   currenciesAccepted: "VND",
-// };
+  return schema;
+}
 
-// // Booking Detail Schema Generator
-// export const generateBookingDetailSchema = (booking: any) => {
-//   const schema = {
-//     "@context": "https://schema.org",
-//     "@type": "Reservation",
-//     reservationId: booking.id,
-//     reservationStatus:
-//       booking.status === 0
-//         ? "ReservationPending"
-//         : booking.status === 1
-//         ? "ReservationConfirmed"
-//         : booking.status === 2
-//         ? "ReservationConfirmed"
-//         : booking.status === 4
-//         ? "ReservationConfirmed"
-//         : "ReservationCancelled",
-//     bookingTime: booking.bookingDate,
-//     customer: {
-//       "@type": "Person",
-//       name: booking.userZaloName,
-//       telephone: booking.phoneNumber,
-//     },
-//     provider: {
-//       "@type": "LocalBusiness",
-//       name: booking.branch.name,
-//       address: {
-//         "@type": "PostalAddress",
-//         streetAddress: booking.branch.address,
-//         addressLocality: "Ho Chi Minh City",
-//         addressCountry: "VN",
-//       },
-//       telephone: booking.branch.phone,
-//     },
-//     reservationFor: {
-//       "@type": "Service",
-//       name: booking.bookingItems.map((item: any) => item.name).join(", "),
-//       description: booking.bookingItems
-//         .map((item: any) => item.description)
-//         .join("; "),
-//     },
-//     ...(booking.note && {
-//       additionalProperty: {
-//         "@type": "PropertyValue",
-//         name: "Consultation Notes",
-//         value: booking.note,
-//       },
-//     }),
-//   };
+/**
+ * Generate BreadcrumbList structured data
+ * 
+ * Creates breadcrumb navigation schema for improved site structure
+ * in search results.
+ * 
+ * @param items - Array of breadcrumb items with name and optional URL
+ * @returns BreadcrumbSchema object
+ * 
+ * @example
+ * const schema = generateBreadcrumbSchema([
+ *   { name: 'Trang chủ', url: '/' },
+ *   { name: 'Sản phẩm', url: '/san-pham' },
+ *   { name: 'Laptop', url: '/san-pham?category=laptop' },
+ *   { name: 'MacBook Pro' }
+ * ]);
+ */
+export function generateBreadcrumbSchema(
+  items: BreadcrumbItem[]
+): BreadcrumbSchema {
+  const baseUrl = getBaseUrl();
 
-//   return schema;
-// };
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => {
+      const isLast = index === items.length - 1;
+      
+      return {
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.name,
+        // Only include item URL if not the last item (current page)
+        ...((!isLast && item.url) && {
+          item: item.url.startsWith('http')
+            ? item.url
+            : `${baseUrl}${item.url}`,
+        }),
+      };
+    }),
+  };
+}
 
-// // Helper function to inject structured data
-// export const injectStructuredData = (schema: object): string => {
-//   return JSON.stringify(schema, null, 2);
-// };
+/**
+ * Generate Organization structured data for root layout
+ * 
+ * Creates organization schema representing PeShop as a business entity.
+ * This should be included on all pages.
+ * 
+ * @returns OrganizationSchema object
+ * 
+ * @example
+ * const schema = generateOrganizationSchema();
+ */
+export function generateOrganizationSchema(): OrganizationSchema {
+  const baseUrl = getBaseUrl();
+  const { organization } = seoConfig;
+
+  return {
+    '@type': 'Organization',
+    name: organization.name,
+    logo: `${baseUrl}${organization.logo}`,
+    url: baseUrl,
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: organization.contactPoint.telephone,
+      contactType: organization.contactPoint.contactType,
+      email: organization.contactPoint.email,
+    },
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: organization.address.streetAddress,
+      addressLocality: organization.address.addressLocality,
+      addressRegion: organization.address.addressRegion,
+      postalCode: organization.address.postalCode,
+      addressCountry: organization.address.addressCountry,
+    },
+    sameAs: organization.socialLinks,
+  };
+}
+
+/**
+ * Generate WebSite structured data for root layout
+ * 
+ * Creates website schema with search action for site-wide search functionality.
+ * This should be included on the homepage.
+ * 
+ * @returns WebSiteSchema object
+ * 
+ * @example
+ * const schema = generateWebSiteSchema();
+ */
+export function generateWebSiteSchema(): WebSiteSchema {
+  const baseUrl = getBaseUrl();
+  const { site } = seoConfig;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: site.name,
+    url: baseUrl,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${baseUrl}/tim-kiem?search={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+}
+
+/**
+ * Helper function to serialize structured data to JSON-LD string
+ * 
+ * @param schema - Any Schema.org structured data object
+ * @returns JSON-LD string ready for injection into script tag
+ * 
+ * @example
+ * <script
+ *   type="application/ld+json"
+ *   dangerouslySetInnerHTML={{ __html: serializeSchema(schema) }}
+ * />
+ */
+export function serializeSchema(schema: object): string {
+  return JSON.stringify(schema);
+}

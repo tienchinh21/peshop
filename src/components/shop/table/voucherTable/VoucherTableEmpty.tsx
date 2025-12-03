@@ -1,4 +1,4 @@
-import { TableCell, TableRow } from "@/components/ui/table";
+import { TableCell, TableRow } from "@/shared/components/ui/table";
 import { Ticket } from "lucide-react";
 
 export function VoucherTableEmpty() {

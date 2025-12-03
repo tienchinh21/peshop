@@ -1,0 +1,37 @@
+/**
+ * Example Component Template
+ * 
+ * This is an example of a feature component.
+ * Rename this file and update the content for your feature.
+ */
+
+'use client';
+
+import { Button } from '@/shared/components/ui';
+import { useFeature } from '../hooks';
+import type { Feature } from '../types';
+
+interface ExampleComponentProps {
+  // Define your component props
+}
+
+export function ExampleComponent({ }: ExampleComponentProps) {
+  // Use feature hooks
+  const { data, isLoading, error } = useFeature();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
+  return (
+    <div>
+      <h1>Feature Component</h1>
+      {/* Your component JSX */}
+      <Button>Action</Button>
+    </div>
+  );
+}

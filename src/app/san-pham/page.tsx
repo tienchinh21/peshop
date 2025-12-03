@@ -1,8 +1,10 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
-import ProductsPageClient from "@/views/pages/san-pham/ProductsPageClient";
-import { getProductsServerCached } from "@/services/api/users/product.server.cached";
-import { ProductSkeleton } from "@/components/skeleton";
+import {
+  ProductsPageClient,
+  getProductsServerCached,
+} from "@/features/customer/products";
+import { ProductSkeleton } from "@/shared/components/skeleton";
 
 export const revalidate = 300;
 
@@ -47,7 +49,7 @@ interface PageProps {
 
 async function ProductListContent({ page }: { page: number }) {
   try {
-    const data = await getProductsServerCached({ page, pageSize: 20 });
+    const data = await getProductsServerCached(page, 20);
     //@ts-ignore
     const products = data.data.data || [];
     const totalPages = data.data.totalPages || 1;
@@ -79,7 +81,7 @@ export default async function SanPhamPage({ searchParams }: PageProps) {
   return (
     <Suspense
       fallback={
-        <div className="py-8">
+        <div className="container mx-auto sm:px-6 md:px-8 lg:px-12 xl:px-15 max-w-7xl">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {[...Array(20)].map((_, i) => (
               <ProductSkeleton key={i} />

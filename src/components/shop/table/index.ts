@@ -14,19 +14,25 @@ export { VoucherTablePagination } from "./voucherTable/VoucherTablePagination";
 
 
 
-export { PromotionTable } from "./promotionTable/PromotionTable";
-export { PromotionTableHeader } from "./promotionTable/PromotionTableHeader";
-export { PromotionTableRow } from "./promotionTable/PromotionTableRow";
-export { PromotionTableLoading } from "./promotionTable/PromotionTableLoading";
-export { PromotionTableEmpty } from "./promotionTable/PromotionTableEmpty";
-export { PromotionTablePagination } from "./promotionTable/PromotionTablePagination";
+// Re-export from new feature location for backward compatibility
+export {
+  PromotionTable,
+  PromotionTableHeader,
+  PromotionTableRow,
+  PromotionTableLoading,
+  PromotionTableEmpty,
+  PromotionTablePagination,
+} from "@/features/shop/campaigns/promotions/components/table";
 
-export { OrderTable } from "./orderTable/OrderTable";
-export { OrderTableHeader } from "./orderTable/OrderTableHeader";
-export { OrderTableRow } from "./orderTable/OrderTableRow";
-export { OrderTableLoading } from "./orderTable/OrderTableLoading";
-export { OrderTableEmpty } from "./orderTable/OrderTableEmpty";
-export { OrderTablePagination } from "./orderTable/OrderTablePagination";
+// Re-export from new feature location for backward compatibility
+export {
+  OrderTable,
+  OrderTableHeader,
+  OrderTableRow,
+  OrderTableLoading,
+  OrderTableEmpty,
+  OrderTablePagination,
+} from "@/features/shop/orders/components/table";
 
 
 

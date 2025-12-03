@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, User, LogOut, Settings } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/shared/hooks";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -12,15 +12,15 @@ import {
   BreadcrumbLink,
   BreadcrumbSeparator,
   BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
+} from "@/shared/components/ui/breadcrumb";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+} from "@/shared/components/ui/dropdown-menu";
+import { Button } from "@/shared/components/ui/button";
 
 // Route mapping for breadcrumbs
 const routeMap: Record<

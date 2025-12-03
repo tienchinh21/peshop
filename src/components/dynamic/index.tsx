@@ -1,4 +1,4 @@
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 
 const ModalSkeleton = () => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -38,31 +38,46 @@ const ChartSkeleton = () => (
 );
 
 export const QuickViewModal = dynamic(
-  () => import('@/components/common/QuickViewModal'),
+  () => import("@/shared/components/layout/QuickViewModal"),
   { loading: () => <ModalSkeleton />, ssr: false }
 );
 
 export const AddressSelectModal = dynamic(
-  () => import('@/components/common/Modal/AddressSelectModal').then(mod => mod.AddressSelectModal),
+  () =>
+    import("@/shared/components/layout/AddressSelectModal").then(
+      (mod) => mod.AddressSelectModal
+    ),
   { loading: () => <ModalSkeleton />, ssr: false }
 );
 
 export const CategorySelectionModal = dynamic(
-  () => import('@/components/common/Modal/CategorySelectionModal').then(mod => mod.CategorySelectionModal),
+  () =>
+    import("@/shared/components/layout/CategorySelectionModal").then(
+      (mod) => mod.CategorySelectionModal
+    ),
   { loading: () => <ModalSkeleton />, ssr: false }
 );
 
 export const RichTextEditor = dynamic(
-  () => import('@/components/common/RichTextEditor').then(mod => mod.RichTextEditor),
+  () =>
+    import("@/shared/components/layout/RichTextEditor").then(
+      (mod) => mod.RichTextEditor
+    ),
   { loading: () => <EditorSkeleton />, ssr: false }
 );
 
 export const DashboardCharts = dynamic(
-  () => import('@/views/pages/shop/dashboard/components/DashboardCharts').then(mod => mod.DashboardCharts),
+  () =>
+    import("@/features/shop/dashboard/components/DashboardCharts").then(
+      (mod) => mod.DashboardCharts
+    ),
   { loading: () => <ChartSkeleton />, ssr: false }
 );
 
 export const VoucherDashboardCharts = dynamic(
-  () => import('@/views/pages/shop/chien-dich/voucher/components/VoucherDashboardCharts').then(mod => mod.VoucherDashboardCharts),
+  () =>
+    import(
+      "@/features/shop/campaigns/vouchers/components/dashboard/VoucherDashboardCharts"
+    ).then((mod) => mod.VoucherDashboardCharts),
   { loading: () => <ChartSkeleton />, ssr: false }
 );

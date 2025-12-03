@@ -3,7 +3,7 @@
 import React from "react";
 import { FormField } from "./FormField";
 import { PasswordField } from "./PasswordField";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import { User, UserCircle, ArrowLeft } from "lucide-react";
 import { VALIDATION_PATTERNS } from "@/lib/validations/html5-patterns";
 

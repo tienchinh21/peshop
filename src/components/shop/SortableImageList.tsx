@@ -20,7 +20,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
 import { X, GripVertical } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import _ from "lodash";
 
 interface ImageItem {

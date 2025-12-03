@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShoppingBag, ChevronDown } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/shared/hooks";
 
 interface SimpleLayoutProps {
   children: React.ReactNode;

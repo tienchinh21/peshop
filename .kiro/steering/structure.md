@@ -2,7 +2,6 @@
 
 ## Architecture Pattern
 
-<<<<<<< Updated upstream
 **Feature-based architecture** with clear separation between presentation, business logic, and data layers.
 
 ## Directory Organization
@@ -10,75 +9,119 @@
 ```
 src/
 ├── app/                    # Next.js App Router (routes)
-│   ├── (protected)/       # Auth-required routes
+│   ├── (auth)/            # Authentication routes (login, register)
+│   │   ├── dang-ky/       # Registration
+│   │   └── xac-thuc/      # Login
+│   ├── (customer)/        # Customer auth-required routes
 │   │   ├── gio-hang/      # Cart
 │   │   ├── thanh-toan/    # Checkout
 │   │   ├── don-hang/      # Orders
 │   │   ├── tai-khoan/     # Account
-│   │   ├── yeu-thich/     # Wishlist
+│   │   └── yeu-thich/     # Wishlist
+│   ├── (shop)/            # Shop management routes
 │   │   └── shop/          # Shop management
-│   ├── (public)/          # Public routes
-│   │   ├── dang-ky/       # Registration
-│   │   └── xac-thuc/      # Authentication
-│   ├── san-pham/          # Products listing & detail
-│   ├── tim-kiem/          # Search
+│   │       ├── dang-ky/   # Shop registration
+│   │       ├── dashboard/ # Shop dashboard
+│   │       ├── san-pham/  # Product management
+│   │       ├── don-hang/  # Order management
+│   │       └── chien-dich/# Campaigns (vouchers, promotions)
+│   ├── san-pham/          # Public products listing & detail
+│   ├── tim-kiem/          # Public search
+│   ├── shop-view/         # Public shop viewing
 │   └── api/               # API routes
-├── components/            # React components
-│   ├── ui/               # shadcn/ui primitives
-│   ├── common/           # Shared components
-│   ├── shop/             # Shop-specific components
-│   ├── skeleton/         # Loading skeletons
-│   ├── guards/           # Route guards (AuthGuard, ShopGuard)
-│   └── chat/             # Chat widget
-├── views/                # Page-level components
-│   └── pages/            # Feature pages (HomePage, ProductDetailPage, etc.)
-├── hooks/                # Custom React hooks
-│   ├── user/             # Customer hooks
-│   └── shop/             # Shop management hooks
-├── services/             # API & core services
-│   ├── api/              # API service layer
-│   │   ├── users/        # Customer APIs
-│   │   └── shops/        # Shop APIs
-│   └── core/             # Core services
-│       ├── http/         # Axios clients & interceptors
-│       ├── auth/         # Token management
-│       ├── cache/        # Cache service
-│       └── external/     # External APIs (GoShip)
-├── types/                # TypeScript types
-│   ├── users/            # Customer types
-│   └── shops/            # Shop types
-├── lib/                  # Utilities & configuration
-│   ├── config/           # API & Axios config
-│   ├── store/            # Redux store & slices
+├── features/              # Feature modules (domain-driven)
+│   ├── customer/          # Customer domain features
+│   │   ├── products/      # Product browsing
+│   │   ├── cart/          # Shopping cart
+│   │   ├── checkout/      # Checkout flow
+│   │   ├── orders/        # Order history
+│   │   ├── wishlist/      # Wishlist
+│   │   ├── search/        # Search functionality
+│   │   ├── reviews/       # Product reviews
+│   │   ├── auth/          # Authentication
+│   │   ├── account/       # Account management
+│   │   ├── home/          # Homepage
+│   │   ├── categories/    # Categories
+│   │   ├── shop-view/     # Shop viewing
+│   │   └── voucher-check/ # Voucher validation
+│   └── shop/              # Shop management features
+│       ├── products/      # Product management
+│       ├── orders/        # Order management
+│       ├── dashboard/     # Dashboard analytics
+│       ├── registration/  # Shop registration
+│       ├── categories/    # Category management
+│       └── campaigns/     # Marketing campaigns
+│           ├── vouchers/  # Voucher management
+│           └── promotions/# Promotion management
+├── shared/                # Shared across all features
+│   ├── components/        # Reusable UI components
+│   │   ├── ui/           # shadcn/ui primitives
+│   │   ├── layout/       # Layout components (Header, Footer, etc.)
+│   │   └── skeleton/     # Loading skeletons
+│   ├── hooks/            # Shared hooks (useAuth, useCategories, etc.)
+│   ├── services/         # Core services
+│   │   ├── http/         # Axios clients & interceptors
+│   │   ├── auth/         # Token management
+│   │   ├── cache/        # Cache service
+│   │   └── external/     # External APIs (GoShip)
+│   ├── guards/           # Route guards (AuthGuard, ShopGuard, PublicGuard)
+│   ├── types/            # Shared types
 │   ├── utils/            # Utility functions
-│   ├── validations/      # Zod schemas
-│   └── seo/              # SEO utilities
+│   ├── enums/            # Shared enums
+│   └── lib/              # Libraries & configs
+│       ├── config/       # API configuration
+│       ├── store/        # Redux store
+│       ├── seo/          # SEO utilities
+│       └── validations/  # Zod schemas
 ├── providers/            # React context providers
-├── enums/                # Enums (order, payment)
-├── helpers/              # Helper functions
-└── utils/                # Additional utilities
+├── components/           # Legacy components (being migrated)
+│   └── shop/             # Shop-specific components
+├── lib/                  # Legacy lib (being migrated)
+└── services/             # Legacy services (being migrated)
 ```
 
 ## Key Conventions
 
 ### Routing
 
-- **Route Groups**: `(protected)` for auth-required, `(public)` for public routes
+- **Route Groups**:
+  - `(auth)` for authentication pages (login, register) - redirects to home if logged in
+  - `(customer)` for customer auth-required routes (cart, checkout, orders, etc.)
+  - `(shop)` for shop management routes - requires shop owner role
 - **Dynamic Routes**: `[slug]` for product details, `[id]` for shop resources
 - **Vietnamese Paths**: `/san-pham` (products), `/gio-hang` (cart), `/thanh-toan` (checkout)
 
-### Component Organization
+### Feature Module Structure
 
-- **Page Components**: Located in `views/pages/[feature]/`
-- **Reusable Components**: Located in `components/common/`
-- **UI Primitives**: Located in `components/ui/` (shadcn/ui)
-- **Feature Components**: Co-located with pages in `views/pages/[feature]/components/`
+Each feature module follows this structure:
+
+```
+features/[domain]/[feature]/
+├── components/           # Feature-specific components
+├── hooks/               # Feature-specific hooks
+├── services/            # API services
+├── types/               # Type definitions
+├── utils/               # Feature utilities (optional)
+└── index.ts             # Barrel export
+```
+
+### Import Patterns
+
+```typescript
+// Feature imports (preferred)
+import { ProductList, useProducts } from "@/features/customer/products";
+
+// Shared imports
+import { Button, Card } from "@/shared/components/ui";
+import { useAuth } from "@/shared/hooks";
+import { formatCurrency } from "@/shared/utils";
+```
 
 ### Data Layer
 
-- **Services**: API calls in `services/api/[users|shops]/`
-- **Hooks**: React Query hooks in `hooks/[user|shop]/`
-- **Types**: TypeScript interfaces in `types/[users|shops]/`
+- **Services**: API calls in `features/[domain]/[feature]/services/`
+- **Hooks**: React Query hooks in `features/[domain]/[feature]/hooks/`
+- **Types**: TypeScript interfaces in `features/[domain]/[feature]/types/`
 - **Pattern**: Service → Hook → Component
 
 ### Naming Conventions
@@ -98,15 +141,15 @@ src/
 
 ### API Integration
 
-- **Dual Clients**: `axiosDotnet` and `axiosJava` from `lib/config/axios.config.ts`
-- **Interceptors**: Token injection, error handling in `services/core/http/`
-- **Endpoints**: Centralized in `lib/config/api.config.ts`
+- **Dual Clients**: `axiosDotnet` and `axiosJava` from `shared/services/http/`
+- **Interceptors**: Token injection, error handling in `shared/services/http/`
+- **Endpoints**: Centralized in `shared/lib/config/`
 
 ### Authentication
 
 - **Middleware**: Token-based auth check in `middleware.ts`
-- **Guards**: `AuthGuard`, `ShopGuard` components for route protection
-- **Token Storage**: HTTP-only cookies via `cookies.utils.ts`
+- **Guards**: `AuthGuard`, `ShopGuard`, `PublicGuard` in `shared/guards/`
+- **Token Storage**: HTTP-only cookies via `shared/services/auth/`
 
 ### Styling
 
@@ -120,118 +163,3 @@ src/
 - **ISR**: `revalidate` export for static regeneration
 - **Caching**: React Query with staleTime/gcTime configuration
 - **Prefetching**: `usePrefetchProduct` for optimistic loading
-=======
-This is a Next.js App Router project following a feature-based architecture with clear separation of concerns.
-
-## Route Organization
-
-Routes use Next.js 15 App Router with route groups:
-
-- `src/app/(public)/` - Public routes (registration, authentication)
-- `src/app/(protected)/` - Protected routes requiring authentication (cart, checkout, account, orders, shop management)
-- `src/app/san-pham/` - Public product pages
-- `src/app/shop-view/` - Public shop viewing pages
-- `src/app/api/` - API routes
-
-Route groups use Vietnamese naming (e.g., `/gio-hang` for cart, `/thanh-toan` for checkout, `/san-pham` for products).
-
-## Core Directories
-
-### `/src/app`
-
-Next.js App Router pages and layouts. Uses route groups for access control.
-
-### `/src/components`
-
-Reusable UI components organized by purpose:
-
-- `ui/` - Base shadcn/ui components (buttons, inputs, dialogs, etc.)
-- `common/` - Shared components (Header, Footer, ProductList, SearchBar, modals)
-- `shop/` - Shop management components (tables, filters, forms)
-- `guards/` - Route protection components (AuthGuard, PublicGuard, ShopGuard)
-- `skeleton/` - Loading skeleton components
-- `chat/` - Chat widget components
-
-### `/src/views/pages`
-
-Page-level view components that compose smaller components. Mirrors the route structure:
-
-- `home/` - Homepage components
-- `san-pham/` - Product listing and detail views
-- `shop/` - Shop management views (dashboard, products, orders, campaigns)
-- `thanh-toan/` - Checkout flow components
-- `gio-hang/` - Cart page components
-
-### `/src/services`
-
-API integration layer with clear separation:
-
-- `core/` - Core services (HTTP clients, auth, cache, external APIs)
-  - `http/` - Axios client configuration and interceptors
-  - `auth/` - Token management
-  - `cache/` - Caching utilities
-  - `external/` - Third-party API integrations
-- `api/shops/` - Shop-related API calls
-- `api/users/` - User-related API calls
-
-### `/src/hooks`
-
-Custom React hooks for business logic:
-
-- `shop/` - Shop management hooks (orders, products, promotions, vouchers)
-- `user/` - User-facing hooks (cart, checkout, products, search, reviews)
-- Root level hooks for shared functionality (auth, categories, modals)
-
-### `/src/lib`
-
-Utility libraries and configurations:
-
-- `config/` - API and Axios configuration
-- `store/` - Redux store setup and slices
-- `utils/` - Helper functions (cookies, JWT, formatting, SEO)
-- `validations/` - Zod schemas for form validation
-- `seo/` - SEO utilities (metadata, structured data)
-
-### `/src/types`
-
-TypeScript type definitions organized by domain:
-
-- `shops/` - Shop-related types
-- `users/` - User-related types
-- `core.types.ts` - Shared core types
-
-### `/src/providers`
-
-React context providers:
-
-- `AppProvider` - Root provider composing Redux, React Query, and Layout providers
-- `ReduxProvider` - Redux store provider
-- `QueryProvider` - TanStack Query provider
-- `LayoutProvider` - Layout-specific context
-
-### `/src/enums`
-
-Enum definitions for orders, payments, etc.
-
-### `/src/helpers`
-
-Helper functions for specific domains (e.g., order helpers)
-
-## Naming Conventions
-
-- **Files**: PascalCase for components (`ProductCard.tsx`), camelCase for utilities (`format.utils.ts`)
-- **Folders**: kebab-case for routes, camelCase for feature folders
-- **Components**: PascalCase with descriptive names
-- **Hooks**: camelCase starting with `use` prefix
-- **Types**: PascalCase with descriptive suffixes (`.types.ts`, `.type.ts`)
-- **Services**: camelCase with `.service.ts` suffix
-
-## Key Patterns
-
-1. **Server/Client Separation**: Server components for data fetching, client components for interactivity
-2. **Guard Components**: Route protection via layout-level guards
-3. **Service Layer**: All API calls go through service layer, never direct axios calls in components
-4. **Custom Hooks**: Business logic extracted into reusable hooks
-5. **Type Safety**: Comprehensive TypeScript types for all API responses and component props
-6. **Component Composition**: Large pages composed from smaller, focused components
->>>>>>> Stashed changes

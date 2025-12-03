@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Table, TableBody } from "@/components/ui/table";
+import { Table, TableBody } from "@/shared/components/ui/table";
 import { OrderTableHeader } from "./OrderTableHeader";
 import { OrderTableEmpty } from "./OrderTableEmpty";
 import { OrderTableLoading } from "./OrderTableLoading";

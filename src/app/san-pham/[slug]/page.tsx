@@ -1,9 +1,9 @@
 import { Metadata } from "next";
-import { ProductDetailPage } from "@/views/pages/san-pham/[slug]/ProductDetailPage";
 import {
+  ProductDetailPage,
   getProductDetailCached,
   getTopProductSlugs,
-} from "@/services/api/users/product.server.cached";
+} from "@/features/customer/products";
 import {
   generateMetaDescription,
   getOgImage,
@@ -24,14 +24,11 @@ export const dynamicParams = true;
 export async function generateStaticParams() {
   try {
     const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Timeout')), 30000)
+      setTimeout(() => reject(new Error("Timeout")), 30000)
     );
-    
-    const slugs = await Promise.race([
-      getTopProductSlugs(100),
-      timeoutPromise
-    ]);
-    
+
+    const slugs = await Promise.race([getTopProductSlugs(100), timeoutPromise]);
+
     return slugs.map((slug) => ({ slug }));
   } catch (error) {
     console.error("Failed to generate static params:", error);
@@ -116,7 +113,7 @@ export async function generateMetadata({
 
 async function ProductDetailContent({ slug }: { slug: string }) {
   const product = await getProductDetailCached(slug);
-  
+
   if (!product) {
     return null;
   }
@@ -138,7 +135,5 @@ async function ProductDetailContent({ slug }: { slug: string }) {
 export default async function Page({ params }: PageProps) {
   const { slug } = await params;
 
-  return (
-    <ProductDetailContent slug={slug} />
-  );
+  return <ProductDetailContent slug={slug} />;
 }

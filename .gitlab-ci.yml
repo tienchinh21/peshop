@@ -1,18 +1,64 @@
 stages:
+  - build
   - deploy
+
+variables:
+  PROJECT_PATH: "/var/www/peshop-client"
+  NODE_VERSION: "20"
+
+# Cache node_modules để tăng tốc build
+cache:
+  paths:
+    - node_modules/
+    - .next/cache/
+
+build:
+  stage: build
+  image: node:${NODE_VERSION}-alpine
+  script:
+    - npm ci --legacy-peer-deps
+    - npm run build
+  artifacts:
+    paths:
+      - .next/
+      - node_modules/
+    expire_in: 1 hour
+  only:
+    - main
+  tags:
+    - docker
 
 deploy:
   stage: deploy
   image: alpine:latest
+  dependencies:
+    - build
   before_script:
-    - apk add --no-cache openssh-client
+    - apk add --no-cache openssh-client rsync
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
   script:
-    - echo "Deploying to VPS..."
-    - ssh $SSH_USER@$SSH_IP "cd /path/to/your/project && git pull origin main && npm install && npm run build && pm2 restart ecosystem.config.js"
+    - echo "🚀 Deploying to VPS..."
+    # Sync build files to VPS
+    - rsync -avz --delete --exclude='.env*' --exclude='node_modules' ./ $SSH_USER@$SSH_IP:$PROJECT_PATH/
+    # Install dependencies and restart PM2
+    - |
+      ssh $SSH_USER@$SSH_IP << 'EOF'
+        cd $PROJECT_PATH
+        echo "📦 Installing dependencies..."
+        npm ci --legacy-peer-deps --production
+        echo "🔄 Restarting application..."
+        pm2 reload ecosystem.config.js --env production || pm2 start ecosystem.config.js --env production
+        pm2 save
+        echo "✅ Deployment completed!"
+      EOF
   only:
     - main
+  tags:
+    - docker
+  environment:
+    name: production
+    url: https://your-domain.com

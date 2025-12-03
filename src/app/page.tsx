@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import HomePageClient from "@/views/pages/home/HomePage";
-import { getProductsServerCached } from "@/services/api/users/product.server.cached";
+import { HomePage as HomePageClient } from "@/features/customer/home";
+import { getProductsServerCached } from "@/features/customer/products";
 
 export const metadata: Metadata = {
   title: "Trang chủ - PeShop",
@@ -13,7 +13,7 @@ export default async function HomePage() {
   let initialProducts = [];
 
   try {
-    const data = await getProductsServerCached({ page: 1, pageSize: 20 });
+    const data = await getProductsServerCached(1, 20);
     //@ts-ignore
     initialProducts = data.data?.data || [];
   } catch (error) {
