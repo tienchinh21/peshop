@@ -3,16 +3,16 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { TableCell, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { TableCell, TableRow } from "@/shared/components/ui/table";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/shared/components/ui/dropdown-menu";
 import { MoreHorizontal, Edit, Trash2, Eye, Copy } from "lucide-react";
 import type { ShopProduct } from "@/types/shops/product-list.type";
 import {

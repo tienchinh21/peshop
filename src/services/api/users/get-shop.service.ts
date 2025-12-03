@@ -1,7 +1,7 @@
 import { axiosDotnet } from "@/lib/config/axios.config";
 import _ from "lodash";
 import type { GetShopResponse, ShopData } from "@/types/users/get-shop.types";
-import type { Product, ProductsApiResponse } from "@/types/users/product.types";
+import type { Product, ProductsApiResponse } from "@/features/customer/products";
 
 
 export const getShop = async (shopId: string): Promise<ShopData | null> => {

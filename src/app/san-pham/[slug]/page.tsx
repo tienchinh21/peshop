@@ -1,9 +1,9 @@
 import { Metadata } from "next";
-import { ProductDetailPage } from "@/views/pages/san-pham/[slug]/ProductDetailPage";
 import {
+  ProductDetailPage,
   getProductDetailCached,
   getTopProductSlugs,
-} from "@/services/api/users/product.server.cached";
+} from "@/features/customer/products";
 import {
   generateMetaDescription,
   getOgImage,
@@ -23,7 +23,12 @@ export const dynamicParams = true;
 // Generate static params for top 100 products at build time
 export async function generateStaticParams() {
   try {
-    const slugs = await getTopProductSlugs(100);
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Timeout")), 30000)
+    );
+
+    const slugs = await Promise.race([getTopProductSlugs(100), timeoutPromise]);
+
     return slugs.map((slug) => ({ slug }));
   } catch (error) {
     console.error("Failed to generate static params:", error);
@@ -106,34 +111,29 @@ export async function generateMetadata({
   }
 }
 
-export default async function Page({ params }: PageProps) {
-  const { slug } = await params;
+async function ProductDetailContent({ slug }: { slug: string }) {
+  const product = await getProductDetailCached(slug);
 
-  let product = null;
-  let productSchema = null;
-
-  try {
-    // Use cached function - will be deduplicated with generateMetadata call
-    product = await getProductDetailCached(slug);
-    if (product) {
-      const url = `${process.env.NEXT_PUBLIC_SITE_URL}/san-pham/${slug}`;
-      productSchema = generateProductSchema(product, url);
-    }
-  } catch (error) {
-    // Product not found, will show error in ProductDetailPage
-    console.error("Failed to fetch product:", error);
+  if (!product) {
+    return null;
   }
+
+  const url = `${process.env.NEXT_PUBLIC_SITE_URL}/san-pham/${slug}`;
+  const productSchema = generateProductSchema(product, url);
 
   return (
     <>
-      {productSchema && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
-        />
-      )}
-
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
       <ProductDetailPage slug={slug} initialData={product} />
     </>
   );
+}
+
+export default async function Page({ params }: PageProps) {
+  const { slug } = await params;
+
+  return <ProductDetailContent slug={slug} />;
 }

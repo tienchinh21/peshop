@@ -1,8 +1,8 @@
-import { TableCell, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { TableCell, TableRow } from "@/shared/components/ui/table";
+import { Button } from "@/shared/components/ui/button";
+import { Badge } from "@/shared/components/ui/badge";
 import { Order } from "@/types/shops/order.type";
-import { OrderStatus, OrderStatusLabel } from "@/enums/order.enum";
+import { OrderStatus, OrderStatusLabel } from "@/shared/enums";
 import { formatCurrency } from "@/lib/utils";
 import { format } from "date-fns";
 import { Eye, Check, X } from "lucide-react";

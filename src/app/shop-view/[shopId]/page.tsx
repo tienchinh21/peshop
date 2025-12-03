@@ -4,14 +4,16 @@ import { notFound } from "next/navigation";
 import {
   getShopServer,
   getProductsByShopIdServer,
-} from "@/services/api/users/get-shop.server";
-import { getTopShopIds } from "@/services/api/users/product.server.cached";
-import ShopPageClient from "@/views/pages/shop/ShopPageClient";
+  ShopPageClient,
+} from "@/features/customer/shop-view";
+import { getTopShopIds } from "@/features/customer/products";
 
 interface ShopPageProps {
   params: Promise<{ shopId: string }>;
   searchParams: Promise<{ page?: string }>;
 }
+
+export const dynamic = "force-dynamic";
 
 export const revalidate = 3600;
 
@@ -60,13 +62,11 @@ export default async function ShopPage({
   const currentPage = Number(query.page) || 1;
   const pageSize = 20;
 
-  // Fetch shop data and products in parallel (SSR)
   const [shopData, productsData] = await Promise.all([
     getShopServer(shopId),
     getProductsByShopIdServer(shopId, currentPage, pageSize),
   ]);
 
-  // If shop not found, show 404
   if (!shopData) {
     notFound();
   }

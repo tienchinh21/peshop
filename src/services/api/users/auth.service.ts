@@ -42,22 +42,132 @@ export const resendOtp = async (
     return response.data;
 };
 
+/**
+ * Clean and validate JWT token
+ * Removes BOM, whitespace, and other unwanted characters
+ */
+const cleanToken = (token: string): string => {
+    if (!token) return token;
+
+    // Remove BOM if present
+    let cleaned = token.replace(/^\uFEFF/, '');
+
+    // Remove all whitespace
+    cleaned = cleaned.trim();
+
+    // Remove any non-printable characters
+    cleaned = cleaned.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+
+    return cleaned;
+};
+
 export const register = async (
     data: RegisterRequest,
 ): Promise<RegisterResponse> => {
-    const response = await axiosDotnet.post<RegisterResponse>(
-        API_ENDPOINTS.AUTH.REGISTER,
-        data,
-    );
-    return response.data;
+    try {
+        const response = await axiosDotnet.post<RegisterResponse>(
+            API_ENDPOINTS.AUTH.REGISTER,
+            data,
+        );
+
+        // Handle case where response.data is a string (token directly)
+        if (typeof response.data === 'string') {
+            const originalToken = response.data as string;
+            const cleanedToken = cleanToken(originalToken);
+
+            return {
+                error: null,
+                data: cleanedToken,
+            };
+        }
+
+        // Handle normal response format
+        if (response.data && typeof response.data === 'object') {
+            // If data.data is a string (token), clean it
+            if (typeof response.data.data === 'string') {
+                return {
+                    error: response.data.error || null,
+                    data: cleanToken(response.data.data),
+                };
+            }
+            return response.data;
+        }
+
+        return response.data;
+    } catch (error: any) {
+        console.error('Register error:', error);
+
+        // Handle error response
+        if (error.response?.data) {
+            return {
+                error: error.response.data.error || error.response.data.message || 'Đăng ký thất bại',
+                data: '',
+            };
+        }
+
+        throw error;
+    }
 };
 
 export const login = async (data: LoginRequest): Promise<LoginResponse> => {
-    const response = await axiosDotnet.post<LoginResponse>(
-        API_ENDPOINTS.AUTH.LOGIN,
-        data,
-    );
-    return response.data;
+    try {
+        const response = await axiosDotnet.post<LoginResponse>(
+            API_ENDPOINTS.AUTH.LOGIN,
+            data,
+        );
+
+        // Log response for debugging
+        console.log('Login response:', {
+            status: response.status,
+            headers: response.headers,
+            data: response.data,
+            dataType: typeof response.data,
+        });
+
+        // Handle case where response.data is a string (token directly)
+        if (typeof response.data === 'string') {
+            const originalToken = response.data as string;
+            const cleanedToken = cleanToken(originalToken);
+            console.log('Token cleaned:', {
+                original: originalToken.substring(0, 50),
+                cleaned: cleanedToken.substring(0, 50),
+                originalLength: originalToken.length,
+                cleanedLength: cleanedToken.length,
+            });
+
+            return {
+                error: null,
+                data: cleanedToken,
+            };
+        }
+
+        // Handle normal response format
+        if (response.data && typeof response.data === 'object') {
+            // If data.data is a string (token), clean it
+            if (typeof response.data.data === 'string') {
+                return {
+                    error: response.data.error || null,
+                    data: cleanToken(response.data.data),
+                };
+            }
+            return response.data;
+        }
+
+        // Fallback
+        return response.data;
+    } catch (error: any) {
+        console.error('Login error:', error);
+
+        // Handle error response
+        if (error.response?.data) {
+            return {
+                error: error.response.data.error || error.response.data.message || 'Đăng nhập thất bại',
+                data: '',
+            };
+        }
+
+        throw error;
+    }
 };
 
 export const logout = async (): Promise<void> => {

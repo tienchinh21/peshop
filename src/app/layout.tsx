@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/providers";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/shared/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,8 +19,12 @@ export const metadata: Metadata = {
   description: "Nền tảng mua sắm trực tuyến hiện đại và tiện lợi",
   keywords: ["mua sắm", "thương mại điện tử", "online shopping"],
   authors: [{ name: "PeShop Team" }],
-  viewport: "width=device-width, initial-scale=1",
   robots: "index, follow",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({

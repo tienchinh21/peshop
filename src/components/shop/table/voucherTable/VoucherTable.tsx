@@ -1,4 +1,4 @@
-import { Table, TableBody } from "@/components/ui/table";
+import { Table, TableBody } from "@/shared/components/ui/table";
 import { VoucherTableHeader } from "./VoucherTableHeader";
 import { VoucherTableRow } from "./VoucherTableRow";
 import { VoucherTableLoading } from "./VoucherTableLoading";

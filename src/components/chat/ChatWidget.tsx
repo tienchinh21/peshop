@@ -10,9 +10,9 @@ import {
   Smile,
   MoreVertical,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/shared/components/ui/button";
+import { Card } from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
 import { cn } from "@/lib/utils";
 
 // Mock Data
@@ -103,14 +103,13 @@ export default function ChatWidget() {
     ? (MOCK_MESSAGES as any)[activeConversationId] || []
     : [];
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [currentMessages, activeConversationId, isOpen]);
 
-  // Click outside to close
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (

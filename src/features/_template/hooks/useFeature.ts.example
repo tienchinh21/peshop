@@ -1,0 +1,33 @@
+/**
+ * Example Hook Template
+ * 
+ * This is an example of a feature hook using TanStack Query.
+ * Rename this file and update the content for your feature.
+ */
+
+import { useQuery } from '@tanstack/react-query';
+import { FeatureService } from '../services';
+import type { Feature } from '../types';
+
+/**
+ * Hook for fetching feature data
+ */
+export function useFeature() {
+  return useQuery({
+    queryKey: ['feature'],
+    queryFn: () => FeatureService.getAll(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+}
+
+/**
+ * Hook for fetching feature detail by ID
+ */
+export function useFeatureDetail(id: string) {
+  return useQuery({
+    queryKey: ['feature', id],
+    queryFn: () => FeatureService.getById(id),
+    enabled: !!id,
+  });
+}

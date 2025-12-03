@@ -1,0 +1,5 @@
+export {
+  getCategories,
+  getCategoryChildren,
+  getCategoryTemplate,
+} from "./category.service";

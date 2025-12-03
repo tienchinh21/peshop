@@ -3,14 +3,14 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import _ from "lodash";
-import { Header, Footer } from "@/components/common";
+import { Header, Footer } from "@/shared/components/layout";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import {
   logout as logoutAction,
   selectCurrentUser,
   selectIsAuthenticated,
 } from "@/lib/store/slices/authSlice";
-import { useCartCount } from "@/hooks/user/useCart";
+import { useCartCount } from "@/features/customer/cart";
 import { toast } from "sonner";
 import ChatWidget from "@/components/chat/ChatWidget";
 
@@ -24,7 +24,6 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const user = useAppSelector(selectCurrentUser);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
-  // Fetch cart count only when user is authenticated
   const { data: cartCount } = useCartCount(isAuthenticated);
 
   const handleLogout = () => {

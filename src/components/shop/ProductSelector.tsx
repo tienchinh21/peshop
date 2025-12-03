@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { ChevronDown, Search, Package } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/shared/components/ui/input";
 import { getShopProducts } from "@/services/api/shops/product-list.service";
 import type { ShopProduct } from "@/types/shops/product-list.type";
 import _ from "lodash";

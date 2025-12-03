@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 
 /**
  * Product table header component

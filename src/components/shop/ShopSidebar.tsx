@@ -34,7 +34,7 @@ import {
   SidebarMenuSubItem,
   SidebarMenuSubButton,
   SidebarRail,
-} from "@/components/ui/sidebar";
+} from "@/shared/components/ui/sidebar";
 
 // Menu items với submenu
 const menuItems = [

@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { TableCell, TableRow } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
+import { TableCell, TableRow } from "@/shared/components/ui/table";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 interface ProductTableLoadingProps {
   rows?: number;

@@ -1,0 +1,32 @@
+/**
+ * Example Utils Template
+ * 
+ * This is an example of feature-specific utility functions.
+ * Rename this file and update the content for your feature.
+ * Note: Only create this if you have feature-specific utilities.
+ */
+
+import type { Feature } from '../types';
+
+/**
+ * Format feature name for display
+ */
+export function formatFeatureName(feature: Feature): string {
+  return feature.name.toUpperCase();
+}
+
+/**
+ * Validate feature data
+ */
+export function validateFeature(feature: Partial<Feature>): boolean {
+  return !!(feature.name && feature.description);
+}
+
+/**
+ * Sort features by creation date
+ */
+export function sortFeaturesByDate(features: Feature[]): Feature[] {
+  return [...features].sort((a, b) => 
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+}

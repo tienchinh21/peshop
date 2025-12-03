@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import type { AuthUser } from "@/types/users/auth.types";
+import type { AuthUser } from "@/features/customer/auth/types";
 import { getRolesFromToken, isTokenExpired } from "@/lib/utils/jwt.utils";
 import { STORAGE_KEYS } from "@/lib/config/api.config";
 import { setAuthTokenCookie, getAuthTokenCookie, removeAuthTokenCookie } from "@/lib/utils/cookies.utils";
