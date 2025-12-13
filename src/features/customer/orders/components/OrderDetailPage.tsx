@@ -75,20 +75,29 @@ const getPaymentStatusText = (status: PaymentStatus): string => {
 };
 
 const getTrackingStatusIcon = (status: string) => {
-  switch (status) {
+  const s = (status || "").toLowerCase();
+  switch (s) {
     case "ready_to_pick":
     case "picking":
+    case "waiting_to_return":
       return <Clock className="h-4 w-4" />;
     case "picked":
     case "picked_to_storing":
     case "storing":
+    case "sorting":
       return <Box className="h-4 w-4" />;
     case "delivering":
     case "transporting":
+    case "return_transporting":
       return <Truck className="h-4 w-4" />;
+    case "returning":
+      return <RefreshCw className="h-4 w-4" />;
     case "delivered":
+    case "returned":
       return <CheckCircle2 className="h-4 w-4" />;
     case "cancel":
+    case "delivery_fail":
+    case "return_fail":
     case "return":
       return <XCircle className="h-4 w-4" />;
     default:
@@ -97,14 +106,19 @@ const getTrackingStatusIcon = (status: string) => {
 };
 
 const getTrackingStatusColor = (status: string) => {
-  switch (status) {
+  const s = (status || "").toLowerCase();
+  switch (s) {
     case "delivered":
+    case "returned":
       return "text-green-600 bg-green-100 border-green-200";
     case "delivering":
     case "transporting":
+    case "money_collect_delivering":
+    case "return_transporting":
       return "text-blue-600 bg-blue-100 border-blue-200";
     case "cancel":
-    case "return":
+    case "delivery_fail":
+    case "return_fail":
       return "text-red-600 bg-red-100 border-red-200";
     default:
       return "text-orange-600 bg-orange-100 border-orange-200";
