@@ -47,11 +47,11 @@ const getOrderStatusText = (status: OrderStatus): string => {
   const statusMap: Record<OrderStatus, string> = {
     [OrderStatus.Pending]: "Chờ xác nhận",
     [OrderStatus.Confirmed]: "Đã xác nhận",
+    [OrderStatus.Rejected]: "Đã từ chối",
+    [OrderStatus.PickedUp]: "Đã lấy hàng",
     [OrderStatus.Shipping]: "Đang giao hàng",
     [OrderStatus.Delivered]: "Đã giao hàng",
     [OrderStatus.Cancelled]: "Đã hủy",
-    [OrderStatus.Returned]: "Trả hàng/Hoàn tiền",
-    [OrderStatus.Success]: "Hoàn thành",
   };
   return statusMap[status] || "Không xác định";
 };

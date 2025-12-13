@@ -43,11 +43,11 @@ const getOrderStatusText = (status: OrderStatus): string => {
   const statusMap: Record<OrderStatus, string> = {
     [OrderStatus.Pending]: "Chờ xác nhận",
     [OrderStatus.Confirmed]: "Đã xác nhận",
+    [OrderStatus.Rejected]: "Đã từ chối",
+    [OrderStatus.PickedUp]: "Đã lấy hàng",
     [OrderStatus.Shipping]: "Đang giao hàng",
     [OrderStatus.Delivered]: "Đã giao hàng",
     [OrderStatus.Cancelled]: "Đã hủy",
-    [OrderStatus.Returned]: "Trả hàng/Hoàn tiền",
-    [OrderStatus.Success]: "Hoàn thành",
   };
   return statusMap[status] || "Không xác định";
 };
@@ -58,13 +58,13 @@ const getOrderStatusColor = (status: OrderStatus) => {
     case OrderStatus.Pending:
     case OrderStatus.Confirmed:
       return "text-orange-600 bg-orange-50 border-orange-100";
+    case OrderStatus.PickedUp:
     case OrderStatus.Shipping:
       return "text-blue-600 bg-blue-50 border-blue-100";
     case OrderStatus.Delivered:
-    case OrderStatus.Success:
       return "text-green-600 bg-green-50 border-green-100";
     case OrderStatus.Cancelled:
-    case OrderStatus.Returned:
+    case OrderStatus.Rejected:
       return "text-red-600 bg-red-50 border-red-100";
     default:
       return "text-gray-600 bg-gray-50 border-gray-100";
@@ -76,13 +76,14 @@ const getStatusIcon = (status: OrderStatus) => {
     case OrderStatus.Pending:
     case OrderStatus.Confirmed:
       return <Clock className="w-3.5 h-3.5 mr-1" />;
+    case OrderStatus.PickedUp:
+      return <Package className="w-3.5 h-3.5 mr-1" />;
     case OrderStatus.Shipping:
       return <Truck className="w-3.5 h-3.5 mr-1" />;
     case OrderStatus.Delivered:
-    case OrderStatus.Success:
       return <CheckCircle2 className="w-3.5 h-3.5 mr-1" />;
     case OrderStatus.Cancelled:
-    case OrderStatus.Returned:
+    case OrderStatus.Rejected:
       return <XCircle className="w-3.5 h-3.5 mr-1" />;
     default:
       return null;
@@ -193,12 +194,10 @@ const OrderCard = ({
   onClick: () => void;
 }) => {
   // Determine if we show buttons
-  const isCompleted =
-    order.orderStatus === OrderStatus.Delivered ||
-    order.orderStatus === OrderStatus.Success;
+  const isCompleted = order.orderStatus === OrderStatus.Delivered;
   const isCancelled =
     order.orderStatus === OrderStatus.Cancelled ||
-    order.orderStatus === OrderStatus.Returned;
+    order.orderStatus === OrderStatus.Rejected;
 
   return (
     <Card
@@ -320,11 +319,11 @@ export function OrdersPage() {
           case "pending": // Pending + Confirmed
             return s === OrderStatus.Pending || s === OrderStatus.Confirmed;
           case "shipping":
-            return s === OrderStatus.Shipping;
+            return s === OrderStatus.Shipping || s === OrderStatus.PickedUp;
           case "completed":
-            return s === OrderStatus.Delivered || s === OrderStatus.Success;
+            return s === OrderStatus.Delivered;
           case "cancelled":
-            return s === OrderStatus.Cancelled || s === OrderStatus.Returned;
+            return s === OrderStatus.Cancelled || s === OrderStatus.Rejected;
           default:
             return true;
         }
