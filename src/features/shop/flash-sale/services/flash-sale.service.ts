@@ -15,7 +15,7 @@ export const getShopFlashSales = async (startDate: string, endDate: string): Pro
   const params = new URLSearchParams();
   params.append("startDate", startDate);
   params.append("endDate", endDate);
-  const url = `/shop/flash-sale?${params.toString()}`;
+  const url = `/flash-sale?${params.toString()}`;
   const response = await axiosJava.get<ShopFlashSaleApiResponse>(url);
   if (response.data.error) {
     throw new Error(response.data.error.message || "Failed to fetch Flash Sales");
@@ -32,7 +32,7 @@ export const getShopFlashSales = async (startDate: string, endDate: string): Pro
  * Requirements: 2.1, 5.2, 5.4
  */
 export const getParticipatedFlashSales = async (): Promise<ParticipatedFlashSale[]> => {
-  const response = await axiosJava.get<ParticipatedFlashSaleApiResponse>("/shop/flash-sale/participated");
+  const response = await axiosJava.get<ParticipatedFlashSaleApiResponse>("/flash-sale/participated");
   if (response.data.error) {
     throw new Error(response.data.error.message || "Failed to fetch participated Flash Sales");
   }
@@ -54,7 +54,7 @@ export interface FlashSaleProductRegistration {
  * @throws Error if API returns an error or request fails
  */
 export const joinFlashSale = async (flashSaleId: string, products: FlashSaleProductRegistration[]): Promise<void> => {
-  const response = await axiosJava.post(`/shop/flash-sale/join/${flashSaleId}`, products);
+  const response = await axiosJava.post(`/flash-sale/join/${flashSaleId}`, products);
   if (response.data?.error) {
     throw new Error(response.data.error.message || "Failed to join Flash Sale");
   }
