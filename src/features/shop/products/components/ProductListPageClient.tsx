@@ -9,39 +9,39 @@ import {
   CardTitle,
 } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
+import { TooltipProvider } from "@/shared/components/ui/tooltip";
 import { ProductTable } from "./table";
+import { ExportButton, ImportButton, ImportModal } from "./excel";
 import {
   useShopProducts,
   useDeleteProduct,
+  useExportProducts,
+  useImportProducts,
 } from "@/features/shop/products/hooks";
 import type {
   ShopProduct,
   ProductListFilters,
+  ImportResult,
 } from "@/features/shop/products/types";
 import { PlusCircle, Package } from "lucide-react";
 import { toast } from "sonner";
 import _ from "lodash";
-
 const ProductListFilter = lazy(() =>
   import("./ProductListFilter").then((m) => ({
     default: m.ProductListFilter,
   }))
 );
-
 const DeleteConfirmDialog = lazy(() =>
   import("./DeleteConfirmDialog").then((m) => ({
     default: m.DeleteConfirmDialog,
   }))
 );
-
 export function ProductListPageClient() {
   const router = useRouter();
-
   const [filters, setFilters] = useState<ProductListFilters>({
     page: 1,
     size: 10,
   });
-
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
     product: ShopProduct | null;
@@ -49,70 +49,110 @@ export function ProductListPageClient() {
     open: false,
     product: null,
   });
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
 
   const { data, isLoading, error } = useShopProducts(filters);
   const deleteMutation = useDeleteProduct();
-
+  const { mutate: exportProducts, isPending: isExporting } =
+    useExportProducts();
+  const { mutate: importProducts, isPending: isImporting } =
+    useImportProducts();
   const products = _.get(data, "content.response", []) as ShopProduct[];
   const pagination = _.get(data, "content.info");
   const totalProducts = _.get(pagination, "total", 0);
-
   const handleFiltersChange = useCallback((newFilters: ProductListFilters) => {
     setFilters(newFilters);
   }, []);
-
   const handleResetFilters = useCallback(() => {
     setFilters((prev) => ({
       page: 1,
       size: _.get(prev, "size", 10),
     }));
   }, []);
-
   const handlePageChange = useCallback((page: number) => {
-    setFilters((prev) => ({ ...prev, page }));
+    setFilters((prev) => ({
+      ...prev,
+      page,
+    }));
   }, []);
-
   const handlePageSizeChange = useCallback((size: number) => {
-    setFilters((prev) => ({ ...prev, size, page: 1 }));
+    setFilters((prev) => ({
+      ...prev,
+      size,
+      page: 1,
+    }));
   }, []);
-
   const handleEdit = useCallback(
     (product: ShopProduct) => {
       router.push(`/shop/san-pham/sua/${product.id}`);
     },
     [router]
   );
-
   const handleDelete = useCallback((product: ShopProduct) => {
-    setDeleteDialog({ open: true, product });
+    setDeleteDialog({
+      open: true,
+      product,
+    });
   }, []);
-
   const handleConfirmDelete = useCallback(async () => {
     const productToDelete = _.get(deleteDialog, "product");
     if (_.isNil(productToDelete)) return;
-
     try {
       await deleteMutation.mutateAsync(productToDelete.id);
-      setDeleteDialog({ open: false, product: null });
-    } catch (error) {
-      // Error handled by mutation
-    }
+      setDeleteDialog({
+        open: false,
+        product: null,
+      });
+    } catch (error) {}
   }, [deleteDialog, deleteMutation]);
-
   const handleView = useCallback(
     (product: ShopProduct) => {
       router.push(`/shop/san-pham/${product.id}`);
     },
     [router]
   );
-
   const handleDuplicate = useCallback((product: ShopProduct) => {
     toast.info("Tính năng nhân bản sản phẩm đang được phát triển");
   }, []);
-
   const handleAddProduct = useCallback(() => {
     router.push("/shop/san-pham/them");
   }, [router]);
+
+  const handleExport = useCallback(() => {
+    exportProducts();
+  }, [exportProducts]);
+
+  const handleImport = useCallback(
+    (file: File) => {
+      setImportResult(null);
+      importProducts(file, {
+        onSuccess: (result) => {
+          setImportResult(result);
+        },
+        onError: () => {
+          setImportResult({
+            success: false,
+            successCount: 0,
+            failedCount: 0,
+            errors: [],
+            message: "Có lỗi xảy ra khi import file",
+          });
+        },
+      });
+    },
+    [importProducts]
+  );
+
+  const handleOpenImportModal = useCallback(() => {
+    setImportResult(null);
+    setImportModalOpen(true);
+  }, []);
+
+  const handleCloseImportModal = useCallback(() => {
+    setImportModalOpen(false);
+    setImportResult(null);
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -123,10 +163,16 @@ export function ProductListPageClient() {
             Quản lý danh sách sản phẩm của shop
           </p>
         </div>
-        <Button onClick={handleAddProduct} className="gap-2">
-          <PlusCircle className="h-4 w-4" />
-          Thêm sản phẩm
-        </Button>
+        <TooltipProvider>
+          <div className="flex items-center gap-2">
+            <ExportButton onExport={handleExport} isLoading={isExporting} />
+            <ImportButton onClick={handleOpenImportModal} />
+            <Button onClick={handleAddProduct} className="gap-2">
+              <PlusCircle className="h-4 w-4" />
+              Thêm sản phẩm
+            </Button>
+          </div>
+        </TooltipProvider>
       </div>
 
       <Card>
@@ -191,12 +237,24 @@ export function ProductListPageClient() {
             productName={_.get(deleteDialog, "product.name", "")}
             isDeleting={deleteMutation.isPending}
             onConfirm={handleConfirmDelete}
-            onCancel={() => setDeleteDialog({ open: false, product: null })}
+            onCancel={() =>
+              setDeleteDialog({
+                open: false,
+                product: null,
+              })
+            }
           />
         )}
       </Suspense>
+
+      <ImportModal
+        isOpen={importModalOpen}
+        onClose={handleCloseImportModal}
+        onImport={handleImport}
+        isLoading={isImporting}
+        result={importResult}
+      />
     </div>
   );
 }
-
 export default ProductListPageClient;

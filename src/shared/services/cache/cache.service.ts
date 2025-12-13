@@ -7,29 +7,18 @@ import { cache } from "react";
  * @param fn - The async function to cache
  * @returns Cached version of the function
  */
-export const createCachedFetcher = <TArgs extends any[], TReturn>(
-  fn: (...args: TArgs) => Promise<TReturn>
-) => {
+export const createCachedFetcher = <TArgs extends any[], TReturn>(fn: (...args: TArgs) => Promise<TReturn>) => {
   return cache(fn);
 };
-
-/**
- * Cache configuration for different data types
- * Used with Next.js fetch revalidation
- */
 export const CACHE_REVALIDATION = {
-  PRODUCT_DETAIL: 60, // 1 minute
-  PRODUCT_LIST: 30, // 30 seconds
-  SHOP_DETAIL: 60, // 1 minute
-  CATEGORY: 300, // 5 minutes
-  STATIC_DATA: 3600, // 1 hour
+  PRODUCT_DETAIL: 60,
+  PRODUCT_LIST: 30,
+  SHOP_DETAIL: 60,
+  CATEGORY: 300,
+  STATIC_DATA: 3600
 } as const;
-
-/**
- * Creates fetch options with caching configuration
- */
 export const createCacheOptions = (revalidateSeconds: number) => ({
   next: {
-    revalidate: revalidateSeconds,
-  },
+    revalidate: revalidateSeconds
+  }
 });

@@ -1,5 +1,1 @@
-export {
-  getCategories,
-  getCategoryChildren,
-  getCategoryTemplate,
-} from "./category.service";
+export { getCategories, getCategoryChildren, getCategoryTemplate } from "./category.service";

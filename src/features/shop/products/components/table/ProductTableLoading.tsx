@@ -3,16 +3,16 @@
 import React from "react";
 import { TableCell, TableRow } from "@/shared/components/ui/table";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-
 interface ProductTableLoadingProps {
   rows?: number;
 }
-
-export function ProductTableLoading({ rows = 5 }: ProductTableLoadingProps) {
-  return (
-    <>
-      {Array.from({ length: rows }).map((_, index) => (
-        <TableRow key={index}>
+export function ProductTableLoading({
+  rows = 5
+}: ProductTableLoadingProps) {
+  return <>
+      {Array.from({
+      length: rows
+    }).map((_, index) => <TableRow key={index}>
           <TableCell>
             <div className="flex items-center gap-3">
               <Skeleton className="h-12 w-12 rounded-md" />
@@ -49,8 +49,6 @@ export function ProductTableLoading({ rows = 5 }: ProductTableLoadingProps) {
           <TableCell>
             <Skeleton className="h-8 w-8 rounded-md" />
           </TableCell>
-        </TableRow>
-      ))}
-    </>
-  );
+        </TableRow>)}
+    </>;
 }

@@ -1,17 +1,15 @@
 import { TableCell, TableRow } from "@/shared/components/ui/table";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-
 interface PromotionTableLoadingProps {
   rows?: number;
 }
-
 export function PromotionTableLoading({
-  rows = 5,
+  rows = 5
 }: PromotionTableLoadingProps) {
-  return (
-    <>
-      {Array.from({ length: rows }).map((_, index) => (
-        <TableRow key={index}>
+  return <>
+      {Array.from({
+      length: rows
+    }).map((_, index) => <TableRow key={index}>
           <TableCell>
             <Skeleton className="h-5 w-[250px]" />
           </TableCell>
@@ -30,8 +28,6 @@ export function PromotionTableLoading({
           <TableCell className="text-right">
             <Skeleton className="h-8 w-8 ml-auto" />
           </TableCell>
-        </TableRow>
-      ))}
-    </>
-  );
+        </TableRow>)}
+    </>;
 }

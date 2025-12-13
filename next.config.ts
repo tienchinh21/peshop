@@ -37,9 +37,6 @@ const nextConfig: NextConfig = {
   },
   productionBrowserSourceMaps: false,
   reactStrictMode: true,
-  swcMinify: true,
-  
-
 };
 
 export default nextConfig;

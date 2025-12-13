@@ -1,5 +1,4 @@
 import type { ApiError, File } from "@/shared/types";
-
 export interface Shop {
   name: string;
   description: string;
@@ -12,7 +11,6 @@ export interface Shop {
   fullOldAddress: string;
   fullNewAddress?: string;
 }
-
 export interface CreateShopRequest {
   name: string;
   description: string;
@@ -26,7 +24,6 @@ export interface CreateShopRequest {
   fullNewAddress?: string;
   logofile?: globalThis.File;
 }
-
 export interface ShopResponse {
   error: ApiError;
   data: Shop[];

@@ -1,21 +1,29 @@
 "use client";
 
+import { useEffect } from "react";
 import { SectionContainer } from "@/shared/components/layout";
 import { BreadcrumbNavigation } from "./BreadcrumbNavigation";
 import { ProductDetailClient } from "./ProductDetailClient";
 import ProductTabs from "./ProductTabs";
+import { useTrackProductView } from "../../hooks";
 import type { ProductDetail } from "../../types";
-
 interface ProductDetailPageProps {
   slug: string;
   initialData: ProductDetail | null;
 }
-
 export const ProductDetailPage = ({
   slug,
   initialData,
 }: ProductDetailPageProps) => {
-  // If no initial data from server, show error
+  const { trackView } = useTrackProductView();
+
+  // Track product view - chỉ gọi 1 lần mỗi session
+  useEffect(() => {
+    if (initialData?.productId) {
+      trackView(initialData.productId);
+    }
+  }, [initialData?.productId, trackView]);
+
   if (!initialData) {
     return (
       <SectionContainer>
@@ -30,19 +38,23 @@ export const ProductDetailPage = ({
       </SectionContainer>
     );
   }
-
   return (
     <SectionContainer>
       <div className="mb-6">
         <BreadcrumbNavigation
-          items={[{ name: "Sản phẩm", url: "/san-pham" }]}
+          items={[
+            {
+              name: "Sản phẩm",
+              url: "/san-pham",
+            },
+          ]}
           currentPage={initialData.productName}
         />
       </div>
 
       <ProductDetailClient slug={slug} initialData={initialData} />
 
-      {/* Defer non-critical content */}
+      {}
       <div className="mt-12">
         <ProductTabs product={initialData} />
       </div>

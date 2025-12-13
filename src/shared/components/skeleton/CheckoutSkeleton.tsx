@@ -1,9 +1,7 @@
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Card, CardContent } from "@/shared/components/ui/card";
-
 export function CheckoutSkeleton() {
-  return (
-    <div className="container mx-auto px-4 py-8">
+  return <div className="container mx-auto px-4 py-8">
       <Skeleton className="h-8 w-48 mb-6" />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -22,8 +20,7 @@ export function CheckoutSkeleton() {
             <CardContent className="p-6">
               <Skeleton className="h-6 w-40 mb-4" />
               <div className="space-y-4">
-                {[1, 2].map((i) => (
-                  <div key={i} className="space-y-3">
+                {[1, 2].map(i => <div key={i} className="space-y-3">
                     <Skeleton className="h-5 w-32" />
                     <div className="flex gap-4">
                       <Skeleton className="h-20 w-20 rounded" />
@@ -33,8 +30,7 @@ export function CheckoutSkeleton() {
                         <Skeleton className="h-4 w-1/4" />
                       </div>
                     </div>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </CardContent>
           </Card>
@@ -68,6 +64,5 @@ export function CheckoutSkeleton() {
           </Card>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 }

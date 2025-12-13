@@ -4,18 +4,27 @@ import Link from "next/link";
 import { Store, MessageCircle, UserPlus, Star } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import { useChatContextSafe } from "@/features/customer/chat";
 import type { ProductDetail } from "../../types";
-
 interface ShopInfoCardProps {
   product: ProductDetail;
 }
-
-export const ShopInfoCard = ({ product }: ShopInfoCardProps) => {
-  return (
-    <Card>
+export const ShopInfoCard = ({
+  product
+}: ShopInfoCardProps) => {
+  const chatContext = useChatContextSafe();
+  const handleChatClick = () => {
+    if (chatContext) {
+      chatContext.openChat({
+        shopId: product.shopId,
+        shopName: product.shopName
+      });
+    }
+  };
+  return <Card>
       <CardContent className="p-6">
         <div className="flex flex-col gap-4">
-          {/* Shop Header */}
+          {}
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
               <Store className="h-6 w-6 text-primary" />
@@ -33,7 +42,7 @@ export const ShopInfoCard = ({ product }: ShopInfoCardProps) => {
             </div>
           </div>
 
-          {/* Shop Stats */}
+          {}
           <div className="grid grid-cols-3 gap-4 rounded-lg bg-gray-50 p-4">
             <div className="text-center">
               <div className="text-lg font-semibold text-gray-900">
@@ -55,7 +64,7 @@ export const ShopInfoCard = ({ product }: ShopInfoCardProps) => {
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {}
           <div className="flex gap-2">
             <Button variant="outline" className="flex-1" asChild>
               <Link href={`/shop-view/${product.shopId}`}>
@@ -69,12 +78,11 @@ export const ShopInfoCard = ({ product }: ShopInfoCardProps) => {
             </Button>
           </div>
 
-          <Button className="w-full">
+          <Button className="w-full" onClick={handleChatClick}>
             <MessageCircle className="mr-2 h-4 w-4" />
             Chat ngay
           </Button>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };

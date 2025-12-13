@@ -1,48 +1,46 @@
-// ============ Request Types ============
-
 export interface SendOtpRequest {
   email: string;
 }
-
 export interface VerifyOtpRequest {
   email: string;
   otp: string;
 }
-
 export interface RegisterRequest {
   name: string;
   username: string;
   password: string;
   key: string;
 }
-
 export interface LoginRequest {
   email: string;
   password: string;
 }
-
 export interface ResendOtpRequest {
   email: string;
 }
-
 export interface ResendOtpResponse {
   error: string | null;
-  data: string | null; // Message or confirmation
+  data: string | null;
 }
-
-// ============ Response Types ============
-
 export interface SendOtpResponse {
   error: string | null;
-  data: string | null; // Message or confirmation
+  data: string | null;
 }
-
 export interface VerifyOtpResponse {
   error: string | null;
   data: {
     key: string;
     status: boolean;
   } | null;
+}
+export interface UserRank {
+  id: string;
+  name: string;
+}
+
+export interface OrderPaymentProcessing {
+  time: number;
+  paymentLink: string;
 }
 
 export interface AuthUser {
@@ -51,50 +49,40 @@ export interface AuthUser {
   username: string;
   name: string;
   phone: string;
-  gender: number;
+  gender: number | null;
   avatar?: string;
-  roles: string[]; // ["User", "Shop", "Admin"]
+  roles: string[];
   createdAt?: string;
   updatedAt?: string;
+  rank: UserRank;
+  orderPaymentProcessing: OrderPaymentProcessing;
 }
-
-// JWT Token Payload
 export interface JwtPayload {
-  sub: string; // user id
+  sub: string;
   token_type: "access" | "refresh";
-  iat: number; // issued at
-  exp: number; // expiration
-  nbf: number; // not before
-  authorities: string[]; // roles
+  iat: number;
+  exp: number;
+  nbf: number;
+  authorities: string[];
 }
-
-// Login response - only returns access token (refresh token in cookie)
 export interface LoginResponse {
   error: string | null;
-  data: string; // JWT access token
+  data: string;
 }
-
-// Register response - same as login
 export interface RegisterResponse {
   error: string | null;
-  data: string; // JWT access token
+  data: string;
 }
-
-// ============ Local Storage Types ============
 export interface StoredAuthData {
   user: AuthUser;
   token: string;
   expiresAt: number;
-  // Note: refreshToken is stored in HTTP-only cookie
 }
-
-// ============ Form Types ============
 export interface LoginFormData {
   email: string;
   password: string;
   rememberMe?: boolean;
 }
-
 export interface RegisterFormData {
   email: string;
   username: string;
@@ -105,8 +93,6 @@ export interface RegisterFormData {
   gender: number;
   otp: string;
 }
-
-// ============ Auth State Types ============
 export interface AuthState {
   user: AuthUser | null;
   token: string | null;
@@ -114,8 +100,6 @@ export interface AuthState {
   isLoading: boolean;
   error: string | null;
 }
-
-// ============ Validation Types ============
 export interface ValidationErrors {
   email?: string;
   password?: string;
@@ -125,15 +109,11 @@ export interface ValidationErrors {
   otp?: string;
   general?: string;
 }
-
-// ============ Gender Enum ============
 export enum Gender {
   Female = 0,
   Male = 1,
   Other = 2,
 }
-
-// ============ Auth Error Types ============
 export interface AuthError {
   code: string;
   message: string;

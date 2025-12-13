@@ -1,33 +1,20 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
-
-export function formatCurrency(
-  amount: number | string | null | undefined,
-  currency: string = "₫"
-): string {
+export function formatCurrency(amount: number | string | null | undefined, currency: string = "₫"): string {
   if (amount === null || amount === undefined) {
     return `0 ${currency}`;
   }
-
-  // Chuyển đổi thành số nếu là string
   const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
-
-  // Kiểm tra nếu không phải số hợp lệ
   if (isNaN(numAmount)) {
     return `0 ${currency}`;
   }
-
-  // Format số với dấu chấm ngăn cách hàng nghìn
   const formattedNumber = numAmount.toLocaleString("vi-VN", {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 0
   });
-
   return `${formattedNumber} ${currency}`;
 }
 
@@ -44,16 +31,13 @@ export function formatNumber(amount: number | string | null | undefined): string
   if (amount === null || amount === undefined) {
     return "0";
   }
-
   const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
-
   if (isNaN(numAmount)) {
     return "0";
   }
-
   return numAmount.toLocaleString("vi-VN", {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 0
   });
 }
 
@@ -70,16 +54,13 @@ export function formatInputCurrency(amount: number | string | null | undefined):
   if (amount === null || amount === undefined) {
     return "";
   }
-
   const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
-
   if (isNaN(numAmount)) {
     return "";
   }
-
   return numAmount.toLocaleString("vi-VN", {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 0
   });
 }
 
@@ -94,10 +75,7 @@ export function formatInputCurrency(amount: number | string | null | undefined):
  */
 export function parseInputCurrency(formattedAmount: string): number {
   if (!formattedAmount) return 0;
-
-  // Loại bỏ tất cả dấu chấm và khoảng trắng
   const cleanAmount = formattedAmount.replace(/[.\s]/g, "");
   const numAmount = parseFloat(cleanAmount);
-
   return isNaN(numAmount) ? 0 : numAmount;
 }

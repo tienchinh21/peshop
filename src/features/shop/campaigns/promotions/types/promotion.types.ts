@@ -3,7 +3,6 @@ export interface PromotionProduct {
   name: string;
   imgMain: string;
 }
-
 export interface PromotionGift {
   id?: string;
   productId?: string;
@@ -11,14 +10,12 @@ export interface PromotionGift {
   giftQuantity: number;
   maxGiftPerOrder?: number;
 }
-
 export interface PromotionRule {
   id?: string;
   productId?: string;
   product?: PromotionProduct;
   quantity: number;
 }
-
 export interface PromotionCreateDto {
   name: string;
   status: number;
@@ -26,7 +23,6 @@ export interface PromotionCreateDto {
   endTime: string;
   totalUsageLimit: number;
 }
-
 export interface Promotion {
   id: string;
   name: string;
@@ -40,13 +36,11 @@ export interface Promotion {
   updatedAt?: string;
   usedCount?: number;
 }
-
 export interface CreatePromotionPayload {
   promotionCreateDto: PromotionCreateDto;
   promotionGifts: PromotionGift[];
   promotionRules: PromotionRule[];
 }
-
 export interface UpdatePromotionPayload {
   promotionUpdateDto: {
     name: string;
@@ -66,24 +60,20 @@ export interface UpdatePromotionPayload {
     quantity: number;
   }>;
 }
-
 export interface AddPromotionRulesPayload {
   productId: string;
   quantity: number;
 }
-
 export interface AddPromotionGiftsPayload {
   productId: string;
   giftQuantity: number;
 }
-
 export interface PromotionListPaginationInfo {
   page: number;
   size: number;
   pages: number;
   total: number;
 }
-
 export interface PromotionListResponse {
   error: string | null;
   content: {
@@ -91,7 +81,6 @@ export interface PromotionListResponse {
     response: Promotion[];
   };
 }
-
 export interface PromotionListFilters {
   page?: number;
   size?: number;
@@ -100,20 +89,16 @@ export interface PromotionListFilters {
   sortBy?: string;
   sortOrder?: "asc" | "desc";
 }
-
 import { StatusColors } from "@/lib/utils/enums/statusColors";
-
 export enum PromotionStatus {
   INACTIVE = 0,
   ACTIVE = 1,
 }
-
 export const PromotionStatusLabels: Record<PromotionStatus, string> = {
   [PromotionStatus.INACTIVE]: "Tạm dừng",
-  [PromotionStatus.ACTIVE]: "Hoạt động",
+  [PromotionStatus.ACTIVE]: "Hoạt động"
 };
-
 export const PromotionStatusColors: Record<PromotionStatus, string> = {
   [PromotionStatus.INACTIVE]: StatusColors.INACTIVE,
-  [PromotionStatus.ACTIVE]: StatusColors.ACTIVE,
+  [PromotionStatus.ACTIVE]: StatusColors.ACTIVE
 };

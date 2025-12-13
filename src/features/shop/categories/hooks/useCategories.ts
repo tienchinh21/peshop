@@ -1,15 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-  getCategories,
-  getCategoryChildren,
-  getCategoryTemplate,
-} from "../services";
-import type {
-  Category,
-  CategoryChild,
-  CategoryTemplateResponse,
-} from "../types";
-
+import { getCategories, getCategoryChildren, getCategoryTemplate } from "../services";
+import type { Category, CategoryChild, CategoryTemplateResponse } from "../types";
 export const useCategories = () => {
   return useQuery<Category[]>({
     queryKey: ["categories"],
@@ -17,11 +8,10 @@ export const useCategories = () => {
       const response = await getCategories();
       return response.content;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000
   });
 };
-
 export const useCategoryChildren = (categoryId: string | null) => {
   return useQuery<CategoryChild[]>({
     queryKey: ["category-children", categoryId],
@@ -31,11 +21,10 @@ export const useCategoryChildren = (categoryId: string | null) => {
       return response.content.categoryChildren;
     },
     enabled: !!categoryId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000
   });
 };
-
 export const useCategoryTemplate = (categoryChildId: string | null) => {
   return useQuery<CategoryTemplateResponse>({
     queryKey: ["category-template", categoryChildId],
@@ -44,7 +33,7 @@ export const useCategoryTemplate = (categoryChildId: string | null) => {
       return await getCategoryTemplate(categoryChildId);
     },
     enabled: !!categoryChildId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000
   });
 };

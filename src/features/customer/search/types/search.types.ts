@@ -1,16 +1,12 @@
-// ============ Search Suggestion Types ============
 export interface SearchSuggestion {
   keyword: string;
-  type: "keyword"; // Can be extended to include "product", "shop", etc.
+  type: "keyword";
   url: string;
 }
-
 export interface SearchSuggestionsResponse {
   error: string | null;
   data: SearchSuggestion[];
 }
-
-// ============ Search Result Types ============
 export interface SearchProduct {
   id: string;
   name: string;
@@ -24,7 +20,6 @@ export interface SearchProduct {
   shopId: string;
   shopName: string;
 }
-
 export interface SearchShop {
   id: string;
   name: string;
@@ -32,7 +27,6 @@ export interface SearchShop {
   address: string;
   slug: string;
 }
-
 export interface SearchResultsData {
   products: SearchProduct[];
   shops: SearchShop[];
@@ -44,13 +38,10 @@ export interface SearchResultsData {
   hasNextPage: boolean;
   hasPreviousPage: boolean;
 }
-
 export interface SearchResultsResponse {
   error: string | null;
   data: SearchResultsData;
 }
-
-// ============ Search Filters ============
 export interface SearchFilters {
   keyword: string;
   page?: number;
@@ -61,4 +52,24 @@ export interface SearchFilters {
   maxPrice?: number;
   sortBy?: "price" | "name" | "popularity" | "newest";
   sortOrder?: "asc" | "desc";
+}
+export interface SearchByImageParams {
+  image: File;
+  page?: number;
+  pageSize?: number;
+}
+export interface ImageSearchResultData {
+  currentPage: number;
+  data: SearchProduct[];
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  nextPage: number;
+  pageSize: number;
+  previousPage: number;
+  totalCount: number;
+  totalPages: number;
+}
+export interface SearchByImageResponse {
+  error: string | null;
+  data: ImageSearchResultData;
 }

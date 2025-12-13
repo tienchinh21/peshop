@@ -1,11 +1,5 @@
 "use client";
 
-/**
- * WishlistPage Component
- *
- * Main wishlist page component displaying user's saved products.
- */
-
 import { Heart, Trash2, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -14,49 +8,31 @@ import { Card, CardContent, CardFooter } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useWishlist, useRemoveFromWishlist } from "../hooks";
 import type { WishlistProduct } from "../types";
-
-/**
- * Format price to Vietnamese currency
- */
 const formatPrice = (price: number): string => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
-    currency: "VND",
+    currency: "VND"
   }).format(price);
 };
-
-/**
- * Wishlist item card component
- */
 const WishlistItem = ({
   item,
   onRemove,
-  isRemoving,
+  isRemoving
 }: {
   item: WishlistProduct;
   onRemove: (productId: string) => void;
   isRemoving: boolean;
 }) => {
-  return (
-    <Card className="overflow-hidden">
+  return <Card className="overflow-hidden">
       <Link href={`/san-pham/${item.slug}`}>
         <div className="relative aspect-square">
-          <Image
-            src={item.image || "/placeholder-product.svg"}
-            alt={item.name}
-            fill
-            className="object-cover"
-          />
-          {item.discount && item.discount > 0 && (
-            <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+          <Image src={item.image || "/placeholder-product.svg"} alt={item.name} fill className="object-cover" />
+          {item.discount && item.discount > 0 && <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
               -{item.discount}%
-            </span>
-          )}
-          {!item.inStock && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            </span>}
+          {!item.inStock && <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
               <span className="text-white font-medium">Hết hàng</span>
-            </div>
-          )}
+            </div>}
         </div>
       </Link>
       <CardContent className="p-4">
@@ -70,45 +46,27 @@ const WishlistItem = ({
           <span className="text-primary font-semibold">
             {formatPrice(item.price)}
           </span>
-          {item.originalPrice && item.originalPrice > item.price && (
-            <span className="text-gray-400 text-sm line-through">
+          {item.originalPrice && item.originalPrice > item.price && <span className="text-gray-400 text-sm line-through">
               {formatPrice(item.originalPrice)}
-            </span>
-          )}
+            </span>}
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0 flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="flex-1"
-          disabled={!item.inStock}
-        >
+        <Button variant="outline" size="sm" className="flex-1" disabled={!item.inStock}>
           <ShoppingCart className="h-4 w-4 mr-1" />
           Thêm vào giỏ
         </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-red-500 hover:text-red-600 hover:bg-red-50"
-          onClick={() => onRemove(item.productId)}
-          disabled={isRemoving}
-        >
+        <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => onRemove(item.productId)} disabled={isRemoving}>
           <Trash2 className="h-4 w-4" />
         </Button>
       </CardFooter>
-    </Card>
-  );
+    </Card>;
 };
-
-/**
- * Loading skeleton for wishlist items
- */
 const WishlistSkeleton = () => {
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-      {Array.from({ length: 10 }).map((_, i) => (
-        <Card key={i} className="overflow-hidden">
+  return <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      {Array.from({
+      length: 10
+    }).map((_, i) => <Card key={i} className="overflow-hidden">
           <Skeleton className="aspect-square" />
           <CardContent className="p-4">
             <Skeleton className="h-4 w-full mb-2" />
@@ -118,18 +76,11 @@ const WishlistSkeleton = () => {
           <CardFooter className="p-4 pt-0">
             <Skeleton className="h-9 w-full" />
           </CardFooter>
-        </Card>
-      ))}
-    </div>
-  );
+        </Card>)}
+    </div>;
 };
-
-/**
- * Empty wishlist state
- */
 const EmptyWishlist = () => {
-  return (
-    <div className="flex flex-col items-center justify-center py-16">
+  return <div className="flex flex-col items-center justify-center py-16">
       <Heart className="h-16 w-16 text-gray-300 mb-4" />
       <h2 className="text-xl font-semibold text-gray-700 mb-2">
         Danh sách yêu thích trống
@@ -141,75 +92,48 @@ const EmptyWishlist = () => {
       <Link href="/san-pham">
         <Button>Khám phá sản phẩm</Button>
       </Link>
-    </div>
-  );
+    </div>;
 };
-
-/**
- * Main WishlistPage component
- */
 export const WishlistPage = () => {
-  const { data, isLoading, error } = useWishlist();
+  const {
+    data,
+    isLoading,
+    error
+  } = useWishlist();
   const removeFromWishlist = useRemoveFromWishlist();
-
   const handleRemove = (productId: string) => {
-    removeFromWishlist.mutate({ productId });
+    removeFromWishlist.mutate({
+      productId
+    });
   };
-
   if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
+    return <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">Sản phẩm yêu thích</h1>
         <WishlistSkeleton />
-      </div>
-    );
+      </div>;
   }
-
   if (error) {
-    return (
-      <div className="container mx-auto px-4 py-8">
+    return <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">Sản phẩm yêu thích</h1>
         <div className="text-center py-16">
           <p className="text-red-500">
             Đã xảy ra lỗi khi tải danh sách yêu thích
           </p>
-          <Button
-            variant="outline"
-            className="mt-4"
-            onClick={() => window.location.reload()}
-          >
+          <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
             Thử lại
           </Button>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   const items = data?.items || [];
-
-  return (
-    <div className="container mx-auto px-4 py-8">
+  return <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Sản phẩm yêu thích</h1>
-        {items.length > 0 && (
-          <span className="text-gray-500">{data?.total} sản phẩm</span>
-        )}
+        {items.length > 0 && <span className="text-gray-500">{data?.total} sản phẩm</span>}
       </div>
 
-      {items.length === 0 ? (
-        <EmptyWishlist />
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {items.map((item) => (
-            <WishlistItem
-              key={item.id}
-              item={item}
-              onRemove={handleRemove}
-              isRemoving={removeFromWishlist.isPending}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+      {items.length === 0 ? <EmptyWishlist /> : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {items.map(item => <WishlistItem key={item.id} item={item} onRemove={handleRemove} isRemoving={removeFromWishlist.isPending} />)}
+        </div>}
+    </div>;
 };

@@ -1,6 +1,7 @@
 export { default as HomePage } from "./HomePage";
 export { default as CategorySidebar } from "./CategorySidebar";
 export { default as FlashSale } from "./FlashSale";
+export { FlashSaleSkeleton } from "./FlashSaleSkeleton";
 export { default as LaptopBanner } from "./LaptopBanner";
 export { default as SpringRevivalBanner } from "./SpringRevivalBanner";
 export { default as TrailRunningBanner } from "./TrailRunningBanner";

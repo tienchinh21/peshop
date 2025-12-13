@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,12 +15,12 @@ import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Loader2 } from "lucide-react";
 import { SearchableDropdown } from "@/shared/components/layout/SearchableDropdown";
 import {
-  getProvinces,
-  getDistrictsByProvince,
-  getWardsByDistrict,
-} from "@/shared/services/external";
+  useGHNProvinces,
+  useGHNDistricts,
+  useGHNWards,
+} from "@/shared/hooks/useGHNAddress";
+import type { GHNProvince, GHNDistrict, GHNWard } from "@/shared/types";
 import type { UserAddress } from "../types";
-import _ from "lodash";
 
 interface AddressFormModalProps {
   open: boolean;
@@ -43,11 +43,6 @@ export interface AddressFormData {
   isDefault: boolean;
 }
 
-interface LocationOption {
-  id: string;
-  name: string;
-}
-
 export function AddressFormModal({
   open,
   onOpenChange,
@@ -55,11 +50,7 @@ export function AddressFormModal({
   editAddress,
   isLoading = false,
 }: AddressFormModalProps) {
-  const [provinces, setProvinces] = useState<LocationOption[]>([]);
-  const [districts, setDistricts] = useState<LocationOption[]>([]);
-  const [wards, setWards] = useState<LocationOption[]>([]);
-  const [loadingLocation, setLoadingLocation] = useState(false);
-
+  // Form data state
   const [formData, setFormData] = useState<AddressFormData>({
     fullNewAddress: "",
     fullOldAddress: "",
@@ -73,14 +64,60 @@ export function AddressFormModal({
     isDefault: false,
   });
 
-  const [selectedProvince, setSelectedProvince] = useState("");
-  const [selectedDistrict, setSelectedDistrict] = useState("");
-  const [selectedWard, setSelectedWard] = useState("");
+  // Selected location IDs for cascading dropdowns
+  const [selectedProvinceId, setSelectedProvinceId] = useState<number>(0);
+  const [selectedDistrictId, setSelectedDistrictId] = useState<number>(0);
 
+  // Selected location names for display
+  const [selectedProvinceName, setSelectedProvinceName] = useState("");
+  const [selectedDistrictName, setSelectedDistrictName] = useState("");
+  const [selectedWardName, setSelectedWardName] = useState("");
+
+  // GHN hooks for fetching address data with caching
+  const { data: provinces = [], isLoading: isLoadingProvinces } =
+    useGHNProvinces();
+
+  const { data: districts = [], isLoading: isLoadingDistricts } =
+    useGHNDistricts(selectedProvinceId, selectedProvinceId > 0);
+
+  const { data: wards = [], isLoading: isLoadingWards } = useGHNWards(
+    selectedDistrictId,
+    selectedDistrictId > 0
+  );
+
+  // Combined loading state
+  const loadingLocation =
+    isLoadingProvinces || isLoadingDistricts || isLoadingWards;
+
+  // Map provinces to dropdown options (ensure array before mapping)
+  const provinceOptions = useMemo(
+    () =>
+      (Array.isArray(provinces) ? provinces : []).map(
+        (p: GHNProvince) => p.provinceName
+      ),
+    [provinces]
+  );
+
+  // Map districts to dropdown options (ensure array before mapping)
+  const districtOptions = useMemo(
+    () =>
+      (Array.isArray(districts) ? districts : []).map(
+        (d: GHNDistrict) => d.districtName
+      ),
+    [districts]
+  );
+
+  // Map wards to dropdown options (ensure array before mapping)
+  const wardOptions = useMemo(
+    () => (Array.isArray(wards) ? wards : []).map((w: GHNWard) => w.wardName),
+    [wards]
+  );
+
+  // Initialize form when modal opens or editAddress changes
   useEffect(() => {
     if (open) {
-      loadProvinces();
       if (editAddress) {
+        // Populate form with edit address data
         setFormData({
           fullNewAddress: editAddress.fullNewAddress || "",
           fullOldAddress: editAddress.fullOldAddress || "",
@@ -93,95 +130,147 @@ export function AddressFormModal({
           streetLine: editAddress.streetLine || "",
           isDefault: editAddress.isDefault,
         });
+
+        // Set province ID to trigger district loading
+        if (editAddress.oldProviceId) {
+          setSelectedProvinceId(Number(editAddress.oldProviceId));
+        }
+
+        // Set district ID to trigger ward loading
+        if (editAddress.oldDistrictId) {
+          setSelectedDistrictId(Number(editAddress.oldDistrictId));
+        }
       } else {
         resetForm();
       }
     }
   }, [open, editAddress]);
 
-  const loadProvinces = async () => {
-    setLoadingLocation(true);
-    try {
-      const response = await getProvinces();
-      const provinceList = _.get(response, "data", []);
-      setProvinces(provinceList);
-    } catch (error) {
-      console.error("Failed to load provinces:", error);
-    } finally {
-      setLoadingLocation(false);
+  // Pre-populate province name when provinces are loaded and we have an edit address
+  useEffect(() => {
+    if (
+      Array.isArray(provinces) &&
+      provinces.length > 0 &&
+      editAddress?.oldProviceId
+    ) {
+      const province = provinces.find(
+        (p: GHNProvince) => p.provinceID === Number(editAddress.oldProviceId)
+      );
+      if (province) {
+        setSelectedProvinceName(province.provinceName);
+      }
     }
-  };
+  }, [provinces, editAddress?.oldProviceId]);
 
-  const loadDistricts = async (provinceId: string) => {
-    setLoadingLocation(true);
-    try {
-      const response = await getDistrictsByProvince(provinceId);
-      const districtList = _.get(response, "data", []);
-      setDistricts(districtList);
-    } catch (error) {
-      console.error("Failed to load districts:", error);
-    } finally {
-      setLoadingLocation(false);
+  // Pre-populate district name when districts are loaded and we have an edit address
+  useEffect(() => {
+    if (
+      Array.isArray(districts) &&
+      districts.length > 0 &&
+      editAddress?.oldDistrictId
+    ) {
+      const district = districts.find(
+        (d: GHNDistrict) => d.districtID === Number(editAddress.oldDistrictId)
+      );
+      if (district) {
+        setSelectedDistrictName(district.districtName);
+      }
     }
-  };
+  }, [districts, editAddress?.oldDistrictId]);
 
-  const loadWards = async (districtId: string) => {
-    setLoadingLocation(true);
-    try {
-      const response = await getWardsByDistrict(districtId);
-      const wardList = _.get(response, "data", []);
-      setWards(wardList);
-    } catch (error) {
-      console.error("Failed to load wards:", error);
-    } finally {
-      setLoadingLocation(false);
+  // Pre-populate ward name when wards are loaded and we have an edit address
+  useEffect(() => {
+    if (Array.isArray(wards) && wards.length > 0 && editAddress?.oldWardId) {
+      const ward = wards.find(
+        (w: GHNWard) => w.wardCode === editAddress.oldWardId
+      );
+      if (ward) {
+        setSelectedWardName(ward.wardName);
+      }
     }
-  };
+  }, [wards, editAddress?.oldWardId]);
 
+  /**
+   * Handle province selection change
+   * Maps GHN provinceID to form data oldProviceId
+   * Requirements: 1.4
+   */
   const handleProvinceChange = (provinceName: string) => {
-    const province = provinces.find((p) => p.name === provinceName);
+    if (!Array.isArray(provinces)) return;
+    const province = provinces.find(
+      (p: GHNProvince) => p.provinceName === provinceName
+    );
     if (province) {
-      setSelectedProvince(provinceName);
-      setSelectedDistrict("");
-      setSelectedWard("");
-      setDistricts([]);
-      setWards([]);
+      setSelectedProvinceName(provinceName);
+      setSelectedProvinceId(province.provinceID);
+
+      // Reset district and ward selections
+      setSelectedDistrictName("");
+      setSelectedDistrictId(0);
+      setSelectedWardName("");
+
+      // Update form data with GHN provinceID
       setFormData((prev) => ({
         ...prev,
-        oldProviceId: province.id,
+        oldProviceId: String(province.provinceID),
+        newProviceId: String(province.provinceID),
         oldDistrictId: "",
         oldWardId: "",
+        newWardId: "",
       }));
-      loadDistricts(province.id);
     }
   };
 
+  /**
+   * Handle district selection change
+   * Maps GHN districtID to form data oldDistrictId
+   * Requirements: 1.5
+   */
   const handleDistrictChange = (districtName: string) => {
-    const district = districts.find((d) => d.name === districtName);
+    if (!Array.isArray(districts)) return;
+    const district = districts.find(
+      (d: GHNDistrict) => d.districtName === districtName
+    );
     if (district) {
-      setSelectedDistrict(districtName);
-      setSelectedWard("");
-      setWards([]);
+      setSelectedDistrictName(districtName);
+      setSelectedDistrictId(district.districtID);
+
+      // Reset ward selection
+      setSelectedWardName("");
+
+      // Update form data with GHN districtID
       setFormData((prev) => ({
         ...prev,
-        oldDistrictId: district.id,
+        oldDistrictId: String(district.districtID),
         oldWardId: "",
+        newWardId: "",
       }));
-      loadWards(district.id);
     }
   };
 
+  /**
+   * Handle ward selection change
+   * Maps GHN wardCode to form data oldWardId
+   * Requirements: 1.6
+   */
   const handleWardChange = (wardName: string) => {
-    const ward = wards.find((w) => w.name === wardName);
+    if (!Array.isArray(wards)) return;
+    const ward = wards.find((w: GHNWard) => w.wardName === wardName);
     if (ward) {
-      setSelectedWard(wardName);
+      setSelectedWardName(wardName);
+
+      // Update form data with GHN wardCode
       setFormData((prev) => ({
         ...prev,
-        oldWardId: String(ward.id),
+        oldWardId: ward.wardCode,
+        newWardId: ward.wardCode,
       }));
     }
   };
 
+  /**
+   * Reset form to initial state
+   */
   const resetForm = () => {
     setFormData({
       fullNewAddress: "",
@@ -195,15 +284,19 @@ export function AddressFormModal({
       streetLine: "",
       isDefault: false,
     });
-    setSelectedProvince("");
-    setSelectedDistrict("");
-    setSelectedWard("");
-    setDistricts([]);
-    setWards([]);
+    setSelectedProvinceId(0);
+    setSelectedDistrictId(0);
+    setSelectedProvinceName("");
+    setSelectedDistrictName("");
+    setSelectedWardName("");
   };
 
+  /**
+   * Handle form submission
+   * Constructs full address from selected location names
+   */
   const handleSubmit = () => {
-    const fullAddress = `${formData.streetLine}, ${selectedWard}, ${selectedDistrict}, ${selectedProvince}`;
+    const fullAddress = `${formData.streetLine}, ${selectedWardName}, ${selectedDistrictName}, ${selectedProvinceName}`;
     const submitData = {
       ...formData,
       fullOldAddress: fullAddress,
@@ -212,6 +305,9 @@ export function AddressFormModal({
     onSubmit(submitData);
   };
 
+  /**
+   * Validate form completeness
+   */
   const isFormValid = () => {
     return (
       formData.streetLine.trim() !== "" &&
@@ -224,12 +320,12 @@ export function AddressFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-5xl max-h-[95vh] overflow-visible p-6 md:p-8">
+      <DialogContent className="sm:max-w-5xl min-h-[500px] overflow-visible p-6 md:p-8">
         <DialogHeader>
           <DialogTitle>Quản lý địa chỉ giao hàng</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 max-h-[76vh] overflow-y-auto pr-1">
+        <div className="space-y-6 overflow-visible pr-1 pb-20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="phone">
@@ -241,7 +337,10 @@ export function AddressFormModal({
                 placeholder="Nhập số điện thoại"
                 value={formData.phone}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, phone: e.target.value }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    phone: e.target.value,
+                  }))
                 }
               />
             </div>
@@ -268,27 +367,27 @@ export function AddressFormModal({
             <SearchableDropdown
               label="Tỉnh/Thành phố"
               required
-              value={selectedProvince}
+              value={selectedProvinceName}
               onChange={handleProvinceChange}
-              options={provinces.map((p) => p.name)}
+              options={provinceOptions}
               placeholder="Chọn tỉnh/thành phố"
             />
 
             <SearchableDropdown
               label="Quận/Huyện"
               required
-              value={selectedDistrict}
+              value={selectedDistrictName}
               onChange={handleDistrictChange}
-              options={districts.map((d) => d.name)}
+              options={districtOptions}
               placeholder="Chọn quận/huyện"
             />
 
             <SearchableDropdown
               label="Phường/Xã"
               required
-              value={selectedWard}
+              value={selectedWardName}
               onChange={handleWardChange}
-              options={wards.map((w) => w.name)}
+              options={wardOptions}
               placeholder="Chọn phường/xã"
             />
           </div>

@@ -1,8 +1,1 @@
-export {
-  getAuthToken,
-  setAuthToken,
-  clearAuthToken,
-  refreshAuthToken,
-  isAuthenticated,
-  redirectToAuth,
-} from "./token.service";
+export { getAuthToken, setAuthToken, clearAuthToken, refreshAuthToken, isAuthenticated, redirectToAuth } from "./token.service";

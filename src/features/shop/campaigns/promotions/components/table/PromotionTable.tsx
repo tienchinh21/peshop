@@ -8,7 +8,6 @@ import { PromotionTableLoading } from "./PromotionTableLoading";
 import { PromotionTablePagination } from "./PromotionTablePagination";
 import { PromotionTableRow } from "./PromotionTableRow";
 import type { Promotion, PromotionListPaginationInfo } from "../../types";
-
 interface PromotionTableProps {
   promotions: Promotion[];
   pagination?: PromotionListPaginationInfo;
@@ -19,7 +18,6 @@ interface PromotionTableProps {
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (size: number) => void;
 }
-
 export function PromotionTable({
   promotions,
   pagination,
@@ -28,44 +26,18 @@ export function PromotionTable({
   onEdit,
   onDelete,
   onPageChange,
-  onPageSizeChange,
+  onPageSizeChange
 }: PromotionTableProps) {
-  return (
-    <div className="space-y-4">
+  return <div className="space-y-4">
       <div className="rounded-md border bg-white">
         <Table>
           <PromotionTableHeader />
           <TableBody>
-            {isLoading ? (
-              <PromotionTableLoading rows={pagination?.size || 5} />
-            ) : promotions.length === 0 ? (
-              <PromotionTableEmpty />
-            ) : (
-              promotions.map((promotion) => (
-                <PromotionTableRow
-                  key={promotion.id}
-                  promotion={promotion}
-                  onView={onView}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                />
-              ))
-            )}
+            {isLoading ? <PromotionTableLoading rows={pagination?.size || 5} /> : promotions.length === 0 ? <PromotionTableEmpty /> : promotions.map(promotion => <PromotionTableRow key={promotion.id} promotion={promotion} onView={onView} onEdit={onEdit} onDelete={onDelete} />)}
           </TableBody>
         </Table>
       </div>
 
-      {pagination &&
-        !isLoading &&
-        promotions.length > 0 &&
-        onPageChange &&
-        onPageSizeChange && (
-          <PromotionTablePagination
-            pagination={pagination}
-            onPageChange={onPageChange}
-            onPageSizeChange={onPageSizeChange}
-          />
-        )}
-    </div>
-  );
+      {pagination && !isLoading && promotions.length > 0 && onPageChange && onPageSizeChange && <PromotionTablePagination pagination={pagination} onPageChange={onPageChange} onPageSizeChange={onPageSizeChange} />}
+    </div>;
 }

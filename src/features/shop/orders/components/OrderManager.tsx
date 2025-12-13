@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { OrderTable } from "./table";
 import { useShopOrders, useConfirmOrders, useRejectOrders } from "../hooks";
 import { OrderFilterParams, Order } from "../types";
@@ -14,69 +9,56 @@ import { OrderStatus } from "@/shared/enums";
 import { ShoppingCart } from "lucide-react";
 import _ from "lodash";
 import { toast } from "sonner";
-
 interface OrderManagerProps {
   defaultStatus?: OrderStatus;
   title: string;
 }
-
 export default function OrderManager({
   defaultStatus,
-  title,
+  title
 }: OrderManagerProps) {
   const [filters, setFilters] = useState<OrderFilterParams>({
     page: 0,
     size: 10,
     sort: "createdAt,desc",
-    filter:
-      defaultStatus !== undefined
-        ? `statusOrder : ${defaultStatus}`
-        : undefined,
+    filter: defaultStatus !== undefined ? `statusOrder : ${defaultStatus}` : undefined
   });
-
-  const { data, isLoading, error } = useShopOrders(filters);
+  const {
+    data,
+    isLoading,
+    error
+  } = useShopOrders(filters);
   const confirmMutation = useConfirmOrders();
   const rejectMutation = useRejectOrders();
-
   const orders = _.get(data, "content.response", []) as Order[];
   const pagination = _.get(data, "content.info");
-
   const handlePageChange = useCallback((page: number) => {
-    setFilters((prev) => ({ ...prev, page }));
+    setFilters(prev => ({
+      ...prev,
+      page
+    }));
   }, []);
-
   const handlePageSizeChange = useCallback((size: number) => {
-    setFilters((prev) => ({ ...prev, size, page: 0 }));
+    setFilters(prev => ({
+      ...prev,
+      size,
+      page: 0
+    }));
   }, []);
-
-  const handleConfirm = useCallback(
-    async (order: Order) => {
-      try {
-        await confirmMutation.mutateAsync([order.id]);
-      } catch (error) {
-        // Error handled by mutation
-      }
-    },
-    [confirmMutation]
-  );
-
-  const handleReject = useCallback(
-    async (order: Order) => {
-      try {
-        await rejectMutation.mutateAsync([order.id]);
-      } catch (error) {
-        // Error handled by mutation
-      }
-    },
-    [rejectMutation]
-  );
-
+  const handleConfirm = useCallback(async (order: Order) => {
+    try {
+      await confirmMutation.mutateAsync([order.id]);
+    } catch (error) {}
+  }, [confirmMutation]);
+  const handleReject = useCallback(async (order: Order) => {
+    try {
+      await rejectMutation.mutateAsync([order.id]);
+    } catch (error) {}
+  }, [rejectMutation]);
   const handleView = useCallback((order: Order) => {
     toast.info(`Xem chi tiết đơn hàng ${order.orderCode} (Chưa cài đặt)`);
   }, []);
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
@@ -94,18 +76,8 @@ export default function OrderManager({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <OrderTable
-            orders={orders}
-            pagination={pagination}
-            isLoading={isLoading}
-            onView={handleView}
-            onConfirm={handleConfirm}
-            onReject={handleReject}
-            onPageChange={handlePageChange}
-            onPageSizeChange={handlePageSizeChange}
-          />
+          <OrderTable orders={orders} pagination={pagination} isLoading={isLoading} onView={handleView} onConfirm={handleConfirm} onReject={handleReject} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} />
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 }

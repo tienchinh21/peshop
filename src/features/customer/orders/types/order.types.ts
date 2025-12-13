@@ -1,131 +1,181 @@
+import { PaymentMethod, PaymentStatus, OrderStatus, DeliveryStatus } from "./order.enums";
 export interface OrderProductItemPayload {
   productId: string;
   variantId: number;
-  note: string;
   quantity: number;
-  priceOriginal: number;
-  categoryId: string;
-  shopId: string;
 }
-
-export interface CreateOrderPayload {
-  orderId: string;
-  paymentMethod: string;
-}
-
-export type CreateVirtualOrderPayload = {
+export interface CreateVirtualOrderPayload {
   userAddressId: string;
   items: OrderProductItemPayload[];
-};
-
+}
+export interface UpdateVirtualOrderPayload {
+  orderId: string;
+  items: OrderProductItemPayload[];
+}
+export interface DeleteVirtualOrderPayload {
+  orderId: string;
+}
 export interface OrderProductItem {
-  priceOriginal: number;
-  categoryId: string;
-  shopId: string;
   productId: string;
   variantId: number | null;
-  note: string | null;
   quantity: number;
+  priceOriginal: number;
+  categoryId?: string;
+  flashSaleProductId?: string;
+  flashSalePercentDecrease?: number;
+  flashSalePrice?: number;
+  flashSaleDiscount?: number;
 }
-
 export interface OrderShopItem {
   shopId: string;
   shopName: string;
   shopLogoUrl: string | null;
-  shippingId: string | null;
+  orderCode: string;
   products: OrderProductItem[];
+  gifts: any[];
   priceOriginal: number;
-  priceAfterVoucher: number;
   feeShipping: number;
   voucherId: string | null;
   voucherValue: number;
-  voucherName: string | null;
+  flashSaleDiscount: number;
 }
-
 export interface VirtualOrderData {
   orderId: string;
-  userFullName: string;
-  voucherSystemId: string | null;
-  voucherSystemValue: number;
-  voucherSystemName: string | null;
+  recipientName: string;
+  recipientPhone: string;
   userFullNewAddress: string;
   itemShops: OrderShopItem[];
-  userId: string;
   orderTotal: number;
   feeShippingTotal: number;
+  discountTotal: number;
+  flashSaleDiscountTotal: number;
   amountTotal: number;
+  hasFlashSale: boolean;
   createdAt: string;
 }
-
-
 export interface VirtualOrderResponse {
-  error: string | null;
-  data: {
-    order: VirtualOrderData;
-    status: boolean;
-    message: string;
-  };
+  status: boolean;
+  message: string;
+  order: VirtualOrderData;
 }
-
-export interface CalculatedOrderData {
-  orderTotal: number;
-  feeShippingTotal: number;
-  voucherSystemValue: number;
-  amountTotal: number;
-  itemShops: Array<{
-    shopId: string;
-    voucherValue: number;
-  }>;
+export interface VariantValue {
+  imgUrl?: string;
+  level?: number;
+  value: string;
+  propertyName?: string;
+  valueName?: string;
 }
-
-export interface ApplyVoucherPayload {
+export interface OrderProductDetail {
+  productId: string;
+  productName: string;
+  productImage: string;
+  variantId: string | null;
+  variantValues?: VariantValue[];
+  price: number;
+  quantity: number;
+  isAllowReview: boolean;
+}
+export interface OrderListItem {
+  orderId: string;
+  orderCode: string;
+  finalPrice: number;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  orderStatus: OrderStatus;
+  shopId: string;
+  shopName: string;
+  hasFlashSale: boolean;
+  items: OrderProductDetail[];
+}
+export interface OrderDetail {
+  orderId: string;
+  orderCode: string;
+  finalPrice: number;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  orderStatus: OrderStatus;
+  shopId: string;
+  shopName: string;
+  hasFlashSale: boolean;
+  createdAt: string;
+  discountPrice: number;
+  shippingFee: number;
+  originalPrice: number;
+  recipientName: string;
+  recipientPhone: string;
+  recipientAddress: string;
+  items: OrderProductDetail[];
+}
+export interface CreateOrderPayload {
+  orderId: string;
+  paymentMethod: PaymentMethod;
+}
+export interface CreateOrderResponse {
+  status: boolean;
+  message: string;
+  paymentUrl?: string;
+}
+export interface ApplySystemVoucherPayload {
   voucherId: string;
   orderId: string;
-  shopId?: string;
 }
-
-export interface ShippingFeeProduct {
-  productId: string;
-  variantId: number;
-  note: string;
-  quantity: number;
-}
-
-export interface ShippingFeeShopItem {
-  shopId: string;
-  product: ShippingFeeProduct[];
-}
-
-export interface GetShippingFeePayload {
-  userOldFullAddress: string;
-  userOldProviceId: string;
-  userOldWardId: string;
+export interface ApplyShopVoucherPayload {
+  voucherId: string;
   orderId: string;
-  listFeeShipping: ShippingFeeShopItem[];
-}
-
-export interface ApplyShippingFeeItem {
-  shippingId: string;
   shopId: string;
 }
-
+export interface ApplyVoucherResponse {
+  status: boolean;
+  message: string;
+  order?: VirtualOrderData;
+}
+export interface CalculateOrderTotalResponse {
+  status: boolean;
+  message: string;
+  order: {
+    orderId: string;
+    orderTotal: number;
+    feeShippingTotal: number;
+    discountTotal: number;
+    flashSaleDiscountTotal: number;
+    amountTotal: number;
+    hasFlashSale: boolean;
+    itemShops: OrderShopItem[];
+  };
+}
+export interface GetShippingFeePayload {
+  orderId: string;
+}
+export interface ShippingFeeOption {
+  shopId: string;
+  shopName: string;
+  totalFee: number;
+  serviceTypeId: number;
+  serviceTypeName: string;
+  expectedDeliveryTime: string | null;
+}
+export interface GetShippingFeeResponse {
+  listFeeShipping: ShippingFeeOption[];
+}
 export interface ApplyShippingFeePayload {
   orderId: string;
-  listFeeShipping: ApplyShippingFeeItem[];
 }
-
-export interface ShippingFeeItem {
-  id: string;
-  carrier_name: string;
-  carrier_logo: string;
-  carrier_short_name: string;
-  service: string;
-  cod_fee: number;
-  total_fee: number;
-  total_amount: number;
-  shopId: string;
+export interface ApplyShippingFeeResponse {
+  status: boolean;
+  message: string;
 }
-
-export interface ShippingFeeResponse {
-  listFeeShipping: ShippingFeeItem[];
+export interface CancelOrderPayload {
+  orderId: string;
 }
+export interface CancelOrderResponse {
+  status: boolean;
+  message: string;
+}
+export interface ApiResponse<T> {
+  status: boolean;
+  message: string;
+  data?: T;
+  error?: string | null;
+}
+export type ShippingFeeResponse = GetShippingFeeResponse;
+export type CalculatedOrderData = VirtualOrderData;

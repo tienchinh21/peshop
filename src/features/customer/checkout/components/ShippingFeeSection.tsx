@@ -3,16 +3,14 @@
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import { Label } from "@/shared/components/ui/label";
 import { Truck } from "lucide-react";
-import type { ShippingFeeItem } from "@/features/customer/orders";
+import type { ShippingFeeOption } from "@/features/customer/orders";
 import _ from "lodash";
-
 interface ShippingFeeSectionProps {
-  shippingFees: ShippingFeeItem[];
+  shippingFees: ShippingFeeOption[];
   selectedShippingIds: Record<string, string>;
   onShippingChange: (shopId: string, shippingId: string) => void;
   formatPrice: (price: number) => string;
 }
-
 export function ShippingFeeSection({
   shippingFees,
   selectedShippingIds,
@@ -20,7 +18,6 @@ export function ShippingFeeSection({
   formatPrice,
 }: ShippingFeeSectionProps) {
   const groupedByShop = _.groupBy(shippingFees, "shopId");
-
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <div className="p-6">
@@ -41,45 +38,46 @@ export function ShippingFeeSection({
         <div className="space-y-6">
           {Object.entries(groupedByShop).map(([shopId, options]) => (
             <div key={shopId} className="space-y-3">
+              <h4 className="text-sm font-medium text-gray-700">
+                {options[0]?.shopName}
+              </h4>
               <RadioGroup
                 value={selectedShippingIds[shopId] || ""}
                 onValueChange={(value) => onShippingChange(shopId, value)}
               >
-                {options.map((option) => (
-                  <div
-                    key={option.id}
-                    className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-gray-50 transition-colors cursor-pointer"
-                  >
-                    <RadioGroupItem value={option.id} id={option.id} />
-                    <Label
-                      htmlFor={option.id}
-                      className="flex-1 cursor-pointer"
+                {options.map((option, index) => {
+                  const optionId = `${shopId}-${option.serviceTypeId}`;
+                  return (
+                    <div
+                      key={optionId}
+                      className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-gray-50 transition-colors cursor-pointer"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={option.carrier_logo}
-                            alt={option.carrier_name}
-                            className="w-8 h-8 object-contain"
-                          />
+                      <RadioGroupItem value={optionId} id={optionId} />
+                      <Label
+                        htmlFor={optionId}
+                        className="flex-1 cursor-pointer"
+                      >
+                        <div className="flex items-center justify-between">
                           <div>
                             <p className="font-medium text-sm text-gray-900">
-                              {option.service}
+                              {option.serviceTypeName}
                             </p>
-                            <p className="text-xs text-gray-500">
-                              {option.carrier_name}
+                            {option.expectedDeliveryTime && (
+                              <p className="text-xs text-gray-500">
+                                Dự kiến: {option.expectedDeliveryTime}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-gray-900">
+                              {formatPrice(option.totalFee)}
                             </p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-gray-900">
-                            {formatPrice(option.total_fee)}
-                          </p>
-                        </div>
-                      </div>
-                    </Label>
-                  </div>
-                ))}
+                      </Label>
+                    </div>
+                  );
+                })}
               </RadioGroup>
             </div>
           ))}

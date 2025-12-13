@@ -2,101 +2,70 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useVoucherDetail } from "../hooks";
-import {
-  VoucherStatus,
-  VoucherStatusLabels,
-  VoucherStatusColors,
-  VoucherType,
-  VoucherTypeLabels,
-} from "@/lib/utils/enums/eVouchers";
-import {
-  ArrowLeft,
-  Ticket,
-  Calendar,
-  Settings,
-  Edit,
-  Users,
-} from "lucide-react";
+import { VoucherStatus, VoucherStatusLabels, VoucherStatusColors, VoucherType, VoucherTypeLabels } from "@/lib/utils/enums/eVouchers";
+import { ArrowLeft, Ticket, Calendar, Settings, Edit, Users } from "lucide-react";
 import _ from "lodash";
-
 interface VoucherDetailPageProps {
   voucherId: string;
 }
-
 export default function VoucherDetailPage({
-  voucherId,
+  voucherId
 }: VoucherDetailPageProps) {
   const router = useRouter();
-  const { data, isLoading, error } = useVoucherDetail(voucherId);
-
+  const {
+    data,
+    isLoading,
+    error
+  } = useVoucherDetail(voucherId);
   const voucher = _.get(data, "content");
-
   const handleBack = () => {
     router.push("/shop/chien-dich/ma-giam-gia");
   };
-
   const handleEdit = () => {
     router.push(`/shop/chien-dich/ma-giam-gia/sua/${voucherId}`);
   };
-
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
-      currency: "VND",
+      currency: "VND"
     }).format(price);
   };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
       hour: "2-digit",
-      minute: "2-digit",
+      minute: "2-digit"
     });
   };
-
   const getStatusBadge = (status: number) => {
     const statusEnum = status as VoucherStatus;
     const label = VoucherStatusLabels[statusEnum] || "Không xác định";
     const colorClass = VoucherStatusColors[statusEnum] || "bg-gray-500";
-
-    return (
-      <Badge variant="secondary" className={colorClass}>
+    return <Badge variant="secondary" className={colorClass}>
         {label}
-      </Badge>
-    );
+      </Badge>;
   };
-
   const getDiscountDisplay = (type: number, value: number) => {
     if (type === VoucherType.PERCENTAGE) {
       return `${value}%`;
     }
     return formatPrice(value);
   };
-
   if (isLoading) {
-    return (
-      <div className="space-y-6">
+    return <div className="space-y-6">
         <Skeleton className="h-10 w-full" />
         <Skeleton className="h-96 w-full" />
-      </div>
-    );
+      </div>;
   }
-
   if (error || !voucher) {
-    return (
-      <div className="space-y-6">
+    return <div className="space-y-6">
         <Button variant="outline" onClick={handleBack}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Quay lại
@@ -108,13 +77,10 @@ export default function VoucherDetailPage({
             </div>
           </CardContent>
         </Card>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
+  return <div className="space-y-6">
+      {}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="outline" onClick={handleBack}>
@@ -132,7 +98,7 @@ export default function VoucherDetailPage({
         </Button>
       </div>
 
-      {/* Basic Info */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -166,7 +132,7 @@ export default function VoucherDetailPage({
         </CardContent>
       </Card>
 
-      {/* Discount Settings */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -182,29 +148,23 @@ export default function VoucherDetailPage({
                 {getDiscountDisplay(voucher.type, voucher.discountValue)}
               </p>
             </div>
-            {voucher.type === VoucherType.PERCENTAGE &&
-              voucher.maxDiscountAmount &&
-              voucher.maxDiscountAmount > 0 && (
-                <div>
+            {voucher.type === VoucherType.PERCENTAGE && voucher.maxDiscountAmount && voucher.maxDiscountAmount > 0 && <div>
                   <p className="text-sm text-gray-500 mb-1">Giảm tối đa</p>
                   <p className="text-xl font-semibold">
                     {formatPrice(voucher.maxDiscountAmount)}
                   </p>
-                </div>
-              )}
+                </div>}
             <div>
               <p className="text-sm text-gray-500 mb-1">Đơn hàng tối thiểu</p>
               <p className="text-xl font-semibold">
-                {voucher.minimumOrderValue && voucher.minimumOrderValue > 0
-                  ? formatPrice(voucher.minimumOrderValue)
-                  : "Không yêu cầu"}
+                {voucher.minimumOrderValue && voucher.minimumOrderValue > 0 ? formatPrice(voucher.minimumOrderValue) : "Không yêu cầu"}
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Quantity & Usage */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -218,35 +178,29 @@ export default function VoucherDetailPage({
               <p className="text-sm text-gray-500 mb-1">Tổng số lượng</p>
               <p className="text-2xl font-bold">{voucher.quantity}</p>
             </div>
-            {!_.isNil(voucher.quantityUsed) && (
-              <div>
+            {!_.isNil(voucher.quantityUsed) && <div>
                 <p className="text-sm text-gray-500 mb-1">Đã sử dụng</p>
                 <p className="text-2xl font-bold text-blue-600">
                   {voucher.quantityUsed}
                 </p>
-              </div>
-            )}
-            {!_.isNil(voucher.quantityUsed) && (
-              <div>
+              </div>}
+            {!_.isNil(voucher.quantityUsed) && <div>
                 <p className="text-sm text-gray-500 mb-1">Còn lại</p>
                 <p className="text-2xl font-bold text-orange-600">
                   {voucher.quantity - voucher.quantityUsed}
                 </p>
-              </div>
-            )}
-            {voucher.limitForUser && (
-              <div>
+              </div>}
+            {voucher.limitForUser && <div>
                 <p className="text-sm text-gray-500 mb-1">
                   Giới hạn/người dùng
                 </p>
                 <p className="text-xl font-semibold">{voucher.limitForUser}</p>
-              </div>
-            )}
+              </div>}
           </div>
         </CardContent>
       </Card>
 
-      {/* Time Period */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -267,6 +221,5 @@ export default function VoucherDetailPage({
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 }

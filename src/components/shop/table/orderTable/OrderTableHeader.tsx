@@ -1,8 +1,6 @@
 import { TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-
 export function OrderTableHeader() {
-  return (
-    <TableHeader>
+  return <TableHeader>
       <TableRow>
         <TableHead>Mã đơn hàng</TableHead>
         <TableHead>Sản phẩm</TableHead>
@@ -11,6 +9,5 @@ export function OrderTableHeader() {
         <TableHead>Trạng thái</TableHead>
         <TableHead className="text-right">Thao tác</TableHead>
       </TableRow>
-    </TableHeader>
-  );
+    </TableHeader>;
 }

@@ -4,27 +4,17 @@ import { useState, useEffect, useCallback } from "react";
 import { subDays, format } from "date-fns";
 import { toast } from "sonner";
 import { getDashboardStats, getTodoList } from "../services";
-import {
-  DashboardData,
-  DashboardPeriod,
-  TodoListContent,
-} from "../types";
-
-/**
- * Custom hook for managing dashboard data and state
- */
+import { DashboardData, DashboardPeriod, TodoListContent } from "../types";
 export const useDashboard = (initialPeriod: DashboardPeriod = "past7days") => {
   const [period, setPeriod] = useState<DashboardPeriod>(initialPeriod);
   const [data, setData] = useState<DashboardData | null>(null);
   const [todoData, setTodoData] = useState<TodoListContent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isTodoLoading, setIsTodoLoading] = useState(true);
-
   const calculateDateRange = useCallback((period: DashboardPeriod) => {
     const today = new Date();
     let start = new Date();
     let end = new Date();
-
     switch (period) {
       case "today_or_yesterday":
         start = today;
@@ -39,23 +29,23 @@ export const useDashboard = (initialPeriod: DashboardPeriod = "past7days") => {
         end = today;
         break;
     }
-
     return {
       startDate: format(start, "yyyy-MM-dd"),
-      endDate: format(end, "yyyy-MM-dd"),
+      endDate: format(end, "yyyy-MM-dd")
     };
   }, []);
-
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const { startDate, endDate } = calculateDateRange(period);
+      const {
+        startDate,
+        endDate
+      } = calculateDateRange(period);
       const response = await getDashboardStats({
         startDate,
         endDate,
-        period,
+        period
       });
-
       if (response.content) {
         setData(response.content);
       }
@@ -66,7 +56,6 @@ export const useDashboard = (initialPeriod: DashboardPeriod = "past7days") => {
       setIsLoading(false);
     }
   }, [period, calculateDateRange]);
-
   const fetchTodoList = useCallback(async () => {
     setIsTodoLoading(true);
     try {
@@ -81,15 +70,12 @@ export const useDashboard = (initialPeriod: DashboardPeriod = "past7days") => {
       setIsTodoLoading(false);
     }
   }, []);
-
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
   useEffect(() => {
     fetchTodoList();
   }, [fetchTodoList]);
-
   return {
     period,
     setPeriod,
@@ -99,6 +85,6 @@ export const useDashboard = (initialPeriod: DashboardPeriod = "past7days") => {
     isTodoLoading,
     isAnyLoading: isLoading || isTodoLoading,
     refetchData: fetchData,
-    refetchTodoList: fetchTodoList,
+    refetchTodoList: fetchTodoList
   };
 };

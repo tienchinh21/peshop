@@ -6,31 +6,27 @@ export interface VoucherItem {
   DiscountValue: number;
   MaxdiscountAmount: number;
   MiniumOrderValue: number;
-  StartTime: string; // ISO
-  EndTime: string; // ISO
+  StartTime: string;
+  EndTime: string;
   ValueType: number;
   ValueTypeName: string;
 }
-
 export interface VoucherAbility {
   IsAllowed: boolean;
   Reason: string;
   Voucher: VoucherItem;
 }
-
 export interface SystemVoucherList {
-  VoucherType: string; // System
+  VoucherType: string;
   Vouchers: VoucherAbility[];
   BestVoucherId: string;
 }
-
 export interface ShopVoucherList {
   ShopId: string;
   ShopName: string;
   Vouchers: VoucherAbility[];
   BestVoucherId: string;
 }
-
 export interface VoucherEligibilityResponse {
   SystemVouchers: SystemVoucherList;
   ShopVouchers: ShopVoucherList[];

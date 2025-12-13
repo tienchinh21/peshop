@@ -1,71 +1,60 @@
-// .NET API Configuration
 export const API_CONFIG = {
   BASE_URL: process.env.NEXT_PUBLIC_API_URL_DOTNET,
   TIMEOUT: 30000,
   HEADERS: {
     "Content-Type": "application/json",
-    Accept: "application/json",
-  },
+    Accept: "application/json"
+  }
 } as const;
-
-// Java API Configuration
 export const API_CONFIG_JAVA = {
   BASE_URL: process.env.NEXT_PUBLIC_API_URL_JAVA,
   TIMEOUT: 30000,
   HEADERS: {
-    Accept: "application/json",
-  },
+    Accept: "application/json"
+  }
 } as const;
-
-// API Endpoints
 export const API_ENDPOINTS = {
-  // Auth endpoints
   AUTH: {
     LOGIN: "/Auth/login",
     REGISTER: "/Auth/register",
     LOGOUT: "/Auth/logout",
     REFRESH_TOKEN: "/Auth/refresh",
-    ME: "/User/me",
+    ME: "/User/me"
   },
-  // Mail endpoints
+  USER: {
+    VIEW_PRODUCT: "/User/view-product"
+  },
   MAIL: {
     SEND_OTP: "/Mail/send-otp",
     VERIFY_OTP: "/Mail/verify-otp",
-    RESEND_OTP: "/Mail/resend-otp",
+    RESEND_OTP: "/Mail/resend-otp"
   },
-  // Product endpoints
   PRODUCTS: {
     LIST: "/Products",
     GET_PRODUCTS: "/Product/get-products",
     DETAIL: "/Products/:slug",
     DETAIL_FULL: "/Product/get-product-detail",
     SEARCH: "/Products/search",
-    CATEGORIES: "/Products/categories",
+    CATEGORIES: "/Products/categories"
   },
-  // Search endpoints
   SEARCH: {
     SUGGEST: "/Search/suggest",
     SEARCH: "/Search",
+    SEARCH_BY_IMAGE: "/Search/search-by-image"
   },
-  // Promotion endpoints
   PROMOTION: {
     GET_BY_PRODUCT: "/Promotion/get-promotions-by-product",
-    CHECK_IN_ORDER: "/Promotion/check-promotions-in-order",
-  },
+    CHECK_IN_ORDER: "/Promotion/check-promotions-in-order"
+  }
 } as const;
-
-// Java API Endpoints
 export const API_ENDPOINTS_JAVA = {
-  // Shops endpoints
   SHOPS: {
     CREATE: "/shop",
     PUT: "/shop/:id",
     DASHBOARD: "/shop/homepage/dashboard",
-    TODO_LIST: "/shop/homepage/todo-list",
-  },
+    TODO_LIST: "/shop/homepage/todo-list"
+  }
 } as const;
-
-// Storage Keys
 export const STORAGE_KEYS = {
   AUTH_TOKEN: "auth_token",
   REFRESH_TOKEN: "refresh_token",
@@ -74,12 +63,10 @@ export const STORAGE_KEYS = {
   AUTH_EXPIRES: "auth_expires",
   BROWSING_HISTORY: "browsing_history",
   CART: "cart",
-  WISHLIST: "wishlist",
+  WISHLIST: "wishlist"
 } as const;
-
-// Request timeout for different types
 export const TIMEOUT_CONFIG = {
-  SHORT: 5000, // 5s for quick operations
-  MEDIUM: 15000, // 15s for normal operations
-  LONG: 30000, // 30s for file uploads
+  SHORT: 5000,
+  MEDIUM: 15000,
+  LONG: 30000
 } as const;

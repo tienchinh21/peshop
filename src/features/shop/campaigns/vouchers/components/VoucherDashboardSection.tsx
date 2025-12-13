@@ -10,57 +10,42 @@ import { useVoucherDashboard } from "../hooks";
 import type { VoucherDashboardFilters } from "../types";
 import { BarChart3, RefreshCw } from "lucide-react";
 import _ from "lodash";
-
 interface VoucherDashboardSectionProps {
   filters: VoucherDashboardFilters;
   onFiltersChange: (filters: VoucherDashboardFilters) => void;
 }
-
-export const VoucherDashboardSection: React.FC<
-  VoucherDashboardSectionProps
-> = ({ filters, onFiltersChange }) => {
+export const VoucherDashboardSection: React.FC<VoucherDashboardSectionProps> = ({
+  filters,
+  onFiltersChange
+}) => {
   const {
     data: dashboardData,
     isLoading,
     error,
-    refetch,
+    refetch
   } = useVoucherDashboard(filters);
-
   const dashboard = _.get(dashboardData, "content");
-
   if (isLoading) {
-    return (
-      <Card className="animate-pulse">
+    return <Card className="animate-pulse">
         <CardContent className="p-6 h-[400px] flex items-center justify-center">
           <div className="text-gray-400">Đang tải dữ liệu thống kê...</div>
         </CardContent>
-      </Card>
-    );
+      </Card>;
   }
-
   if (error || !dashboard) {
-    return (
-      <Card className="border-red-100 bg-red-50">
+    return <Card className="border-red-100 bg-red-50">
         <CardContent className="p-6 flex flex-col items-center justify-center gap-4">
           <div className="text-red-600">
             Không thể tải dữ liệu thống kê. Vui lòng thử lại.
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => refetch()}
-            className="gap-2 bg-white hover:bg-red-50 border-red-200 text-red-600"
-          >
+          <Button variant="outline" size="sm" onClick={() => refetch()} className="gap-2 bg-white hover:bg-red-50 border-red-200 text-red-600">
             <RefreshCw className="h-4 w-4" />
             Thử lại
           </Button>
         </CardContent>
-      </Card>
-    );
+      </Card>;
   }
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <BarChart3 className="h-5 w-5 text-primary" />
@@ -68,21 +53,12 @@ export const VoucherDashboardSection: React.FC<
         </div>
 
         <div className="flex items-center gap-2">
-          <VoucherDateRangePicker
-            filters={filters}
-            onFiltersChange={onFiltersChange}
-          />
+          <VoucherDateRangePicker filters={filters} onFiltersChange={onFiltersChange} />
         </div>
       </div>
 
-      <VoucherDashboardMetrics
-        sales={dashboard.sales}
-        orders={dashboard.orders}
-        usageRate={dashboard.usageRate}
-        buyers={dashboard.buyers}
-      />
+      <VoucherDashboardMetrics sales={dashboard.sales} orders={dashboard.orders} usageRate={dashboard.usageRate} buyers={dashboard.buyers} />
 
       <VoucherDashboardChart data={dashboard} mode={filters.mode || "day"} />
-    </div>
-  );
+    </div>;
 };

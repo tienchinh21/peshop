@@ -1,14 +1,4 @@
-/**
- * TypeScript interfaces for SEO data structures
- * 
- * These types ensure type safety across all SEO-related functionality
- */
-
 import { Metadata } from 'next';
-
-/**
- * Metadata configuration for generating page metadata
- */
 export interface MetadataConfig {
   title: string;
   description: string;
@@ -18,10 +8,6 @@ export interface MetadataConfig {
   twitter?: TwitterConfig;
   robots?: RobotsConfig;
 }
-
-/**
- * Open Graph metadata configuration
- */
 export interface OpenGraphConfig {
   title: string;
   description: string;
@@ -31,20 +17,12 @@ export interface OpenGraphConfig {
   locale: string;
   siteName?: string;
 }
-
-/**
- * Open Graph image configuration
- */
 export interface OpenGraphImage {
   url: string;
   width: number;
   height: number;
   alt: string;
 }
-
-/**
- * Twitter Card metadata configuration
- */
 export interface TwitterConfig {
   card: 'summary' | 'summary_large_image' | 'app' | 'player';
   title: string;
@@ -53,10 +31,6 @@ export interface TwitterConfig {
   creator?: string;
   site?: string;
 }
-
-/**
- * Robots meta tag configuration
- */
 export interface RobotsConfig {
   index?: boolean;
   follow?: boolean;
@@ -67,10 +41,6 @@ export interface RobotsConfig {
   maxImagePreview?: 'none' | 'standard' | 'large';
   maxVideoPreview?: number;
 }
-
-/**
- * Input for generating product metadata
- */
 export interface ProductMetadataInput {
   productId: string;
   productName: string;
@@ -87,10 +57,6 @@ export interface ProductMetadataInput {
   }>;
   url: string;
 }
-
-/**
- * Input for generating shop metadata
- */
 export interface ShopMetadataInput {
   shopId: string;
   shopName: string;
@@ -102,10 +68,6 @@ export interface ShopMetadataInput {
   reviewCount?: number;
   url: string;
 }
-
-/**
- * Input for generating category metadata
- */
 export interface CategoryMetadataInput {
   categoryName: string;
   categorySlug: string;
@@ -113,29 +75,17 @@ export interface CategoryMetadataInput {
   description?: string;
   url: string;
 }
-
-/**
- * Sitemap entry configuration
- */
 export interface SitemapEntry {
   url: string;
   lastModified: Date;
   changeFrequency: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
   priority: number;
 }
-
-/**
- * Sitemap configuration
- */
 export interface SitemapConfig {
   baseUrl: string;
   defaultChangeFreq: string;
   defaultPriority: number;
 }
-
-/**
- * Schema.org Product structured data
- */
 export interface ProductSchema {
   '@context': 'https://schema.org';
   '@type': 'Product';
@@ -147,18 +97,10 @@ export interface ProductSchema {
   offers: OfferSchema | AggregateOfferSchema;
   aggregateRating?: AggregateRatingSchema;
 }
-
-/**
- * Schema.org Brand
- */
 export interface BrandSchema {
   '@type': 'Brand';
   name: string;
 }
-
-/**
- * Schema.org Offer
- */
 export interface OfferSchema {
   '@type': 'Offer';
   url: string;
@@ -167,10 +109,6 @@ export interface OfferSchema {
   availability: string;
   seller: OrganizationSchema;
 }
-
-/**
- * Schema.org AggregateOffer
- */
 export interface AggregateOfferSchema {
   '@type': 'AggregateOffer';
   url: string;
@@ -180,10 +118,6 @@ export interface AggregateOfferSchema {
   availability: string;
   seller: OrganizationSchema;
 }
-
-/**
- * Schema.org AggregateRating
- */
 export interface AggregateRatingSchema {
   '@type': 'AggregateRating';
   ratingValue: number;
@@ -191,10 +125,6 @@ export interface AggregateRatingSchema {
   bestRating: number;
   worstRating: number;
 }
-
-/**
- * Schema.org LocalBusiness
- */
 export interface LocalBusinessSchema {
   '@context': 'https://schema.org';
   '@type': 'LocalBusiness';
@@ -207,10 +137,6 @@ export interface LocalBusinessSchema {
   priceRange?: string;
   aggregateRating?: AggregateRatingSchema;
 }
-
-/**
- * Schema.org PostalAddress
- */
 export interface PostalAddressSchema {
   '@type': 'PostalAddress';
   streetAddress: string;
@@ -219,19 +145,11 @@ export interface PostalAddressSchema {
   postalCode: string;
   addressCountry: string;
 }
-
-/**
- * Schema.org GeoCoordinates
- */
 export interface GeoCoordinatesSchema {
   '@type': 'GeoCoordinates';
   latitude: number;
   longitude: number;
 }
-
-/**
- * Schema.org Organization
- */
 export interface OrganizationSchema {
   '@type': 'Organization';
   name: string;
@@ -241,20 +159,12 @@ export interface OrganizationSchema {
   address?: PostalAddressSchema;
   sameAs?: string[];
 }
-
-/**
- * Schema.org ContactPoint
- */
 export interface ContactPointSchema {
   '@type': 'ContactPoint';
   telephone: string;
   contactType: string;
   email?: string;
 }
-
-/**
- * Schema.org WebSite
- */
 export interface WebSiteSchema {
   '@context': 'https://schema.org';
   '@type': 'WebSite';
@@ -262,10 +172,6 @@ export interface WebSiteSchema {
   url: string;
   potentialAction?: SearchActionSchema;
 }
-
-/**
- * Schema.org SearchAction
- */
 export interface SearchActionSchema {
   '@type': 'SearchAction';
   target: {
@@ -274,48 +180,28 @@ export interface SearchActionSchema {
   };
   'query-input': string;
 }
-
-/**
- * Schema.org BreadcrumbList
- */
 export interface BreadcrumbSchema {
   '@context': 'https://schema.org';
   '@type': 'BreadcrumbList';
   itemListElement: BreadcrumbItemSchema[];
 }
-
-/**
- * Schema.org ListItem for breadcrumbs
- */
 export interface BreadcrumbItemSchema {
   '@type': 'ListItem';
   position: number;
   name: string;
   item?: string;
 }
-
-/**
- * Breadcrumb item for generating schema
- */
 export interface BreadcrumbItem {
   name: string;
   url?: string;
 }
-
-/**
- * Core Web Vitals metrics
- */
 export interface CoreWebVitals {
-  LCP: number; // Largest Contentful Paint
-  FID: number; // First Input Delay
-  CLS: number; // Cumulative Layout Shift
-  FCP: number; // First Contentful Paint
-  TTFB: number; // Time to First Byte
+  LCP: number;
+  FID: number;
+  CLS: number;
+  FCP: number;
+  TTFB: number;
 }
-
-/**
- * Performance monitoring configuration
- */
 export interface PerformanceConfig {
   enableMonitoring: boolean;
   reportToAnalytics: boolean;
@@ -325,10 +211,6 @@ export interface PerformanceConfig {
     CLS: number;
   };
 }
-
-/**
- * Metadata cache entry
- */
 export interface MetadataCache {
   key: string;
   metadata: Metadata;

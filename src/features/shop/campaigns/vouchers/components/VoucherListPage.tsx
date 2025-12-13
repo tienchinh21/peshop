@@ -2,53 +2,30 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/shared/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import { VoucherTable } from "./table/VoucherTable";
 import { VoucherListFilter } from "./VoucherListFilter";
 import { VoucherDashboardSection } from "./VoucherDashboardSection";
 import { useShopVouchers, useDeleteVoucher } from "../hooks";
-import type {
-  ShopVoucher,
-  VoucherListFilters,
-  VoucherDashboardFilters,
-} from "../types";
+import type { ShopVoucher, VoucherListFilters, VoucherDashboardFilters } from "../types";
+import { VoucherSortField, SortOrder } from "@/lib/utils/enums/eVouchers";
 import { PlusCircle, Ticket } from "lucide-react";
 import _ from "lodash";
-
 export default function VoucherListPage() {
   const router = useRouter();
-
-  // List Filters
   const [filters, setFilters] = useState<VoucherListFilters>({
     page: 1,
     size: 10,
+    sortBy: VoucherSortField.CREATED_AT,
+    sortOrder: SortOrder.DESC
   });
-
-  // Dashboard Filters Helper
-  const getDateRangeForPeriod = (
-    period: VoucherDashboardFilters["period"],
-    mode?: "day" | "week" | "month"
-  ) => {
+  const getDateRangeForPeriod = (period: VoucherDashboardFilters["period"], mode?: "day" | "week" | "month") => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
     let startDate: Date;
     let endDate: Date = new Date(today);
-
     if (mode === "month") {
       startDate = new Date(today.getFullYear(), today.getMonth(), 1);
       endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -75,95 +52,90 @@ export default function VoucherListPage() {
           break;
       }
     }
-
     return {
       startDate: startDate.toISOString().split("T")[0],
       endDate: endDate.toISOString().split("T")[0],
-      period,
+      period
     };
   };
-
-  // Dashboard Filters State
-  const [dashboardFilters, setDashboardFilters] =
-    useState<VoucherDashboardFilters>(() => {
-      const { startDate, endDate, period } = getDateRangeForPeriod(
-        "past30days",
-        "day"
-      );
-      return {
-        startDate,
-        endDate,
-        period,
-        mode: "day",
-      };
-    });
-
+  const [dashboardFilters, setDashboardFilters] = useState<VoucherDashboardFilters>(() => {
+    const {
+      startDate,
+      endDate,
+      period
+    } = getDateRangeForPeriod("past30days", "day");
+    return {
+      startDate,
+      endDate,
+      period,
+      mode: "day"
+    };
+  });
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
     voucher: ShopVoucher | null;
   }>({
     open: false,
-    voucher: null,
+    voucher: null
   });
-
-  // Queries
-  const { data, isLoading, error } = useShopVouchers(filters);
+  const {
+    data,
+    isLoading,
+    error
+  } = useShopVouchers(filters);
   const deleteMutation = useDeleteVoucher();
-
   const vouchers = _.get(data, "content.response", []) as ShopVoucher[];
   const pagination = _.get(data, "content.info");
   const totalVouchers = _.get(pagination, "total", 0);
-
-  // Handlers
   const handleFiltersChange = (newFilters: VoucherListFilters) => {
     setFilters(newFilters);
   };
-
   const handleResetFilters = () => {
     setFilters({
       page: 1,
-      size: _.get(filters, "size", 10),
+      size: _.get(filters, "size", 10)
     });
   };
-
   const handlePageChange = (page: number) => {
-    setFilters((prev) => ({ ...prev, page }));
+    setFilters(prev => ({
+      ...prev,
+      page
+    }));
   };
-
   const handlePageSizeChange = (size: number) => {
-    setFilters((prev) => ({ ...prev, size, page: 1 }));
+    setFilters(prev => ({
+      ...prev,
+      size,
+      page: 1
+    }));
   };
-
   const handleView = (voucher: ShopVoucher) => {
     router.push(`/shop/chien-dich/ma-giam-gia/${voucher.id}`);
   };
-
   const handleEdit = (voucher: ShopVoucher) => {
     router.push(`/shop/chien-dich/ma-giam-gia/sua/${voucher.id}`);
   };
-
   const handleDelete = (voucher: ShopVoucher) => {
-    setDeleteDialog({ open: true, voucher });
+    setDeleteDialog({
+      open: true,
+      voucher
+    });
   };
-
   const handleAddVoucher = () => {
     router.push("/shop/chien-dich/ma-giam-gia/them");
   };
-
   const handleConfirmDelete = async () => {
     const voucherToDelete = _.get(deleteDialog, "voucher");
     if (_.isNil(voucherToDelete)) return;
-
     try {
       await deleteMutation.mutateAsync(voucherToDelete.id);
-      setDeleteDialog({ open: false, voucher: null });
-    } catch (error) {
-      // Error handled by mutation
-    }
+      setDeleteDialog({
+        open: false,
+        voucher: null
+      });
+    } catch (error) {}
   };
-
-  return (
-    <div className="space-y-8 pb-10">
+  return <div className="space-y-8 pb-10">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
@@ -179,15 +151,12 @@ export default function VoucherListPage() {
         </Button>
       </div>
 
-      {/* Dashboard Section */}
+      {}
       <section>
-        <VoucherDashboardSection
-          filters={dashboardFilters}
-          onFiltersChange={setDashboardFilters}
-        />
+        <VoucherDashboardSection filters={dashboardFilters} onFiltersChange={setDashboardFilters} />
       </section>
 
-      {/* List Section */}
+      {}
       <section>
         <Card>
           <CardHeader>
@@ -197,47 +166,26 @@ export default function VoucherListPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <VoucherListFilter
-              filters={filters}
-              onFiltersChange={handleFiltersChange}
-              onReset={handleResetFilters}
-            />
+            <VoucherListFilter filters={filters} onFiltersChange={handleFiltersChange} onReset={handleResetFilters} />
 
             <div className="mt-6">
-              <VoucherTable
-                vouchers={vouchers}
-                pagination={pagination}
-                isLoading={isLoading}
-                onView={handleView}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onPageChange={handlePageChange}
-                onPageSizeChange={handlePageSizeChange}
-              />
+              <VoucherTable vouchers={vouchers} pagination={pagination} isLoading={isLoading} onView={handleView} onEdit={handleEdit} onDelete={handleDelete} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} />
             </div>
 
-            {!_.isNil(error) && (
-              <div className="mt-4 rounded-md bg-red-50 p-4 text-center">
+            {!_.isNil(error) && <div className="mt-4 rounded-md bg-red-50 p-4 text-center">
                 <p className="text-sm text-red-800">
-                  {_.get(
-                    error,
-                    "message",
-                    "Có lỗi xảy ra khi tải danh sách mã giảm giá. Vui lòng thử lại."
-                  )}
+                  {_.get(error, "message", "Có lỗi xảy ra khi tải danh sách mã giảm giá. Vui lòng thử lại.")}
                 </p>
-              </div>
-            )}
+              </div>}
           </CardContent>
         </Card>
       </section>
 
-      {/* Delete Dialog */}
-      <Dialog
-        open={deleteDialog.open}
-        onOpenChange={(open) =>
-          setDeleteDialog({ open, voucher: deleteDialog.voucher })
-        }
-      >
+      {}
+      <Dialog open={deleteDialog.open} onOpenChange={open => setDeleteDialog({
+      open,
+      voucher: deleteDialog.voucher
+    })}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Xác nhận xóa mã giảm giá</DialogTitle>
@@ -250,22 +198,17 @@ export default function VoucherListPage() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteDialog({ open: false, voucher: null })}
-            >
+            <Button variant="outline" onClick={() => setDeleteDialog({
+            open: false,
+            voucher: null
+          })}>
               Hủy
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleConfirmDelete}
-              disabled={deleteMutation.isPending}
-            >
+            <Button variant="destructive" onClick={handleConfirmDelete} disabled={deleteMutation.isPending}>
               {deleteMutation.isPending ? "Đang xóa..." : "Xóa"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>;
 }

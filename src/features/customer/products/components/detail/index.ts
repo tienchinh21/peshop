@@ -1,4 +1,3 @@
-// Re-export all product detail components
 export { BreadcrumbNavigation } from "./BreadcrumbNavigation";
 export { ProductImageGallery } from "./ProductImageGallery";
 export { ProductInfoSection } from "./ProductInfoSection";

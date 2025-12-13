@@ -9,20 +9,16 @@ import {
 } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { User, Mail, Phone, Calendar } from "lucide-react";
-
 const genderLabels: Record<number, string> = {
   0: "Nữ",
   1: "Nam",
   2: "Khác",
 };
-
 export function AccountPage() {
   const { data: profile, isLoading, error } = useProfile();
-
   if (isLoading) {
     return <AccountPageSkeleton />;
   }
-
   if (error || !profile) {
     return (
       <div className="container mx-auto py-8">
@@ -36,13 +32,12 @@ export function AccountPage() {
       </div>
     );
   }
-
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-2xl font-bold mb-6">Tài khoản của tôi</h1>
 
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Profile Info Card */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -85,7 +80,11 @@ export function AccountPage() {
               <InfoRow
                 icon={<User className="h-4 w-4" />}
                 label="Giới tính"
-                value={genderLabels[profile.gender] || "Chưa cập nhật"}
+                value={
+                  profile.gender !== null && profile.gender !== undefined
+                    ? genderLabels[profile.gender] || "Chưa cập nhật"
+                    : "Chưa cập nhật"
+                }
               />
               {profile.createdAt && (
                 <InfoRow
@@ -100,7 +99,7 @@ export function AccountPage() {
           </CardContent>
         </Card>
 
-        {/* Account Roles Card */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle>Vai trò tài khoản</CardTitle>
@@ -122,7 +121,6 @@ export function AccountPage() {
     </div>
   );
 }
-
 function InfoRow({
   icon,
   label,
@@ -140,7 +138,6 @@ function InfoRow({
     </div>
   );
 }
-
 function AccountPageSkeleton() {
   return (
     <div className="container mx-auto py-8">

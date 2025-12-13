@@ -6,12 +6,8 @@ import { ProductTableHeader } from "./ProductTableHeader";
 import { ProductTableEmpty } from "./ProductTableEmpty";
 import { ProductTableLoading } from "./ProductTableLoading";
 import { ProductTablePagination } from "./ProductTablePagination";
-import type {
-  ShopProduct,
-  ProductListPaginationInfo,
-} from "@/features/shop/products/types";
+import type { ShopProduct, ProductListPaginationInfo } from "@/features/shop/products/types";
 import { ProductTableRow } from "./ProductTableRow";
-
 interface ProductTableProps {
   products: ShopProduct[];
   pagination?: ProductListPaginationInfo;
@@ -23,7 +19,6 @@ interface ProductTableProps {
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (size: number) => void;
 }
-
 export function ProductTable({
   products,
   pagination,
@@ -33,45 +28,18 @@ export function ProductTable({
   onView,
   onDuplicate,
   onPageChange,
-  onPageSizeChange,
+  onPageSizeChange
 }: ProductTableProps) {
-  return (
-    <div className="space-y-4">
+  return <div className="space-y-4">
       <div className="rounded-md border bg-white">
         <Table>
           <ProductTableHeader />
           <TableBody>
-            {isLoading ? (
-              <ProductTableLoading rows={pagination?.size || 5} />
-            ) : products.length === 0 ? (
-              <ProductTableEmpty />
-            ) : (
-              products.map((product) => (
-                <ProductTableRow
-                  key={product.id}
-                  product={product}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  onView={onView}
-                  onDuplicate={onDuplicate}
-                />
-              ))
-            )}
+            {isLoading ? <ProductTableLoading rows={pagination?.size || 5} /> : products.length === 0 ? <ProductTableEmpty /> : products.map(product => <ProductTableRow key={product.id} product={product} onEdit={onEdit} onDelete={onDelete} onView={onView} onDuplicate={onDuplicate} />)}
           </TableBody>
         </Table>
       </div>
 
-      {pagination &&
-        !isLoading &&
-        products.length > 0 &&
-        onPageChange &&
-        onPageSizeChange && (
-          <ProductTablePagination
-            pagination={pagination}
-            onPageChange={onPageChange}
-            onPageSizeChange={onPageSizeChange}
-          />
-        )}
-    </div>
-  );
+      {pagination && !isLoading && products.length > 0 && onPageChange && onPageSizeChange && <ProductTablePagination pagination={pagination} onPageChange={onPageChange} onPageSizeChange={onPageSizeChange} />}
+    </div>;
 }

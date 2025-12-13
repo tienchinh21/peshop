@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { ChevronDown, Search, Plus } from "lucide-react";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
-
 interface SearchableDropdownProps {
   value: string;
   onChange: (value: string) => void;
@@ -13,7 +12,6 @@ interface SearchableDropdownProps {
   label?: string;
   required?: boolean;
 }
-
 export function SearchableDropdown({
   value,
   onChange,
@@ -27,13 +25,9 @@ export function SearchableDropdown({
   const [customValue, setCustomValue] = useState("");
   const [showAddCustom, setShowAddCustom] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Filter options based on search term
   const filteredOptions = options.filter((option) =>
     option.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -46,11 +40,9 @@ export function SearchableDropdown({
         setCustomValue("");
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
   const handleOptionSelect = (option: string) => {
     onChange(option);
     setIsOpen(false);
@@ -58,7 +50,6 @@ export function SearchableDropdown({
     setShowAddCustom(false);
     setCustomValue("");
   };
-
   const handleAddCustom = () => {
     if (customValue.trim()) {
       onChange(customValue.trim());
@@ -68,7 +59,6 @@ export function SearchableDropdown({
       setCustomValue("");
     }
   };
-
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
     setSearchTerm(term);
@@ -77,7 +67,6 @@ export function SearchableDropdown({
         !filteredOptions.some((opt) => opt.toLowerCase() === term.toLowerCase())
     );
   };
-
   return (
     <div className="space-y-2 flex flex-col gap-2">
       {label && (
@@ -87,7 +76,7 @@ export function SearchableDropdown({
       )}
 
       <div className="relative" ref={dropdownRef}>
-        {/* Dropdown Trigger */}
+        {}
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
@@ -105,10 +94,10 @@ export function SearchableDropdown({
           </div>
         </button>
 
-        {/* Dropdown Content */}
+        {}
         {isOpen && (
           <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-hidden">
-            {/* Search Input */}
+            {}
             <div className="p-2 border-b border-gray-200">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -123,8 +112,8 @@ export function SearchableDropdown({
               </div>
             </div>
 
-            {/* Options List */}
-            <div className="max-h-40 overflow-y-auto">
+            {}
+            <div className="max-h-60 overflow-y-auto">
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((option, index) => (
                   <button
@@ -147,7 +136,7 @@ export function SearchableDropdown({
               )}
             </div>
 
-            {/* Add Custom Option */}
+            {}
             {showAddCustom && (
               <div className="border-t border-gray-200 p-2">
                 <div className="flex items-center space-x-2">

@@ -10,11 +10,9 @@ export interface CreateAddressPayload {
   streetLine: string;
   isDefault: boolean;
 }
-
 export interface UpdateAddressPayload extends CreateAddressPayload {
   id: string;
 }
-
 export interface UserAddress {
   id: string;
   fullNewAddress: string;
@@ -28,12 +26,10 @@ export interface UserAddress {
   oldWardId: string | null;
   fullOldAddress: string | null;
 }
-
 export interface AddressListResponse {
   error: string | null;
   data: UserAddress[];
 }
-
 export interface AddressResponse {
   error: string | null;
   data: UserAddress;

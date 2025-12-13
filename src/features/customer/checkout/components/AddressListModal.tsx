@@ -10,7 +10,6 @@ import { Button } from "@/shared/components/ui/button";
 import { MapPin, Phone, Plus, Edit2, Trash2 } from "lucide-react";
 import type { UserAddress } from "../types";
 import _ from "lodash";
-
 interface AddressListModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -22,7 +21,6 @@ interface AddressListModalProps {
   onAddAddress: () => void;
   isDeleting?: boolean;
 }
-
 export function AddressListModal({
   open,
   onOpenChange,
@@ -36,7 +34,7 @@ export function AddressListModal({
 }: AddressListModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl max-h-[90vh]">
+      <DialogContent className="sm:max-w-2xl min-h-[400px] max-h-[80vh] p-6">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <span>Quản lý địa chỉ giao hàng</span>
@@ -52,7 +50,7 @@ export function AddressListModal({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-2">
+        <div className="space-y-3 min-h-[280px] max-h-[60vh] overflow-y-auto pr-2 py-4">
           {addressList.length > 0 ? (
             addressList.map((addr) => (
               <div

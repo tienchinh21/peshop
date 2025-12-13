@@ -1,14 +1,3 @@
-/**
- * Centralized SEO Configuration for PeShop
- * 
- * This file contains all SEO-related configuration including:
- * - Site defaults
- * - Organization information
- * - Metadata templates
- * - Sitemap configuration
- * - Social media settings
- */
-
 export interface SEOConfig {
   site: {
     name: string;
@@ -63,17 +52,13 @@ export interface SEOConfig {
     };
   };
 }
-
-/**
- * Main SEO configuration object
- */
 export const seoConfig: SEOConfig = {
   site: {
     name: 'PeShop',
     description: 'Nền tảng mua sắm trực tuyến hàng đầu Việt Nam. Sản phẩm chất lượng cao, giá tốt nhất thị trường, giao hàng nhanh toàn quốc. Mua sắm an toàn, tiện lợi.',
     url: process.env.NEXT_PUBLIC_SITE_URL || 'https://peshop.vn',
     locale: 'vi_VN',
-    defaultImage: '/og-default.jpg',
+    defaultImage: '/og-default.jpg'
   },
   organization: {
     name: 'PeShop',
@@ -83,30 +68,26 @@ export const seoConfig: SEOConfig = {
       addressLocality: 'Thủ Đức',
       addressRegion: 'Hồ Chí Minh',
       postalCode: '700000',
-      addressCountry: 'VN',
+      addressCountry: 'VN'
     },
     contactPoint: {
       telephone: '+84-123-456-789',
       contactType: 'customer service',
-      email: 'support@peshop.vn',
+      email: 'support@peshop.vn'
     },
-    socialLinks: [
-      'https://facebook.com/peshop',
-      'https://twitter.com/peshop',
-      'https://instagram.com/peshop',
-    ],
+    socialLinks: ['https://facebook.com/peshop', 'https://twitter.com/peshop', 'https://instagram.com/peshop']
   },
   defaults: {
     titleTemplate: '%s | PeShop',
     descriptionLength: {
       min: 120,
-      max: 160,
+      max: 160
     },
     keywordsLimit: 15,
     ogImageSize: {
       width: 1200,
-      height: 630,
-    },
+      height: 630
+    }
   },
   sitemap: {
     changeFrequency: {
@@ -114,42 +95,26 @@ export const seoConfig: SEOConfig = {
       products: 'daily',
       shops: 'weekly',
       categories: 'weekly',
-      static: 'monthly',
+      static: 'monthly'
     },
     priority: {
       homepage: 1.0,
       categories: 0.8,
       products: 0.6,
       shops: 0.6,
-      static: 0.4,
-    },
-  },
+      static: 0.4
+    }
+  }
 };
-
-/**
- * Get the base URL for the site
- */
 export const getBaseUrl = (): string => {
   return seoConfig.site.url;
 };
-
-/**
- * Get the default Open Graph image
- */
 export const getDefaultOgImage = (): string => {
   return `${getBaseUrl()}${seoConfig.site.defaultImage}`;
 };
-
-/**
- * Format title with template
- */
 export const formatTitle = (title: string): string => {
   return seoConfig.defaults.titleTemplate.replace('%s', title);
 };
-
-/**
- * Get locale for metadata
- */
 export const getLocale = (): string => {
   return seoConfig.site.locale;
 };

@@ -1,25 +1,6 @@
-/**
- * Schema.org Structured Data Generators for PeShop
- * 
- * This module provides functions to generate JSON-LD structured data
- * for various page types following Schema.org specifications.
- * 
- * Requirements: 1.2, 2.1, 2.5, 8.1, 8.3, 8.5
- */
-
 import type { ProductDetail } from '@/features/customer/products';
 import type { ShopData } from '@/features/customer/shop-view';
-import type {
-  ProductSchema,
-  LocalBusinessSchema,
-  BreadcrumbSchema,
-  OrganizationSchema,
-  WebSiteSchema,
-  AggregateRatingSchema,
-  BreadcrumbItem,
-  AggregateOfferSchema,
-  OfferSchema,
-} from './types';
+import type { ProductSchema, LocalBusinessSchema, BreadcrumbSchema, OrganizationSchema, WebSiteSchema, AggregateRatingSchema, BreadcrumbItem, AggregateOfferSchema, OfferSchema } from './types';
 import { seoConfig, getBaseUrl } from './config';
 import { stripHtml } from '@/lib/utils/html.utils';
 
@@ -40,30 +21,16 @@ import { stripHtml } from '@/lib/utils/html.utils';
  * @example
  * const schema = generateProductSchema(productData, 'https://peshop.vn/san-pham/product-slug');
  */
-export function generateProductSchema(
-  product: ProductDetail,
-  url: string
-): ProductSchema {
-  // Prepare image array
+export function generateProductSchema(product: ProductDetail, url: string): ProductSchema {
   const images = [product.imgMain, ...product.imgList].filter(Boolean);
-
-  // Calculate availability based on variants
-  const hasStock = product.variants.some((v) => v.quantity > 0);
-  const availability = hasStock
-    ? 'https://schema.org/InStock'
-    : 'https://schema.org/OutOfStock';
-
-  // Determine if we need AggregateOffer (multiple variants) or single Offer
+  const hasStock = product.variants.some(v => v.quantity > 0);
+  const availability = hasStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
   const hasMultipleVariants = product.variants.length > 1;
-  
   let offers: OfferSchema | AggregateOfferSchema;
-
   if (hasMultipleVariants) {
-    // Calculate price range from variants
-    const prices = product.variants.map((v) => v.price);
+    const prices = product.variants.map(v => v.price);
     const lowPrice = Math.min(...prices);
     const highPrice = Math.max(...prices);
-
     offers = {
       '@type': 'AggregateOffer',
       url,
@@ -73,8 +40,8 @@ export function generateProductSchema(
       availability,
       seller: {
         '@type': 'Organization',
-        name: product.shopName,
-      },
+        name: product.shopName
+      }
     };
   } else {
     offers = {
@@ -85,36 +52,26 @@ export function generateProductSchema(
       availability,
       seller: {
         '@type': 'Organization',
-        name: product.shopName,
-      },
+        name: product.shopName
+      }
     };
   }
-
-  // Build the schema
   const schema: ProductSchema = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.productName,
     image: images,
-    description: product.description
-      ? stripHtml(product.description)
-      : `Mua ${product.productName} chính hãng tại ${product.shopName}. Giá tốt, giao hàng nhanh.`,
+    description: product.description ? stripHtml(product.description) : `Mua ${product.productName} chính hãng tại ${product.shopName}. Giá tốt, giao hàng nhanh.`,
     sku: product.productId,
     brand: {
       '@type': 'Brand',
-      name: product.shopName,
+      name: product.shopName
     },
-    offers,
+    offers
   };
-
-  // Add aggregate rating if available
   if (product.reviewCount > 0 && product.reviewPoint > 0) {
-    schema.aggregateRating = generateAggregateRating(
-      product.reviewPoint,
-      product.reviewCount
-    );
+    schema.aggregateRating = generateAggregateRating(product.reviewPoint, product.reviewCount);
   }
-
   return schema;
 }
 
@@ -125,16 +82,13 @@ export function generateProductSchema(
  * @param reviewCount - Total number of reviews
  * @returns AggregateRatingSchema object
  */
-export function generateAggregateRating(
-  ratingValue: number,
-  reviewCount: number
-): AggregateRatingSchema {
+export function generateAggregateRating(ratingValue: number, reviewCount: number): AggregateRatingSchema {
   return {
     '@type': 'AggregateRating',
-    ratingValue: Math.max(0, Math.min(5, ratingValue)), // Clamp between 0-5
-    reviewCount: Math.max(1, reviewCount), // Minimum 1 review
+    ratingValue: Math.max(0, Math.min(5, ratingValue)),
+    reviewCount: Math.max(1, reviewCount),
     bestRating: 5,
-    worstRating: 1,
+    worstRating: 1
   };
 }
 
@@ -154,18 +108,12 @@ export function generateAggregateRating(
  * @example
  * const schema = generateShopSchema(shopData, 'https://peshop.vn/shop-view/shop-id');
  */
-export function generateShopSchema(
-  shop: ShopData,
-  url: string
-): LocalBusinessSchema {
+export function generateShopSchema(shop: ShopData, url: string): LocalBusinessSchema {
   const baseUrl = getBaseUrl();
-  
-  // Parse address or use default
   const addressParts = shop.address?.split(',').map(s => s.trim()) || [];
   const streetAddress = addressParts[0] || shop.address || 'Việt Nam';
   const addressLocality = addressParts[1] || 'Hồ Chí Minh';
   const addressRegion = addressParts[2] || 'Hồ Chí Minh';
-
   const schema: LocalBusinessSchema = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
@@ -177,16 +125,13 @@ export function generateShopSchema(
       addressLocality,
       addressRegion,
       postalCode: '700000',
-      addressCountry: 'VN',
+      addressCountry: 'VN'
     },
-    url,
+    url
   };
-
-  // Add price range if we have product count
   if (shop.productCount && shop.productCount > 0) {
     schema.priceRange = '$$';
   }
-
   return schema;
 }
 
@@ -207,29 +152,22 @@ export function generateShopSchema(
  *   { name: 'MacBook Pro' }
  * ]);
  */
-export function generateBreadcrumbSchema(
-  items: BreadcrumbItem[]
-): BreadcrumbSchema {
+export function generateBreadcrumbSchema(items: BreadcrumbItem[]): BreadcrumbSchema {
   const baseUrl = getBaseUrl();
-
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: items.map((item, index) => {
       const isLast = index === items.length - 1;
-      
       return {
         '@type': 'ListItem',
         position: index + 1,
         name: item.name,
-        // Only include item URL if not the last item (current page)
-        ...((!isLast && item.url) && {
-          item: item.url.startsWith('http')
-            ? item.url
-            : `${baseUrl}${item.url}`,
-        }),
+        ...(!isLast && item.url && {
+          item: item.url.startsWith('http') ? item.url : `${baseUrl}${item.url}`
+        })
       };
-    }),
+    })
   };
 }
 
@@ -246,8 +184,9 @@ export function generateBreadcrumbSchema(
  */
 export function generateOrganizationSchema(): OrganizationSchema {
   const baseUrl = getBaseUrl();
-  const { organization } = seoConfig;
-
+  const {
+    organization
+  } = seoConfig;
   return {
     '@type': 'Organization',
     name: organization.name,
@@ -257,7 +196,7 @@ export function generateOrganizationSchema(): OrganizationSchema {
       '@type': 'ContactPoint',
       telephone: organization.contactPoint.telephone,
       contactType: organization.contactPoint.contactType,
-      email: organization.contactPoint.email,
+      email: organization.contactPoint.email
     },
     address: {
       '@type': 'PostalAddress',
@@ -265,9 +204,9 @@ export function generateOrganizationSchema(): OrganizationSchema {
       addressLocality: organization.address.addressLocality,
       addressRegion: organization.address.addressRegion,
       postalCode: organization.address.postalCode,
-      addressCountry: organization.address.addressCountry,
+      addressCountry: organization.address.addressCountry
     },
-    sameAs: organization.socialLinks,
+    sameAs: organization.socialLinks
   };
 }
 
@@ -284,8 +223,9 @@ export function generateOrganizationSchema(): OrganizationSchema {
  */
 export function generateWebSiteSchema(): WebSiteSchema {
   const baseUrl = getBaseUrl();
-  const { site } = seoConfig;
-
+  const {
+    site
+  } = seoConfig;
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -295,10 +235,10 @@ export function generateWebSiteSchema(): WebSiteSchema {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${baseUrl}/tim-kiem?search={search_term_string}`,
+        urlTemplate: `${baseUrl}/tim-kiem?search={search_term_string}`
       },
-      'query-input': 'required name=search_term_string',
-    },
+      'query-input': 'required name=search_term_string'
+    }
   };
 }
 

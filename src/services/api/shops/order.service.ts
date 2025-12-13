@@ -1,6 +1,5 @@
 import { axiosJava } from "@/lib/config/axios.config";
 import { OrderResponse, OrderFilterParams, UpdateOrderStatusRequest } from "@/types/shops/order.type";
-
 export const getOrders = async (params?: OrderFilterParams): Promise<OrderResponse> => {
   const queryParams = new URLSearchParams();
   if (params) {
@@ -12,13 +11,15 @@ export const getOrders = async (params?: OrderFilterParams): Promise<OrderRespon
   const response = await axiosJava.get<OrderResponse>(`/shop/orders?${queryParams.toString()}`);
   return response.data;
 };
-
 export const confirmOrders = async (orderIds: string[]): Promise<void> => {
-  const body: UpdateOrderStatusRequest[] = orderIds.map(id => ({ orderId: id }));
+  const body: UpdateOrderStatusRequest[] = orderIds.map(id => ({
+    orderId: id
+  }));
   await axiosJava.patch("/shop/orders/status/confirmed", body);
 };
-
 export const rejectOrders = async (orderIds: string[]): Promise<void> => {
-  const body: UpdateOrderStatusRequest[] = orderIds.map(id => ({ orderId: id }));
+  const body: UpdateOrderStatusRequest[] = orderIds.map(id => ({
+    orderId: id
+  }));
   await axiosJava.patch("/shop/orders/status/rejected", body);
 };

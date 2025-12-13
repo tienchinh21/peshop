@@ -4,13 +4,9 @@ import { updateProductFull } from "@/services/api/shops/product.service";
 import type { UpdateProductPayload } from "@/types/shops/product.type";
 import { toast } from "sonner";
 import _ from "lodash";
-
-/**
- * Query keys for shop product detail
- */
 export const shopProductDetailKeys = {
   all: ["shop-product-detail"] as const,
-  detail: (id: string) => [...shopProductDetailKeys.all, id] as const,
+  detail: (id: string) => [...shopProductDetailKeys.all, id] as const
 };
 
 /**
@@ -24,34 +20,34 @@ export const useShopProductDetail = (productId: string) => {
     queryKey: shopProductDetailKeys.detail(productId),
     queryFn: () => getShopProductDetail(productId),
     enabled: !!productId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes cache
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     retry: 1,
-    retryDelay: 1000,
+    retryDelay: 1000
   });
 };
-
 export const useUpdateProduct = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: UpdateProductPayload }) =>
-      updateProductFull(id, payload),
+    mutationFn: ({
+      id,
+      payload
+    }: {
+      id: string;
+      payload: UpdateProductPayload;
+    }) => updateProductFull(id, payload),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: shopProductDetailKeys.detail(variables.id),
+        queryKey: shopProductDetailKeys.detail(variables.id)
       });
-      queryClient.invalidateQueries({ queryKey: ["shop-products"] });
+      queryClient.invalidateQueries({
+        queryKey: ["shop-products"]
+      });
       toast.success("Cập nhật sản phẩm thành công");
     },
     onError: (error: any) => {
-      const errorMessage = _.get(
-        error,
-        "response.data.message",
-        "Cập nhật sản phẩm thất bại"
-      );
+      const errorMessage = _.get(error, "response.data.message", "Cập nhật sản phẩm thất bại");
       toast.error(errorMessage);
-    },
+    }
   });
 };
-

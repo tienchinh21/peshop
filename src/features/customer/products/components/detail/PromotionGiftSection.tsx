@@ -1,52 +1,37 @@
 "use client";
 
 import { Gift } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 import { useProductPromotions } from "../../hooks";
 import { isEmpty, filter, get, map } from "lodash";
 import Image from "next/image";
-
 interface PromotionGiftSectionProps {
   productId: string;
   hasPromotion: boolean;
 }
-
 export const PromotionGiftSection = ({
   productId,
-  hasPromotion,
+  hasPromotion
 }: PromotionGiftSectionProps) => {
-  const { data: promotions, isLoading } = useProductPromotions(
-    productId,
-    hasPromotion
-  );
-
+  const {
+    data: promotions,
+    isLoading
+  } = useProductPromotions(productId, hasPromotion);
   if (isLoading || !promotions || isEmpty(promotions)) {
     return null;
   }
-
-  const freeGiftPromotions = filter(promotions, (p) =>
-    isEmpty(get(p, "products", []))
-  );
-
+  const freeGiftPromotions = filter(promotions, p => isEmpty(get(p, "products", [])));
   if (isEmpty(freeGiftPromotions)) {
     return null;
   }
-
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
-      currency: "VND",
+      currency: "VND"
     }).format(price);
   };
-
-  return (
-    <Card>
+  return <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
           <Gift className="w-5 h-5 text-primary" />
@@ -54,17 +39,11 @@ export const PromotionGiftSection = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {map(freeGiftPromotions, (promotion) => {
-          const giftProduct = get(promotion, "promotionGifts.product");
-          const giftQuantity = get(promotion, "promotionGifts.giftQuantity", 0);
-
-          if (!giftProduct) return null;
-
-          return (
-            <div
-              key={promotion.promotionId}
-              className="border rounded-lg p-3 space-y-2"
-            >
+        {map(freeGiftPromotions, promotion => {
+        const giftProduct = get(promotion, "promotionGifts.product");
+        const giftQuantity = get(promotion, "promotionGifts.giftQuantity", 0);
+        if (!giftProduct) return null;
+        return <div key={promotion.promotionId} className="border rounded-lg p-3 space-y-2">
               <div className="flex items-start justify-between gap-2">
                 <p className="font-medium text-sm">{promotion.promotionName}</p>
                 <Badge variant="secondary" className="shrink-0">
@@ -74,12 +53,7 @@ export const PromotionGiftSection = ({
 
               <div className="flex gap-3">
                 <div className="relative w-20 h-20 rounded border overflow-hidden shrink-0">
-                  <Image
-                    src={giftProduct.image || "/placeholder-product.svg"}
-                    alt={giftProduct.name}
-                    fill
-                    className="object-cover"
-                  />
+                  <Image src={giftProduct.image || "/placeholder-product.svg"} alt={giftProduct.name} fill className="object-cover" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-muted-foreground line-clamp-2 mb-1">
@@ -90,10 +64,8 @@ export const PromotionGiftSection = ({
                   </p>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            </div>;
+      })}
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };

@@ -1,11 +1,14 @@
 import { TableCell, TableRow } from "@/shared/components/ui/table";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-
-export function OrderTableLoading({ rows = 5 }: { rows?: number }) {
-  return (
-    <>
-      {Array.from({ length: rows }).map((_, i) => (
-        <TableRow key={i}>
+export function OrderTableLoading({
+  rows = 5
+}: {
+  rows?: number;
+}) {
+  return <>
+      {Array.from({
+      length: rows
+    }).map((_, i) => <TableRow key={i}>
           <TableCell>
             <Skeleton className="h-4 w-20" />
           </TableCell>
@@ -24,8 +27,6 @@ export function OrderTableLoading({ rows = 5 }: { rows?: number }) {
           <TableCell>
             <Skeleton className="h-8 w-20 ml-auto" />
           </TableCell>
-        </TableRow>
-      ))}
-    </>
-  );
+        </TableRow>)}
+    </>;
 }

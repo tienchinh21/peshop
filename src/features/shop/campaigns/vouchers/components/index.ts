@@ -5,9 +5,5 @@ export { default as VoucherDetailPage } from "./VoucherDetailPage";
 export { VoucherDashboardSection } from "./VoucherDashboardSection";
 export { VoucherForm } from "./VoucherForm";
 export { VoucherListFilter } from "./VoucherListFilter";
-
-// Table components
 export * from "./table";
-
-// Dashboard components
 export * from "./dashboard";

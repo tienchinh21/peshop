@@ -11,23 +11,17 @@ import ProductList from "@/shared/components/layout/ProductList";
 import { QuickViewModal } from "@/components/dynamic";
 import LoadingOverlay from "@/shared/components/layout/LoadingOverlay";
 import { ProductSkeleton } from "@/shared/components/skeleton";
-import {
-  useInfiniteProducts,
-  filterValidProducts,
-  type Product,
-} from "@/features/customer/products";
+import { useInfiniteProducts, filterValidProducts, type Product } from "@/features/customer/products";
 import { useQuickViewModal } from "@/shared/hooks";
 import "./home.css";
 import SectionContainer from "@/shared/components/layout/SectionContainer";
 import PageSection from "@/shared/components/layout/PageSection";
 import { toast } from "sonner";
-
 interface HomePageClientProps {
   initialProducts?: Product[];
 }
-
 export default function HomePageClient({
-  initialProducts = [],
+  initialProducts = []
 }: HomePageClientProps) {
   const {
     selectedProduct,
@@ -35,31 +29,27 @@ export default function HomePageClient({
     isModalLoading,
     handleQuickView,
     handleCloseModal,
-    handleModalDataLoaded,
+    handleModalDataLoaded
   } = useQuickViewModal();
-
   const {
     data,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
     isLoading,
-    isError,
-  } = useInfiniteProducts({ pageSize: 20 });
-
+    isError
+  } = useInfiniteProducts({
+    pageSize: 20
+  });
   const products = useMemo(() => {
-    // If we have data from infinite query, use it
     if (data?.pages && data.pages.length > 0) {
       //@ts-ignore
-      const rawProducts = data.pages.flatMap((page) => page.data.data) ?? [];
+      const rawProducts = data.pages.flatMap(page => page.data.data) ?? [];
       return filterValidProducts(rawProducts);
     }
-    // Otherwise use initial products from server
     return filterValidProducts(initialProducts);
   }, [data, initialProducts]);
-
-  return (
-    <SectionContainer>
+  return <SectionContainer>
       <div className="min-h-screen">
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="w-full lg:w-auto">
@@ -86,50 +76,22 @@ export default function HomePageClient({
         <FlashSale />
 
         <div className="mt-12">
-          <PageSection
-            title="Gợi ý hôm nay"
-            description="Khám phá sản phẩm chất lượng hàng đầu tại PeShop"
-          />
+          <PageSection title="Gợi ý hôm nay" description="Khám phá sản phẩm chất lượng hàng đầu tại PeShop" />
 
-          {isLoading && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {[...Array(20)].map((_, index) => (
-                <ProductSkeleton key={index} />
-              ))}
-            </div>
-          )}
+          {isLoading && <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {[...Array(20)].map((_, index) => <ProductSkeleton key={index} />)}
+            </div>}
 
-          {isError && (
-            <div className="text-center py-12">
+          {isError && <div className="text-center py-12">
               <p className="text-red-500">Có lỗi xảy ra khi tải sản phẩm</p>
-            </div>
-          )}
+            </div>}
 
-          {!isLoading && !isError && (
-            <ProductList
-              products={products}
-              hasNextPage={hasNextPage}
-              isFetchingNextPage={isFetchingNextPage}
-              onLoadMore={() => fetchNextPage()}
-              onQuickView={handleQuickView}
-              showViewAllButton={true}
-            />
-          )}
+          {!isLoading && !isError && <ProductList products={products} hasNextPage={hasNextPage} isFetchingNextPage={isFetchingNextPage} onLoadMore={() => fetchNextPage()} onQuickView={handleQuickView} showViewAllButton={true} />}
         </div>
       </div>
 
-      <LoadingOverlay
-        isVisible={isModalLoading}
-        message="Đang tải sản phẩm..."
-        subMessage="Vui lòng chờ trong giây lát"
-      />
+      <LoadingOverlay isVisible={isModalLoading} message="Đang tải sản phẩm..." subMessage="Vui lòng chờ trong giây lát" />
 
-      <QuickViewModal
-        product={selectedProduct}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onDataLoaded={handleModalDataLoaded}
-      />
-    </SectionContainer>
-  );
+      <QuickViewModal product={selectedProduct} isOpen={isModalOpen} onClose={handleCloseModal} onDataLoaded={handleModalDataLoaded} />
+    </SectionContainer>;
 }

@@ -1,6 +1,1 @@
-
-export {
-  getCategories,
-  getCategoryChildren,
-  getCategoryTemplate,
-} from "@/features/shop/categories";
+export { getCategories, getCategoryChildren, getCategoryTemplate } from "@/features/shop/categories";

@@ -1,24 +1,20 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-
 export interface UseCountdownReturn {
   countdown: number;
   isActive: boolean;
   start: (seconds: number) => void;
   reset: () => void;
 }
-
 export const useCountdown = (): UseCountdownReturn => {
   const [countdown, setCountdown] = useState(0);
   const [isActive, setIsActive] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
   const start = useCallback((seconds: number) => {
     setCountdown(seconds);
     setIsActive(true);
   }, []);
-
   const reset = useCallback(() => {
     setCountdown(0);
     setIsActive(false);
@@ -27,11 +23,10 @@ export const useCountdown = (): UseCountdownReturn => {
       intervalRef.current = null;
     }
   }, []);
-
   useEffect(() => {
     if (isActive && countdown > 0) {
       intervalRef.current = setInterval(() => {
-        setCountdown((prev) => {
+        setCountdown(prev => {
           if (prev <= 1) {
             setIsActive(false);
             if (intervalRef.current) {
@@ -44,7 +39,6 @@ export const useCountdown = (): UseCountdownReturn => {
         });
       }, 1000);
     }
-
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -52,11 +46,10 @@ export const useCountdown = (): UseCountdownReturn => {
       }
     };
   }, [isActive, countdown]);
-
   return {
     countdown,
     isActive,
     start,
-    reset,
+    reset
   };
 };

@@ -2,36 +2,19 @@
 
 import React, { useState } from "react";
 import { Button } from "@/shared/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/shared/components/ui/dropdown-menu";
 import { Calendar as CalendarComponent } from "@/shared/components/ui/calendar";
 import { Calendar } from "lucide-react";
 import type { VoucherDashboardFilters } from "../../types";
-import {
-  format,
-  startOfWeek,
-  endOfWeek,
-  startOfMonth,
-  endOfMonth,
-} from "date-fns";
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 import { vi } from "date-fns/locale";
-
 interface VoucherDateRangePickerProps {
   filters: VoucherDashboardFilters;
   onFiltersChange: (filters: VoucherDashboardFilters) => void;
 }
-
 export function VoucherDateRangePicker({
   filters,
-  onFiltersChange,
+  onFiltersChange
 }: VoucherDateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
@@ -40,51 +23,46 @@ export function VoucherDateRangePicker({
     to: Date | undefined;
   }>({
     from: undefined,
-    to: undefined,
+    to: undefined
   });
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
-      year: "numeric",
+      year: "numeric"
     });
   };
-
   const formatDateRange = (start: string, end: string) => {
     return `${formatDate(start)} - ${formatDate(end)}`;
   };
-
   const getDisplayText = () => {
-    const { period, mode, startDate, endDate } = filters;
+    const {
+      period,
+      mode,
+      startDate,
+      endDate
+    } = filters;
     const currentMode = mode || "day";
-
     if (currentMode === "month") {
       const start = new Date(startDate);
       return `Tháng ${start.getMonth() + 1}/${start.getFullYear()}`;
     }
-
     if (currentMode === "week") {
       return formatDateRange(startDate, endDate);
     }
-
-    // Day mode
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
     const todayStr = today.toISOString().split("T")[0];
     const yesterdayStr = yesterday.toISOString().split("T")[0];
-
     if (startDate === yesterdayStr && endDate === yesterdayStr) {
       return `Hôm qua ${formatDate(startDate)}`;
     }
-
     if (startDate === todayStr && endDate === todayStr) {
       return `Hôm nay ${formatDate(startDate)}`;
     }
-
     switch (period) {
       case "past7days":
         return `Trong 7 ngày qua ${formatDateRange(startDate, endDate)}`;
@@ -94,18 +72,12 @@ export function VoucherDateRangePicker({
         return formatDateRange(startDate, endDate);
     }
   };
-
-  const handleQuickSelect = (
-    period: VoucherDashboardFilters["period"],
-    mode?: "day" | "week" | "month"
-  ) => {
+  const handleQuickSelect = (period: VoucherDashboardFilters["period"], mode?: "day" | "week" | "month") => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
     let startDate: Date;
     let endDate: Date = new Date(today);
     let calculatedPeriod = period;
-
     if (mode === "month") {
       startDate = new Date(today.getFullYear(), today.getMonth(), 1);
       endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -132,20 +104,15 @@ export function VoucherDateRangePicker({
           break;
       }
     }
-
     onFiltersChange({
       startDate: startDate.toISOString().split("T")[0],
       endDate: endDate.toISOString().split("T")[0],
       period: calculatedPeriod,
-      mode: mode || "day",
+      mode: mode || "day"
     });
     setIsOpen(false);
   };
-
-  const isSelected = (
-    period?: VoucherDashboardFilters["period"],
-    mode?: "day" | "week" | "month"
-  ) => {
+  const isSelected = (period?: VoucherDashboardFilters["period"], mode?: "day" | "week" | "month") => {
     const currentMode = filters.mode || "day";
     if (mode) {
       return currentMode === mode;
@@ -155,14 +122,9 @@ export function VoucherDateRangePicker({
     }
     return false;
   };
-
-  return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+  return <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          className="w-full justify-between text-left font-normal"
-        >
+        <Button variant="outline" className="w-full justify-between text-left font-normal">
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
             <span>{getDisplayText()}</span>
@@ -172,97 +134,57 @@ export function VoucherDateRangePicker({
       <DropdownMenuContent align="start" className="w-80 p-0">
         <div className="p-2">
           <div className="space-y-1">
-            <DropdownMenuItem
-              className="flex items-center justify-between cursor-pointer"
-              onClick={() => {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const todayStr = today.toISOString().split("T")[0];
-                onFiltersChange({
-                  startDate: todayStr,
-                  endDate: todayStr,
-                  period: "today_or_yesterday",
-                  mode: "day",
-                });
-                setIsOpen(false);
-              }}
-            >
-              <span
-                className={
-                  (() => {
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    const todayStr = today.toISOString().split("T")[0];
-                    return (
-                      filters.mode === "day" &&
-                      filters.startDate === todayStr &&
-                      filters.endDate === todayStr
-                    );
-                  })()
-                    ? "font-semibold text-red-600"
-                    : ""
-                }
-              >
+            <DropdownMenuItem className="flex items-center justify-between cursor-pointer" onClick={() => {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayStr = today.toISOString().split("T")[0];
+            onFiltersChange({
+              startDate: todayStr,
+              endDate: todayStr,
+              period: "today_or_yesterday",
+              mode: "day"
+            });
+            setIsOpen(false);
+          }}>
+              <span className={(() => {
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const todayStr = today.toISOString().split("T")[0];
+              return filters.mode === "day" && filters.startDate === todayStr && filters.endDate === todayStr;
+            })() ? "font-semibold text-red-600" : ""}>
                 Hôm nay
               </span>
             </DropdownMenuItem>
-            <DropdownMenuItem
-              className="flex items-center justify-between cursor-pointer"
-              onClick={() => {
-                const yesterday = new Date();
-                yesterday.setHours(0, 0, 0, 0);
-                yesterday.setDate(yesterday.getDate() - 1);
-                const yesterdayStr = yesterday.toISOString().split("T")[0];
-                onFiltersChange({
-                  startDate: yesterdayStr,
-                  endDate: yesterdayStr,
-                  period: "today_or_yesterday",
-                  mode: "day",
-                });
-                setIsOpen(false);
-              }}
-            >
-              <span
-                className={
-                  (() => {
-                    const yesterday = new Date();
-                    yesterday.setHours(0, 0, 0, 0);
-                    yesterday.setDate(yesterday.getDate() - 1);
-                    const yesterdayStr = yesterday.toISOString().split("T")[0];
-                    return (
-                      filters.mode === "day" &&
-                      filters.startDate === yesterdayStr &&
-                      filters.endDate === yesterdayStr
-                    );
-                  })()
-                    ? "font-semibold text-red-600"
-                    : ""
-                }
-              >
+            <DropdownMenuItem className="flex items-center justify-between cursor-pointer" onClick={() => {
+            const yesterday = new Date();
+            yesterday.setHours(0, 0, 0, 0);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split("T")[0];
+            onFiltersChange({
+              startDate: yesterdayStr,
+              endDate: yesterdayStr,
+              period: "today_or_yesterday",
+              mode: "day"
+            });
+            setIsOpen(false);
+          }}>
+              <span className={(() => {
+              const yesterday = new Date();
+              yesterday.setHours(0, 0, 0, 0);
+              yesterday.setDate(yesterday.getDate() - 1);
+              const yesterdayStr = yesterday.toISOString().split("T")[0];
+              return filters.mode === "day" && filters.startDate === yesterdayStr && filters.endDate === yesterdayStr;
+            })() ? "font-semibold text-red-600" : ""}>
                 Hôm qua
               </span>
             </DropdownMenuItem>
-            <DropdownMenuItem
-              className="flex items-center justify-between cursor-pointer"
-              onClick={() => handleQuickSelect("past7days")}
-            >
-              <span
-                className={
-                  isSelected("past7days") ? "font-semibold text-red-600" : ""
-                }
-              >
+            <DropdownMenuItem className="flex items-center justify-between cursor-pointer" onClick={() => handleQuickSelect("past7days")}>
+              <span className={isSelected("past7days") ? "font-semibold text-red-600" : ""}>
                 Trong 7 ngày qua
               </span>
             </DropdownMenuItem>
-            <DropdownMenuItem
-              className="flex items-center justify-between cursor-pointer"
-              onClick={() => handleQuickSelect("past30days")}
-            >
-              <span
-                className={
-                  isSelected("past30days") ? "font-semibold text-red-600" : ""
-                }
-              >
+            <DropdownMenuItem className="flex items-center justify-between cursor-pointer" onClick={() => handleQuickSelect("past30days")}>
+              <span className={isSelected("past30days") ? "font-semibold text-red-600" : ""}>
                 Trong 30 ngày qua
               </span>
             </DropdownMenuItem>
@@ -273,112 +195,81 @@ export function VoucherDateRangePicker({
           <div className="space-y-1">
             <DropdownMenuSub>
               <DropdownMenuSubTrigger className="cursor-pointer">
-                <span
-                  className={
-                    isSelected(undefined, "day")
-                      ? "font-semibold text-red-600"
-                      : ""
-                  }
-                >
+                <span className={isSelected(undefined, "day") ? "font-semibold text-red-600" : ""}>
                   Theo ngày
                 </span>
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent className="p-0" sideOffset={8}>
-                <CalendarComponent
-                  mode="range"
-                  selected={dateRange}
-                  onSelect={(range: any) => {
-                    if (range?.from && range?.to) {
-                      setDateRange(range);
-                      onFiltersChange({
-                        startDate: format(range.from, "yyyy-MM-dd"),
-                        endDate: format(range.to, "yyyy-MM-dd"),
-                        period: "past7days",
-                        mode: "day",
-                      });
-                      setIsOpen(false);
-                    } else if (range?.from) {
-                      setDateRange(range);
-                    }
-                  }}
-                  numberOfMonths={2}
-                  locale={vi}
-                />
+                <CalendarComponent mode="range" selected={dateRange} onSelect={(range: any) => {
+                if (range?.from && range?.to) {
+                  setDateRange(range);
+                  onFiltersChange({
+                    startDate: format(range.from, "yyyy-MM-dd"),
+                    endDate: format(range.to, "yyyy-MM-dd"),
+                    period: "past7days",
+                    mode: "day"
+                  });
+                  setIsOpen(false);
+                } else if (range?.from) {
+                  setDateRange(range);
+                }
+              }} numberOfMonths={2} locale={vi} />
               </DropdownMenuSubContent>
             </DropdownMenuSub>
 
             <DropdownMenuSub>
               <DropdownMenuSubTrigger className="cursor-pointer">
-                <span
-                  className={
-                    isSelected(undefined, "week")
-                      ? "font-semibold text-red-600"
-                      : ""
-                  }
-                >
+                <span className={isSelected(undefined, "week") ? "font-semibold text-red-600" : ""}>
                   Theo tuần
                 </span>
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent className="p-0" sideOffset={8}>
-                <CalendarComponent
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={(date: Date | undefined) => {
-                    if (date) {
-                      setSelectedDate(date);
-                      const weekStart = startOfWeek(date, { weekStartsOn: 1 });
-                      const weekEnd = endOfWeek(date, { weekStartsOn: 1 });
-                      onFiltersChange({
-                        startDate: format(weekStart, "yyyy-MM-dd"),
-                        endDate: format(weekEnd, "yyyy-MM-dd"),
-                        period: "past7days",
-                        mode: "week",
-                      });
-                      setIsOpen(false);
-                    }
-                  }}
-                  locale={vi}
-                />
+                <CalendarComponent mode="single" selected={selectedDate} onSelect={(date: Date | undefined) => {
+                if (date) {
+                  setSelectedDate(date);
+                  const weekStart = startOfWeek(date, {
+                    weekStartsOn: 1
+                  });
+                  const weekEnd = endOfWeek(date, {
+                    weekStartsOn: 1
+                  });
+                  onFiltersChange({
+                    startDate: format(weekStart, "yyyy-MM-dd"),
+                    endDate: format(weekEnd, "yyyy-MM-dd"),
+                    period: "past7days",
+                    mode: "week"
+                  });
+                  setIsOpen(false);
+                }
+              }} locale={vi} />
               </DropdownMenuSubContent>
             </DropdownMenuSub>
 
             <DropdownMenuSub>
               <DropdownMenuSubTrigger className="cursor-pointer">
-                <span
-                  className={
-                    isSelected(undefined, "month")
-                      ? "font-semibold text-red-600"
-                      : ""
-                  }
-                >
+                <span className={isSelected(undefined, "month") ? "font-semibold text-red-600" : ""}>
                   Theo tháng
                 </span>
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent className="p-0" sideOffset={8}>
-                <CalendarComponent
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={(date: Date | undefined) => {
-                    if (date) {
-                      setSelectedDate(date);
-                      const monthStart = startOfMonth(date);
-                      const monthEnd = endOfMonth(date);
-                      onFiltersChange({
-                        startDate: format(monthStart, "yyyy-MM-dd"),
-                        endDate: format(monthEnd, "yyyy-MM-dd"),
-                        period: "past30days",
-                        mode: "month",
-                      });
-                      setIsOpen(false);
-                    }
-                  }}
-                  locale={vi}
-                />
+                <CalendarComponent mode="single" selected={selectedDate} onSelect={(date: Date | undefined) => {
+                if (date) {
+                  setSelectedDate(date);
+                  const monthStart = startOfMonth(date);
+                  const monthEnd = endOfMonth(date);
+                  onFiltersChange({
+                    startDate: format(monthStart, "yyyy-MM-dd"),
+                    endDate: format(monthEnd, "yyyy-MM-dd"),
+                    period: "past30days",
+                    mode: "month"
+                  });
+                  setIsOpen(false);
+                }
+              }} locale={vi} />
               </DropdownMenuSubContent>
             </DropdownMenuSub>
           </div>
         </div>
       </DropdownMenuContent>
-    </DropdownMenu>
-  );
+    </DropdownMenu>;
 }

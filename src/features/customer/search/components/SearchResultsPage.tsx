@@ -1,316 +1,175 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import {
-  useProducts,
-  filterValidProducts,
-  getProductKey,
-  type Product,
-} from "@/features/customer/products";
+import { useState, useEffect } from "react";
+import { useProducts, filterValidProducts, getProductKey, type Product } from "@/features/customer/products";
 import { useQuickViewModal } from "@/shared/hooks";
 import PageSection from "@/shared/components/layout/PageSection";
 import SectionContainer from "@/shared/components/layout/SectionContainer";
 import { ProductCard } from "@/features/customer/home";
 import { QuickViewModal } from "@/components/dynamic";
 import LoadingOverlay from "@/shared/components/layout/LoadingOverlay";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/shared/components/ui/pagination";
-import { Loader2, SlidersHorizontal } from "lucide-react";
-import SearchFilters from "./SearchFilters";
-
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/shared/components/ui/pagination";
+import { Loader2, Camera } from "lucide-react";
+import type { ImageSearchResultData } from "../types";
 export default function SearchResultsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
   const {
     selectedProduct,
     isModalOpen,
     isModalLoading,
     handleQuickView,
     handleCloseModal,
-    handleModalDataLoaded,
+    handleModalDataLoaded
   } = useQuickViewModal();
-
   const keyword = searchParams.get("q") || "";
-
-  const [filters, setFilters] = useState({
-    keyword: keyword || undefined,
-    page: parseInt(searchParams.get("page") || "1"),
-    pageSize: 20,
-    categoryId: searchParams.get("categoryId") || undefined,
-    categoryChildId: searchParams.get("categoryChildId") || undefined,
-    minPrice: searchParams.get("minPrice")
-      ? parseFloat(searchParams.get("minPrice")!)
-      : undefined,
-    maxPrice: searchParams.get("maxPrice")
-      ? parseFloat(searchParams.get("maxPrice")!)
-      : undefined,
-    reviewPoint: searchParams.get("reviewPoint")
-      ? parseFloat(searchParams.get("reviewPoint")!)
-      : undefined,
-  });
-
-  // Fetch products with filters
-  const { data, isLoading, error } = useProducts(filters);
-
-  // Update filters when URL changes
+  const searchType = searchParams.get("type");
+  const page = parseInt(searchParams.get("page") || "1");
+  const isImageSearch = searchType === "image";
+  const [imageSearchData, setImageSearchData] = useState<ImageSearchResultData | null>(null);
   useEffect(() => {
-    setFilters({
-      keyword: keyword || undefined,
-      page: parseInt(searchParams.get("page") || "1"),
-      pageSize: 20,
-      categoryId: searchParams.get("categoryId") || undefined,
-      categoryChildId: searchParams.get("categoryChildId") || undefined,
-      minPrice: searchParams.get("minPrice")
-        ? parseFloat(searchParams.get("minPrice")!)
-        : undefined,
-      maxPrice: searchParams.get("maxPrice")
-        ? parseFloat(searchParams.get("maxPrice")!)
-        : undefined,
-      reviewPoint: searchParams.get("reviewPoint")
-        ? parseFloat(searchParams.get("reviewPoint")!)
-        : undefined,
-    });
-  }, [keyword, searchParams]);
-
-  // Handle page change
-  const handlePageChange = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("page", page.toString());
-    router.push(`/tim-kiem?${params.toString()}`);
-  };
-
-  // Handle filter change
-  const handleFilterChange = (newFilters: Partial<typeof filters>) => {
+    if (isImageSearch) {
+      const storedData = sessionStorage.getItem("imageSearchResults");
+      if (storedData) {
+        try {
+          setImageSearchData(JSON.parse(storedData));
+        } catch {
+          setImageSearchData(null);
+        }
+      }
+    } else {
+      setImageSearchData(null);
+    }
+  }, [isImageSearch]);
+  const {
+    data,
+    isLoading,
+    error
+  } = useProducts(!isImageSearch ? {
+    keyword: keyword || undefined,
+    page,
+    pageSize: 20
+  } : undefined);
+  const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams();
-
-    // ALWAYS keep the keyword in URL if it exists
-    if (keyword) {
+    if (isImageSearch) {
+      params.set("type", "image");
+    } else if (keyword) {
       params.set("q", keyword);
     }
-
-    // Reset to page 1 when filters change
-    params.set("page", "1");
-
-    // Add other filters
-    if (newFilters.categoryId) params.set("categoryId", newFilters.categoryId);
-    if (newFilters.categoryChildId)
-      params.set("categoryChildId", newFilters.categoryChildId);
-    if (newFilters.minPrice)
-      params.set("minPrice", newFilters.minPrice.toString());
-    if (newFilters.maxPrice)
-      params.set("maxPrice", newFilters.maxPrice.toString());
-    if (newFilters.reviewPoint)
-      params.set("reviewPoint", newFilters.reviewPoint.toString());
-
+    params.set("page", newPage.toString());
     router.push(`/tim-kiem?${params.toString()}`);
   };
 
-  // Handle clear filters
-  const handleClearFilters = () => {
-    router.push(`/tim-kiem?q=${encodeURIComponent(keyword)}`);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const apiData = isImageSearch ? imageSearchData : data?.data as any;
+  const products = filterValidProducts(apiData?.data || apiData?.products || []);
+  const totalCount = apiData?.totalCount || 0;
+  const currentPage = apiData?.currentPage || 1;
+  const totalPages = apiData?.totalPages || 1;
+  const hasNextPage = apiData?.hasNextPage || false;
+  const hasPreviousPage = apiData?.hasPreviousPage || false;
+  const isPageLoading = isImageSearch ? false : isLoading;
+  const getDescription = () => {
+    if (isImageSearch) {
+      return totalCount > 0 ? `Tìm thấy ${totalCount} sản phẩm tương tự với hình ảnh` : "Không tìm thấy sản phẩm tương tự";
+    }
+    return keyword ? `Tìm thấy ${totalCount} sản phẩm với từ khóa "${keyword}"` : "Nhập từ khóa để tìm kiếm sản phẩm";
   };
-
-  // Filter and validate products from API response
-  const products = filterValidProducts(data?.data?.products || []);
-  const totalCount = data?.data?.totalCount || 0;
-  const currentPage = data?.data?.currentPage || 1;
-  const totalPages = data?.data?.totalPages || 1;
-  const hasNextPage = data?.data?.hasNextPage || false;
-  const hasPreviousPage = data?.data?.hasPreviousPage || false;
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Page Header */}
-      <PageSection
-        title="Kết quả tìm kiếm"
-        description={
-          keyword
-            ? `Tìm thấy ${totalCount} sản phẩm với từ khóa "${keyword}"`
-            : "Nhập từ khóa để tìm kiếm sản phẩm"
-        }
-      />
+  return <div className="min-h-screen bg-gray-50">
+      <PageSection title={isImageSearch ? "Tìm kiếm bằng hình ảnh" : "Kết quả tìm kiếm"} description={getDescription()} />
 
       <SectionContainer>
         <div className="py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Sidebar Filters */}
-            <aside className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-sm p-4 sticky top-4">
-                <div className="flex items-center gap-2 mb-4 pb-3 border-b">
-                  <SlidersHorizontal className="h-5 w-5 text-primary" />
-                  <h2 className="font-semibold text-lg">Bộ lọc</h2>
-                </div>
+          {}
+          {isPageLoading && <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-3 text-gray-600">Đang tải sản phẩm...</span>
+            </div>}
 
-                <SearchFilters
-                  filters={filters}
-                  onFilterChange={handleFilterChange}
-                  onClearFilters={handleClearFilters}
-                />
+          {}
+          {error && !isImageSearch && <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+              <p className="text-red-600">
+                Có lỗi xảy ra khi tải sản phẩm. Vui lòng thử lại sau.
+              </p>
+            </div>}
+
+          {}
+          {!isPageLoading && !error && !keyword && !isImageSearch && <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+              <div className="text-gray-400 mb-4">
+                <svg className="mx-auto h-24 w-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
               </div>
-            </aside>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                Tìm kiếm sản phẩm
+              </h3>
+              <p className="text-gray-500">
+                Nhập từ khóa vào ô tìm kiếm để bắt đầu
+              </p>
+            </div>}
 
-            {/* Products Grid */}
-            <main className="lg:col-span-3">
-              {/* Loading State */}
-              {isLoading && (
-                <div className="flex items-center justify-center py-20">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  <span className="ml-3 text-gray-600">
-                    Đang tải sản phẩm...
-                  </span>
+          {}
+          {!isPageLoading && !error && (keyword || isImageSearch) && products.length === 0 && <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+                <div className="text-gray-400 mb-4">
+                  {isImageSearch ? <Camera className="mx-auto h-24 w-24" /> : <svg className="mx-auto h-24 w-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>}
                 </div>
-              )}
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                  Không tìm thấy sản phẩm
+                </h3>
+                <p className="text-gray-500">
+                  {isImageSearch ? "Thử tải lên hình ảnh khác để tìm kiếm sản phẩm tương tự" : "Thử thay đổi từ khóa để tìm kiếm sản phẩm khác"}
+                </p>
+              </div>}
 
-              {/* Error State */}
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-                  <p className="text-red-600">
-                    Có lỗi xảy ra khi tải sản phẩm. Vui lòng thử lại sau.
-                  </p>
-                </div>
-              )}
+          {}
+          {!isPageLoading && !error && products.length > 0 && <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
+                {products.map((product: Product, index: number) => <ProductCard key={getProductKey(product, index)} product={product} onQuickView={handleQuickView} />)}
+              </div>
 
-              {/* Empty State */}
-              {!isLoading && !error && products.length === 0 && (
-                <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-                  <div className="text-gray-400 mb-4">
-                    <svg
-                      className="mx-auto h-24 w-24"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1}
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                      />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                    Không tìm thấy sản phẩm
-                  </h3>
-                  <p className="text-gray-500">
-                    Thử thay đổi từ khóa hoặc bộ lọc để tìm kiếm sản phẩm khác
-                  </p>
-                </div>
-              )}
+              {}
+              {totalPages > 1 && <div className="flex justify-center mt-8">
+                  <Pagination>
+                    <PaginationContent>
+                      {hasPreviousPage && <PaginationItem>
+                          <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} className="cursor-pointer" />
+                        </PaginationItem>}
 
-              {/* Products Grid */}
-              {!isLoading && !error && products.length > 0 && (
-                <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
-                    {products.map((product: Product, index: number) => (
-                      <ProductCard
-                        key={getProductKey(product, index)}
-                        product={product}
-                        onQuickView={handleQuickView}
-                      />
-                    ))}
-                  </div>
+                      {Array.from({
+                  length: totalPages
+                }, (_, i) => i + 1).map(pageNum => {
+                  const showPage = pageNum === 1 || pageNum === totalPages || pageNum >= currentPage - 1 && pageNum <= currentPage + 1;
+                  if (!showPage) {
+                    if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                      return <PaginationItem key={pageNum}>
+                                  <span className="px-2">...</span>
+                                </PaginationItem>;
+                    }
+                    return null;
+                  }
+                  return <PaginationItem key={pageNum}>
+                              <PaginationLink onClick={() => handlePageChange(pageNum)} isActive={pageNum === currentPage} className="cursor-pointer">
+                                {pageNum}
+                              </PaginationLink>
+                            </PaginationItem>;
+                })}
 
-                  {/* Pagination */}
-                  {totalPages > 1 && (
-                    <div className="flex justify-center mt-8">
-                      <Pagination>
-                        <PaginationContent>
-                          {/* Previous Button */}
-                          {hasPreviousPage && (
-                            <PaginationItem>
-                              <PaginationPrevious
-                                onClick={() =>
-                                  handlePageChange(currentPage - 1)
-                                }
-                                className="cursor-pointer"
-                              />
-                            </PaginationItem>
-                          )}
-
-                          {/* Page Numbers */}
-                          {Array.from(
-                            { length: totalPages },
-                            (_, i) => i + 1
-                          ).map((page) => {
-                            // Show first page, last page, current page, and pages around current
-                            const showPage =
-                              page === 1 ||
-                              page === totalPages ||
-                              (page >= currentPage - 1 &&
-                                page <= currentPage + 1);
-
-                            if (!showPage) {
-                              // Show ellipsis
-                              if (
-                                page === currentPage - 2 ||
-                                page === currentPage + 2
-                              ) {
-                                return (
-                                  <PaginationItem key={page}>
-                                    <span className="px-2">...</span>
-                                  </PaginationItem>
-                                );
-                              }
-                              return null;
-                            }
-
-                            return (
-                              <PaginationItem key={page}>
-                                <PaginationLink
-                                  onClick={() => handlePageChange(page)}
-                                  isActive={page === currentPage}
-                                  className="cursor-pointer"
-                                >
-                                  {page}
-                                </PaginationLink>
-                              </PaginationItem>
-                            );
-                          })}
-
-                          {/* Next Button */}
-                          {hasNextPage && (
-                            <PaginationItem>
-                              <PaginationNext
-                                onClick={() =>
-                                  handlePageChange(currentPage + 1)
-                                }
-                                className="cursor-pointer"
-                              />
-                            </PaginationItem>
-                          )}
-                        </PaginationContent>
-                      </Pagination>
-                    </div>
-                  )}
-                </>
-              )}
-            </main>
-          </div>
+                      {hasNextPage && <PaginationItem>
+                          <PaginationNext onClick={() => handlePageChange(currentPage + 1)} className="cursor-pointer" />
+                        </PaginationItem>}
+                    </PaginationContent>
+                  </Pagination>
+                </div>}
+            </>}
         </div>
       </SectionContainer>
 
-      {/* Full Screen Loading Overlay */}
-      <LoadingOverlay
-        isVisible={isModalLoading}
-        message="Đang tải sản phẩm..."
-        subMessage="Vui lòng chờ trong giây lát"
-      />
+      <LoadingOverlay isVisible={isModalLoading} message="Đang tải sản phẩm..." subMessage="Vui lòng chờ trong giây lát" />
 
-      {/* Quick View Modal */}
-      <QuickViewModal
-        product={selectedProduct}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onDataLoaded={handleModalDataLoaded}
-      />
-    </div>
-  );
+      <QuickViewModal product={selectedProduct} isOpen={isModalOpen} onClose={handleCloseModal} onDataLoaded={handleModalDataLoaded} />
+    </div>;
 }

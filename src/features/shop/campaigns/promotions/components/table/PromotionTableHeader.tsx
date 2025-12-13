@@ -1,8 +1,6 @@
 import { TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-
 export function PromotionTableHeader() {
-  return (
-    <TableHeader>
+  return <TableHeader>
       <TableRow>
         <TableHead className="w-[300px]">Tên chương trình</TableHead>
         <TableHead className="w-[120px]">Trạng thái</TableHead>
@@ -11,6 +9,5 @@ export function PromotionTableHeader() {
         <TableHead className="w-[120px]">Giới hạn sử dụng</TableHead>
         <TableHead className="w-[100px] text-right">Thao tác</TableHead>
       </TableRow>
-    </TableHeader>
-  );
+    </TableHeader>;
 }

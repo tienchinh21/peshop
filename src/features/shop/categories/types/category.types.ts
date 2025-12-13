@@ -3,18 +3,15 @@ export interface Category {
   name: string;
   type: string;
 }
-
 export interface CategoryResponse {
   error: string | null;
   content: Category[];
 }
-
 export interface CategoryChild {
   id: string;
   name: string;
   description: string | null;
 }
-
 export interface CategoryChildResponse {
   error: string | null;
   content: {
@@ -23,25 +20,20 @@ export interface CategoryChildResponse {
     categoryChildren: CategoryChild[];
   };
 }
-
-// ============ Category Template Types ============
 export interface AttributeTemplate {
   id: number;
   name: string;
 }
-
 export interface TemplateCategory {
   id: number;
   name: string;
   attributeTemplates: AttributeTemplate[];
 }
-
 export interface TemplateCategoryChild {
   id: number;
   name: string;
   attributeTemplates: AttributeTemplate[];
 }
-
 export interface CategoryTemplate {
   id: string;
   name: string;
@@ -49,7 +41,6 @@ export interface CategoryTemplate {
   templateCategories: TemplateCategory[];
   templateCategoryChildren: TemplateCategoryChild[];
 }
-
 export interface CategoryTemplateResponse {
   error: string | null;
   content: CategoryTemplate;

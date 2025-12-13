@@ -1,12 +1,3 @@
-/**
- * Wishlist Types
- *
- * Type definitions for the wishlist feature.
- */
-
-/**
- * Represents a product in the wishlist
- */
 export interface WishlistProduct {
   id: string;
   productId: string;
@@ -21,10 +12,6 @@ export interface WishlistProduct {
   inStock: boolean;
   addedAt: string;
 }
-
-/**
- * Wishlist response from API
- */
 export interface WishlistResponse {
   items: WishlistProduct[];
   total: number;
@@ -32,24 +19,12 @@ export interface WishlistResponse {
   pageSize: number;
   totalPages: number;
 }
-
-/**
- * Payload for adding item to wishlist
- */
 export interface AddToWishlistPayload {
   productId: string;
 }
-
-/**
- * Payload for removing item from wishlist
- */
 export interface RemoveFromWishlistPayload {
   productId: string;
 }
-
-/**
- * Wishlist state for local management
- */
 export interface WishlistState {
   items: WishlistProduct[];
   isLoading: boolean;

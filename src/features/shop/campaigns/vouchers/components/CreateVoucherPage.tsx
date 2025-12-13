@@ -8,32 +8,24 @@ import { useCreateVoucher } from "../hooks";
 import type { CreateVoucherPayload } from "../types";
 import { VoucherType } from "@/lib/utils/enums/eVouchers";
 import { ArrowLeft } from "lucide-react";
-
 export default function CreateVoucherPage() {
   const router = useRouter();
   const createMutation = useCreateVoucher();
-
   const handleBack = () => {
     router.push("/shop/chien-dich/ma-giam-gia");
   };
-
   const handleSubmit = async (data: CreateVoucherPayload) => {
     try {
       const payload = {
         ...data,
-        maxDiscountAmount:
-          data.type === VoucherType.FIXED_AMOUNT
-            ? (null as any)
-            : data.maxDiscountAmount,
+        maxDiscountAmount: data.type === VoucherType.FIXED_AMOUNT ? null as any : data.maxDiscountAmount
       };
       await createMutation.mutateAsync(payload);
       router.push("/shop/chien-dich/ma-giam-gia");
     } catch (error) {}
   };
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
+  return <div className="space-y-6">
+      {}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="outline" onClick={handleBack}>
@@ -51,11 +43,6 @@ export default function CreateVoucherPage() {
         </div>
       </div>
 
-      <VoucherForm
-        mode="create"
-        onSubmit={handleSubmit}
-        isSubmitting={createMutation.isPending}
-      />
-    </div>
-  );
+      <VoucherForm mode="create" onSubmit={handleSubmit} isSubmitting={createMutation.isPending} />
+    </div>;
 }

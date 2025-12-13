@@ -1,73 +1,45 @@
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import {
-  ProductStatus,
-  ProductStatusLabels,
-  ProductStatusColors,
-} from "@/lib/utils/enums/eProducts";
-import {
-  ArrowLeft,
-  Package,
-  Image as ImageIcon,
-  Info,
-  Layers,
-  Edit,
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { ProductStatus, ProductStatusLabels, ProductStatusColors } from "@/lib/utils/enums/eProducts";
+import { ArrowLeft, Package, Image as ImageIcon, Info, Layers, Edit } from "lucide-react";
 import Image from "next/image";
 import _ from "lodash";
 import Link from "next/link";
 import type { ShopProductDetailResponse } from "@/features/shop/products/types";
-
 interface ProductDetailPageServerProps {
   productId: string;
   initialData: ShopProductDetailResponse;
 }
-
 const formatPrice = (price: number | null) => {
   if (_.isNil(price)) return "Chưa có giá";
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
-    currency: "VND",
+    currency: "VND"
   }).format(price);
 };
-
 const getStatusBadge = (status: number) => {
   const statusEnum = status as ProductStatus;
   const label = ProductStatusLabels[statusEnum] || "Không xác định";
   const colorClass = ProductStatusColors[statusEnum] || "bg-gray-500";
-
-  return (
-    <Badge variant="secondary" className={colorClass}>
+  return <Badge variant="secondary" className={colorClass}>
       {label}
-    </Badge>
-  );
+    </Badge>;
 };
-
 export function ProductDetailPageServer({
   productId,
-  initialData,
+  initialData
 }: ProductDetailPageServerProps) {
   const product = _.get(initialData, "content");
-
   if (!product) {
-    return (
-      <div className="space-y-6 p-6">
+    return <div className="space-y-6 p-6">
         <div className="text-center py-12">
           <p className="text-gray-500">Không tìm thấy thông tin sản phẩm</p>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
+  return <div className="space-y-6">
+      {}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/shop/san-pham">
@@ -93,7 +65,7 @@ export function ProductDetailPageServer({
         </Link>
       </div>
 
-      {/* Product Images */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -103,30 +75,16 @@ export function ProductDetailPageServer({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {product.images && product.images.length > 0 ? (
-              product.images.map((image: any, index: number) => (
-                <div
-                  key={index}
-                  className="aspect-square relative rounded-lg overflow-hidden border"
-                >
-                  <Image
-                    src={image.url}
-                    alt={`Product ${index + 1}`}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ))
-            ) : (
-              <div className="col-span-full text-center py-8 text-gray-500">
+            {product.images && product.images.length > 0 ? product.images.map((image: any, index: number) => <div key={index} className="aspect-square relative rounded-lg overflow-hidden border">
+                  <Image src={image.url} alt={`Product ${index + 1}`} fill className="object-cover" />
+                </div>) : <div className="col-span-full text-center py-8 text-gray-500">
                 Chưa có hình ảnh
-              </div>
-            )}
+              </div>}
           </div>
         </CardContent>
       </Card>
 
-      {/* Basic Information */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -158,7 +116,7 @@ export function ProductDetailPageServer({
         </CardContent>
       </Card>
 
-      {/* Sales Information */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -167,8 +125,7 @@ export function ProductDetailPageServer({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {product.variants && product.variants.length > 0 ? (
-            <div className="space-y-4">
+          {product.variants && product.variants.length > 0 ? <div className="space-y-4">
               <p className="text-sm text-gray-600">
                 Sản phẩm có {product.variants.length} biến thể
               </p>
@@ -188,12 +145,9 @@ export function ProductDetailPageServer({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {product.variants.map((variant: any) => (
-                      <tr key={variant.id}>
+                    {product.variants.map((variant: any) => <tr key={variant.id}>
                         <td className="px-4 py-2 text-sm">
-                          {variant.variantValues
-                            ?.map((vv: any) => vv.propertyValue.value)
-                            .join(" - ") || "Mặc định"}
+                          {variant.variantValues?.map((vv: any) => vv.propertyValue.value).join(" - ") || "Mặc định"}
                         </td>
                         <td className="px-4 py-2 text-sm font-medium">
                           {formatPrice(variant.price)}
@@ -201,14 +155,11 @@ export function ProductDetailPageServer({
                         <td className="px-4 py-2 text-sm">
                           {variant.quantity || 0}
                         </td>
-                      </tr>
-                    ))}
+                      </tr>)}
                   </tbody>
                 </table>
               </div>
-            </div>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2">
+            </div> : <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="text-sm font-medium text-gray-700">
                   Giá bán
@@ -225,12 +176,11 @@ export function ProductDetailPageServer({
                   {product.quantity || 0}
                 </p>
               </div>
-            </div>
-          )}
+            </div>}
         </CardContent>
       </Card>
 
-      {/* Additional Information */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -252,15 +202,11 @@ export function ProductDetailPageServer({
               Kích thước
             </label>
             <p className="mt-1 text-gray-900">
-              {product.length && product.width && product.height
-                ? `${product.length} x ${product.width} x ${product.height} cm`
-                : "Chưa có thông tin"}
+              {product.length && product.width && product.height ? `${product.length} x ${product.width} x ${product.height} cm` : "Chưa có thông tin"}
             </p>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 }
-
 export default ProductDetailPageServer;

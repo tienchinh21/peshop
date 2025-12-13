@@ -1,22 +1,16 @@
 "use client";
 
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/shared/components/ui/tabs";
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 interface ProductTabsProps {
   product: {
     description: string;
     reviewCount: number;
   };
 }
-
-export default function ProductTabs({ product }: ProductTabsProps) {
-  return (
-    <Tabs defaultValue="description" className="w-full">
+export default function ProductTabs({
+  product
+}: ProductTabsProps) {
+  return <Tabs defaultValue="description" className="w-full">
       <TabsList className="w-full justify-start border-b">
         <TabsTrigger value="description">Mô tả sản phẩm</TabsTrigger>
         <TabsTrigger value="reviews">
@@ -28,7 +22,9 @@ export default function ProductTabs({ product }: ProductTabsProps) {
 
       <TabsContent value="description" className="mt-6">
         <div className="prose max-w-none">
-          <div dangerouslySetInnerHTML={{ __html: product.description }} />
+          <div dangerouslySetInnerHTML={{
+          __html: product.description
+        }} />
         </div>
       </TabsContent>
 
@@ -66,6 +62,5 @@ export default function ProductTabs({ product }: ProductTabsProps) {
           </div>
         </div>
       </TabsContent>
-    </Tabs>
-  );
+    </Tabs>;
 }

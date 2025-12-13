@@ -3,12 +3,10 @@ export interface ReviewUser {
   userName: string;
   avatar?: string;
 }
-
 export interface ReviewImage {
   imageId: string;
   imageUrl: string;
 }
-
 export interface Review {
   reviewId: string;
   productId: string;
@@ -22,7 +20,6 @@ export interface Review {
   isVerifiedPurchase: boolean;
   variantInfo?: string;
 }
-
 export interface ReviewStats {
   averageRating: number;
   totalReviews: number;
@@ -34,7 +31,6 @@ export interface ReviewStats {
     1: number;
   };
 }
-
 export interface ReviewsResponse {
   reviews: Review[];
   stats: ReviewStats;
@@ -45,7 +41,6 @@ export interface ReviewsResponse {
   hasNextPage: boolean;
   hasPreviousPage: boolean;
 }
-
 export interface CreateReviewPayload {
   productId: string;
   variantId?: string;
@@ -53,16 +48,13 @@ export interface CreateReviewPayload {
   comment: string;
   images?: File[];
 }
-
 export interface UpdateReviewPayload {
   reviewId: string;
   rating?: number;
   comment?: string;
   images?: File[];
 }
-
 export type ReviewFilter = 'all' | '5' | '4' | '3' | '2' | '1' | 'images' | 'verified';
-
 export interface ReviewFilterParams {
   productId: string;
   filter?: ReviewFilter;

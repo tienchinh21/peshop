@@ -3,18 +3,15 @@
 import React from "react";
 import { TableCell, TableRow } from "@/shared/components/ui/table";
 import { Package } from "lucide-react";
-
 interface ProductTableEmptyProps {
   colSpan?: number;
   message?: string;
 }
-
 export function ProductTableEmpty({
   colSpan = 7,
-  message = "Không tìm thấy sản phẩm nào",
+  message = "Không tìm thấy sản phẩm nào"
 }: ProductTableEmptyProps) {
-  return (
-    <TableRow>
+  return <TableRow>
       <TableCell colSpan={colSpan} className="h-64 text-center">
         <div className="flex flex-col items-center justify-center gap-3">
           <div className="rounded-full bg-gray-100 p-4">
@@ -28,6 +25,5 @@ export function ProductTableEmpty({
           </div>
         </div>
       </TableCell>
-    </TableRow>
-  );
+    </TableRow>;
 }

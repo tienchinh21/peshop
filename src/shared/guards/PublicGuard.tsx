@@ -1,60 +1,44 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/shared/hooks";
-
 interface PublicGuardProps {
   children: React.ReactNode;
   fallback?: React.ReactNode;
-  /**
-   * Redirect URL khi đã login (default: "/")
-   */
   redirectTo?: string;
 }
-
-/**
- * PublicGuard - Bảo vệ trang public (login, register)
- * Nếu đã login → redirect đến trang chỉ định (default: "/")
- */
 export function PublicGuard({
   children,
   fallback,
-  redirectTo = "/",
+  redirectTo = "/"
 }: PublicGuardProps) {
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuth();
-
+  const {
+    isAuthenticated,
+    isLoading
+  } = useAuth();
+  const [isHydrated, setIsHydrated] = useState(false);
   useEffect(() => {
-    // Chỉ check khi đã load xong
-    if (!isLoading && isAuthenticated) {
-      // Nếu đã login → redirect về home hoặc trang chỉ định
+    setIsHydrated(true);
+  }, []);
+  useEffect(() => {
+    if (isHydrated && !isLoading && isAuthenticated) {
       router.push(redirectTo);
     }
-  }, [isLoading, isAuthenticated, redirectTo, router]);
-
-  // Đang load
+  }, [isHydrated, isLoading, isAuthenticated, redirectTo, router]);
+  if (!isHydrated) {
+    return <>{children}</>;
+  }
   if (isLoading) {
-    return (
-      fallback || (
-        <div className="min-h-screen flex items-center justify-center">
+    return fallback || <div className="min-h-screen flex items-center justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      )
-    );
+        </div>;
   }
-
-  // Đã login → hiển thị loading (sẽ redirect)
   if (isAuthenticated) {
-    return (
-      fallback || (
-        <div className="min-h-screen flex items-center justify-center">
+    return fallback || <div className="min-h-screen flex items-center justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      )
-    );
+        </div>;
   }
-
-  // Chưa login → hiển thị content
   return <>{children}</>;
 }

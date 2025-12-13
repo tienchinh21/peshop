@@ -1,5 +1,6 @@
+export { getProvinces, getDistrictsByProvince, getWardsByDistrict } from "./goship-address.service";
 export {
-  getProvinces,
-  getDistrictsByProvince,
-  getWardsByDistrict,
-} from "./goship-address.service";
+  getGHNProvinces,
+  getGHNDistricts,
+  getGHNWards,
+} from "./ghn-address.service";

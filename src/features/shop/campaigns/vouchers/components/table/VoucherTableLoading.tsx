@@ -1,11 +1,10 @@
 import { TableCell, TableRow } from "@/shared/components/ui/table";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-
 export function VoucherTableLoading() {
-  return (
-    <>
-      {Array.from({ length: 5 }).map((_, index) => (
-        <TableRow key={index}>
+  return <>
+      {Array.from({
+      length: 5
+    }).map((_, index) => <TableRow key={index}>
           <TableCell>
             <Skeleton className="h-5 w-full" />
           </TableCell>
@@ -33,8 +32,6 @@ export function VoucherTableLoading() {
           <TableCell>
             <Skeleton className="h-8 w-8 ml-auto" />
           </TableCell>
-        </TableRow>
-      ))}
-    </>
-  );
+        </TableRow>)}
+    </>;
 }

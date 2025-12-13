@@ -1,7 +1,1 @@
-export {
-  getAddressList,
-  getDefaultAddress,
-  createAddress,
-  updateAddress,
-  deleteAddress,
-} from "./address.service";
+export { getAddressList, getDefaultAddress, createAddress, updateAddress, deleteAddress } from "./address.service";

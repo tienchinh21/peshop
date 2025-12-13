@@ -1,83 +1,60 @@
 import { TableCell, TableRow } from "@/shared/components/ui/table";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/shared/components/ui/dropdown-menu";
 import { MoreHorizontal, Eye, Edit, Trash2 } from "lucide-react";
 import type { ShopVoucher } from "../../types";
-import {
-  VoucherStatus,
-  VoucherStatusLabels,
-  VoucherStatusColors,
-  VoucherType,
-  VoucherTypeLabels,
-} from "@/lib/utils/enums/eVouchers";
+import { VoucherStatus, VoucherStatusLabels, VoucherStatusColors, VoucherType, VoucherTypeLabels } from "@/lib/utils/enums/eVouchers";
 import _ from "lodash";
-
 interface VoucherTableRowProps {
   voucher: ShopVoucher;
   onView?: (voucher: ShopVoucher) => void;
   onEdit?: (voucher: ShopVoucher) => void;
   onDelete?: (voucher: ShopVoucher) => void;
 }
-
 export function VoucherTableRow({
   voucher,
   onView,
   onEdit,
-  onDelete,
+  onDelete
 }: VoucherTableRowProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
-      currency: "VND",
+      currency: "VND"
     }).format(price);
   };
-
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("vi-VN", {
+    return new Date(dateString).toLocaleString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
     });
   };
-
   const getStatusBadge = (status: number) => {
     const statusEnum = status as VoucherStatus;
     const label = VoucherStatusLabels[statusEnum] || "Không xác định";
     const colorClass = VoucherStatusColors[statusEnum] || "bg-gray-500";
-
-    return (
-      <Badge variant="secondary" className={colorClass}>
+    return <Badge variant="secondary" className={colorClass}>
         {label}
-      </Badge>
-    );
+      </Badge>;
   };
-
   const getTypeBadge = (type: number) => {
     const typeEnum = type as VoucherType;
     const label = VoucherTypeLabels[typeEnum] || "Không xác định";
-
-    return (
-      <Badge variant="outline" className="font-normal">
+    return <Badge variant="outline" className="font-normal">
         {label}
-      </Badge>
-    );
+      </Badge>;
   };
-
   const getDiscountDisplay = (type: number, value: number) => {
     if (type === VoucherType.PERCENTAGE) {
       return `${value}%`;
     }
     return formatPrice(value);
   };
-
-  return (
-    <TableRow>
+  return <TableRow>
       <TableCell>
         <div className="font-medium">{voucher.name}</div>
       </TableCell>
@@ -90,11 +67,7 @@ export function VoucherTableRow({
       <TableCell className="font-semibold">
         {getDiscountDisplay(voucher.type, voucher.discountValue)}
       </TableCell>
-      {/* <TableCell>
-        {voucher.minimumOrderValue
-          ? formatPrice(voucher.minimumOrderValue)
-          : "-"}
-      </TableCell> */}
+      {}
       <TableCell>
         <div className="text-center">
           <span className="font-medium">{voucher.quantity}</span>
@@ -102,11 +75,7 @@ export function VoucherTableRow({
       </TableCell>
       <TableCell>
         <div className="text-center">
-          {!_.isNil(voucher.quantityUsed) ? (
-            <span className="font-medium">{voucher.quantityUsed}</span>
-          ) : (
-            <span className="text-gray-400">0</span>
-          )}
+          {!_.isNil(voucher.quantityUsed) ? <span className="font-medium">{voucher.quantityUsed}</span> : <span className="text-gray-400">0</span>}
         </div>
       </TableCell>
       <TableCell>{getStatusBadge(voucher.status)}</TableCell>
@@ -129,30 +98,20 @@ export function VoucherTableRow({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {onView && (
-              <DropdownMenuItem onClick={() => onView(voucher)}>
+            {onView && <DropdownMenuItem onClick={() => onView(voucher)}>
                 <Eye className="mr-2 h-4 w-4" />
                 Xem chi tiết
-              </DropdownMenuItem>
-            )}
-            {onEdit && (
-              <DropdownMenuItem onClick={() => onEdit(voucher)}>
+              </DropdownMenuItem>}
+            {onEdit && <DropdownMenuItem onClick={() => onEdit(voucher)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Chỉnh sửa
-              </DropdownMenuItem>
-            )}
-            {onDelete && (
-              <DropdownMenuItem
-                onClick={() => onDelete(voucher)}
-                className="text-red-600"
-              >
+              </DropdownMenuItem>}
+            {onDelete && <DropdownMenuItem onClick={() => onDelete(voucher)} className="text-red-600">
                 <Trash2 className="mr-2 h-4 w-4" />
                 Xóa
-              </DropdownMenuItem>
-            )}
+              </DropdownMenuItem>}
           </DropdownMenuContent>
         </DropdownMenu>
       </TableCell>
-    </TableRow>
-  );
+    </TableRow>;
 }

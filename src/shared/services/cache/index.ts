@@ -1,5 +1,1 @@
-export {
-  createCachedFetcher,
-  CACHE_REVALIDATION,
-  createCacheOptions,
-} from "./cache.service";
+export { createCachedFetcher, CACHE_REVALIDATION, createCacheOptions } from "./cache.service";

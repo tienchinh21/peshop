@@ -1,9 +1,7 @@
 import { TableCell, TableRow } from "@/shared/components/ui/table";
 import { Gift } from "lucide-react";
-
 export function PromotionTableEmpty() {
-  return (
-    <TableRow>
+  return <TableRow>
       <TableCell colSpan={6} className="h-64 text-center">
         <div className="flex flex-col items-center justify-center text-gray-500">
           <Gift className="h-12 w-12 mb-4 text-gray-400" />
@@ -13,6 +11,5 @@ export function PromotionTableEmpty() {
           </p>
         </div>
       </TableCell>
-    </TableRow>
-  );
+    </TableRow>;
 }
