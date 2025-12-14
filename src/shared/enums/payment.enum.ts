@@ -1,5 +1,5 @@
 export enum PaymentMethod {
-  COD = "0",
+  COD = "1",
   VNPAY = "6",
 }
 export const PaymentMethodLabel = {

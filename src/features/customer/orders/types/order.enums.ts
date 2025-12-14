@@ -1,5 +1,5 @@
 export enum PaymentMethod {
-  COD = 0,
+  COD = 1,
   VNPay = 6,
 }
 export enum PaymentStatus {

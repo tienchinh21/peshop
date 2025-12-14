@@ -8,9 +8,27 @@ export interface CreateVirtualOrderPayload {
   userAddressId: string;
   items: OrderProductItemPayload[];
 }
+export interface UpdateOrderItemPayload {
+  productId: string;
+  variantId: number;
+  quantity: number;
+  note?: string;
+  priceOriginal?: number;
+  categoryId?: string;
+  shopId?: string;
+  orderCode?: string;
+  flashSaleProductId?: string;
+  flashSalePercentDecrease?: number;
+  flashSalePrice?: number;
+  productName?: string;
+  productWeight?: number;
+  productLength?: number;
+  productWidth?: number;
+  productHeight?: number;
+}
 export interface UpdateVirtualOrderPayload {
   orderId: string;
-  items: OrderProductItemPayload[];
+  items: UpdateOrderItemPayload[];
 }
 export interface DeleteVirtualOrderPayload {
   orderId: string;
