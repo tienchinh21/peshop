@@ -38,9 +38,7 @@ export const OrderPromotionsSection = ({
           </CardHeader>
           <CardContent className="space-y-3">
             {map(freeGiftPromotions, (promotion) => {
-              const giftList = get(promotion, "promotionGiftsList", []);
-              const singleGift = get(promotion, "promotionGifts", null);
-              const gifts = giftList && giftList.length > 0 ? giftList : singleGift ? [singleGift] : [];
+              const gifts = get(promotion, "promotionGiftsList", []);
               if (isEmpty(gifts)) return null;
               return (
                 <div key={promotion.promotionId} className="border rounded-lg p-3 space-y-2">
@@ -82,9 +80,7 @@ export const OrderPromotionsSection = ({
           <CardContent className="space-y-4">
             {map(requirementPromotions, (promotion) => {
               const requiredProducts = get(promotion, "products", []);
-              const giftList = get(promotion, "promotionGiftsList", []);
-              const singleGift = get(promotion, "promotionGifts", null);
-              const gifts = giftList && giftList.length > 0 ? giftList : singleGift ? [singleGift] : [];
+              const gifts = get(promotion, "promotionGiftsList", []);
               if (isEmpty(gifts)) return null;
               return (
                 <div key={promotion.promotionId} className="space-y-3">
