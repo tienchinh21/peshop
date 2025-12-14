@@ -64,8 +64,8 @@ export const checkPromotionsInOrder = async (orderId: string): Promise<OrderProm
   const params = new URLSearchParams();
   params.append("orderId", orderId);
   const url = `${API_ENDPOINTS.PROMOTION.CHECK_IN_ORDER}?${params.toString()}`;
-  const response = await axiosDotnet.get<OrderPromotion[]>(url);
-  return response.data;
+  const response = await axiosDotnet.get<{ error: string | null; data: OrderPromotion[] }>(url);
+  return response.data.data;
 };
 
 export const viewProduct = async (productId: string): Promise<void> => {
