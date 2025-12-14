@@ -8,16 +8,14 @@ import { isEmpty, filter, get, map, last } from "lodash";
 import Image from "next/image";
 interface PromotionRequirementSectionProps {
   productId: string;
-  hasPromotion: boolean;
 }
 export const PromotionRequirementSection = ({
-  productId,
-  hasPromotion
+  productId
 }: PromotionRequirementSectionProps) => {
   const {
     data: promotions,
     isLoading
-  } = useProductPromotions(productId, hasPromotion);
+  } = useProductPromotions(productId);
   if (isLoading || !promotions || isEmpty(promotions)) {
     return null;
   }
@@ -40,10 +38,12 @@ export const PromotionRequirementSection = ({
       </CardHeader>
       <CardContent className="space-y-4">
         {map(requirementPromotions, promotion => {
-        const giftProduct = get(promotion, "promotionGifts.product");
-        const giftQuantity = get(promotion, "promotionGifts.giftQuantity", 0);
+        const gifts = get(promotion, "promotionGiftsList", []);
+        const fallbackGiftProduct = get(promotion, "promotionGifts.product");
+        const fallbackGiftQuantity = get(promotion, "promotionGifts.giftQuantity", 0);
+        const renderGifts = gifts && gifts.length > 0 ? gifts : (fallbackGiftProduct ? [{ id: get(promotion, "promotionGifts.id"), giftQuantity: fallbackGiftQuantity, product: fallbackGiftProduct }] : []);
         const requiredProducts = get(promotion, "products", []);
-        if (!giftProduct) return null;
+        if (renderGifts.length === 0) return null;
         return <div key={promotion.promotionId} className="space-y-3">
               <p className="font-semibold text-sm">{promotion.promotionName}</p>
 
@@ -70,18 +70,22 @@ export const PromotionRequirementSection = ({
                   <Gift className="w-4 h-4" />
                   <span>Nhận quà:</span>
                 </div>
-                <div className="flex gap-3 pl-6">
-                  <div className="relative w-16 h-16 rounded border overflow-hidden shrink-0">
-                    <Image src={giftProduct.image || "/placeholder-product.svg"} alt={giftProduct.name} fill className="object-cover" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm line-clamp-2 mb-1">
-                      {giftQuantity}x {giftProduct.name}
-                    </p>
-                    <p className="text-sm font-semibold text-primary">
-                      {formatPrice(giftProduct.price * giftQuantity)}
-                    </p>
-                  </div>
+                <div className="space-y-3 pl-6">
+                  {map(renderGifts, (gift) => (
+                    <div key={gift.id} className="flex gap-3">
+                      <div className="relative w-16 h-16 rounded border overflow-hidden shrink-0">
+                        <Image src={get(gift, "product.image", "/placeholder-product.svg")} alt={get(gift, "product.name", "Quà tặng")} fill className="object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm line-clamp-2 mb-1">
+                          {get(gift, "giftQuantity", 0)}x {get(gift, "product.name", "")}
+                        </p>
+                        <p className="text-sm font-semibold text-primary">
+                          {formatPrice((get(gift, "product.price", 0) || 0) * (get(gift, "giftQuantity", 0) || 0))}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 

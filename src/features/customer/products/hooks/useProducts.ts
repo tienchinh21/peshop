@@ -119,11 +119,11 @@ export const useInvalidateProducts = () => {
     });
   };
 };
-export const useProductPromotions = (productId: string, hasPromotion: boolean) => {
+export const useProductPromotions = (productId: string) => {
   return useQuery({
     queryKey: productKeys.promotions(productId),
     queryFn: () => getPromotionsByProduct(productId),
-    enabled: !!productId && hasPromotion,
+    enabled: !!productId,
     staleTime: 5 * 60 * 1000,
     retry: 2
   });

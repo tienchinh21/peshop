@@ -32,6 +32,7 @@ import { formatPrice } from "@/shared/utils";
 import { cn } from "@/lib/utils";
 import { useGetOrderDetail, useGetTrackingLogs } from "../hooks";
 import CreateOrderReviewModal from "@/features/customer/orders/components/CreateOrderReviewModal";
+import { OrderPromotionsSection } from "@/features/customer/checkout/components";
 import {
   OrderStatus,
   PaymentStatus,
@@ -460,6 +461,8 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
               ))}
             </CardContent>
           </Card>
+
+          <OrderPromotionsSection orderId={order.orderId} />
         </div>
 
         {/* Right Column - Summary */}

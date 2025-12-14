@@ -8,16 +8,14 @@ import { isEmpty, filter, get, map } from "lodash";
 import Image from "next/image";
 interface PromotionGiftSectionProps {
   productId: string;
-  hasPromotion: boolean;
 }
 export const PromotionGiftSection = ({
-  productId,
-  hasPromotion
+  productId
 }: PromotionGiftSectionProps) => {
   const {
     data: promotions,
     isLoading
-  } = useProductPromotions(productId, hasPromotion);
+  } = useProductPromotions(productId);
   if (isLoading || !promotions || isEmpty(promotions)) {
     return null;
   }
@@ -40,9 +38,11 @@ export const PromotionGiftSection = ({
       </CardHeader>
       <CardContent className="space-y-3">
         {map(freeGiftPromotions, promotion => {
-        const giftProduct = get(promotion, "promotionGifts.product");
-        const giftQuantity = get(promotion, "promotionGifts.giftQuantity", 0);
-        if (!giftProduct) return null;
+        const gifts = get(promotion, "promotionGiftsList", []);
+        const fallbackGiftProduct = get(promotion, "promotionGifts.product");
+        const fallbackGiftQuantity = get(promotion, "promotionGifts.giftQuantity", 0);
+        const renderGifts = gifts && gifts.length > 0 ? gifts : (fallbackGiftProduct ? [{ id: get(promotion, "promotionGifts.id"), giftQuantity: fallbackGiftQuantity, product: fallbackGiftProduct }] : []);
+        if (renderGifts.length === 0) return null;
         return <div key={promotion.promotionId} className="border rounded-lg p-3 space-y-2">
               <div className="flex items-start justify-between gap-2">
                 <p className="font-medium text-sm">{promotion.promotionName}</p>
@@ -51,18 +51,22 @@ export const PromotionGiftSection = ({
                 </Badge>
               </div>
 
-              <div className="flex gap-3">
-                <div className="relative w-20 h-20 rounded border overflow-hidden shrink-0">
-                  <Image src={giftProduct.image || "/placeholder-product.svg"} alt={giftProduct.name} fill className="object-cover" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-1">
-                    {giftQuantity}x {giftProduct.name}
-                  </p>
-                  <p className="text-sm font-semibold text-primary">
-                    {formatPrice(giftProduct.price * giftQuantity)}
-                  </p>
-                </div>
+              <div className="space-y-3">
+                {map(renderGifts, (gift) => (
+                  <div key={gift.id} className="flex gap-3">
+                    <div className="relative w-20 h-20 rounded border overflow-hidden shrink-0">
+                      <Image src={get(gift, "product.image", "/placeholder-product.svg")} alt={get(gift, "product.name", "Quà tặng")} fill className="object-cover" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-muted-foreground line-clamp-2 mb-1">
+                        {get(gift, "giftQuantity", 0)}x {get(gift, "product.name", "")}
+                      </p>
+                      <p className="text-sm font-semibold text-primary">
+                        {formatPrice((get(gift, "product.price", 0) || 0) * (get(gift, "giftQuantity", 0) || 0))}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>;
       })}
