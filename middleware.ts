@@ -1,14 +1,37 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// Helper to decode base64url (JWT uses base64url, not standard base64)
+function base64UrlDecode(str: string): string {
+  // Replace base64url characters with base64 characters
+  let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+  // Add padding if needed
+  const padding = base64.length % 4;
+  if (padding) {
+    base64 += '='.repeat(4 - padding);
+  }
+  // Decode
+  try {
+    return decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+  } catch {
+    return atob(base64);
+  }
+}
+
 // Helper to decode JWT payload (without verification - just for reading claims)
-function decodeJwtPayload(token: string): { authorities?: string[]; exp?: number } | null {
+function decodeJwtPayload(token: string): { authorities?: string[]; exp?: number; shop_id?: string } | null {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return null;
-    const payload = JSON.parse(atob(parts[1]));
+    const payload = JSON.parse(base64UrlDecode(parts[1]));
     return payload;
-  } catch {
+  } catch (e) {
+    console.error('Error decoding JWT:', e);
     return null;
   }
 }
@@ -43,15 +66,9 @@ export function middleware(request: NextRequest) {
 
   // For shop paths (except registration), check if user has Shop role
   if (isShopPath && token) {
-    // Try to get roles from user_data cookie first (faster)
-    const userData = getUserDataFromCookie(request);
-    let hasShopRole = userData?.roles?.includes('Shop') || false;
-    
-    // If no user_data cookie, try to decode from JWT
-    if (!hasShopRole) {
-      const payload = decodeJwtPayload(token);
-      hasShopRole = payload?.authorities?.includes('Shop') || false;
-    }
+    // Decode JWT to get authorities
+    const payload = decodeJwtPayload(token);
+    const hasShopRole = payload?.authorities?.includes('Shop') || false;
     
     if (!hasShopRole) {
       // Redirect to shop registration if user doesn't have Shop role

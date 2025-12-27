@@ -2,6 +2,19 @@ import { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } 
 import axios from "axios";
 import { API_CONFIG, STORAGE_KEYS } from "@/lib/config/api.config";
 import { getAuthTokenCookie, setAuthTokenCookie, removeAuthTokenCookie } from "@/lib/utils/cookies.utils";
+
+// List of API endpoints that should NOT trigger redirect on 401
+const NON_CRITICAL_ENDPOINTS = [
+  '/view-product',
+  '/Products/view',
+  '/track',
+];
+
+const isNonCriticalEndpoint = (url?: string): boolean => {
+  if (!url) return false;
+  return NON_CRITICAL_ENDPOINTS.some(endpoint => url.toLowerCase().includes(endpoint.toLowerCase()));
+};
+
 export const setupAuthRequestInterceptor = (client: AxiosInstance): void => {
   client.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     if (typeof window !== "undefined") {
@@ -22,6 +35,12 @@ export const setupDotnetAuthResponseInterceptor = (client: AxiosInstance): void 
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
+    
+    // Don't redirect for non-critical endpoints
+    if (error.response?.status === 401 && isNonCriticalEndpoint(originalRequest?.url)) {
+      return Promise.reject(error);
+    }
+    
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
@@ -41,6 +60,8 @@ export const setupDotnetAuthResponseInterceptor = (client: AxiosInstance): void 
         if (typeof window !== "undefined") {
           localStorage.removeItem(STORAGE_KEYS.USER_DATA);
           localStorage.removeItem(STORAGE_KEYS.AUTH_EXPIRES);
+          // Remove user_data cookie as well
+          document.cookie = "user_data=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
           window.location.href = "/xac-thuc";
         }
         return Promise.reject(refreshError);

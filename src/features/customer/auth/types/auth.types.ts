@@ -60,10 +60,14 @@ export interface AuthUser {
 export interface JwtPayload {
   sub: string;
   token_type: "access" | "refresh";
+  shop_id: string;
   iat: number;
   exp: number;
   nbf: number;
+  iss: string;
+  aud: string;
   authorities: string[];
+  permissions: string[];
 }
 export interface LoginResponse {
   error: string | null;

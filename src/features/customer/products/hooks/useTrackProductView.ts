@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { viewProduct } from "../services/product.service";
+import { getAuthTokenCookie } from "@/lib/utils/cookies.utils";
 
 const VIEW_KEY_PREFIX = "pv_";
 
@@ -15,6 +16,10 @@ export const useTrackProductView = () => {
   const trackView = useCallback(
     (productId: string) => {
       if (!productId) return;
+      
+      // Chỉ track view khi user đã đăng nhập
+      const token = getAuthTokenCookie();
+      if (!token) return;
 
       const viewedKey = `${VIEW_KEY_PREFIX}${productId}`;
 
