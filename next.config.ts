@@ -23,10 +23,27 @@ const nextConfig: NextConfig = {
     ],
   },
   images: {
-    domains: [
-      "salt.tikicdn.com",
-      "xjanua.me",
-      "localhost",
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'salt.tikicdn.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'xjanua.me',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'https',
+        hostname: 'peshop.tandat.site',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.tandat.site',
+      },
     ],
     formats: ['image/avif', 'image/webp'],
   },
