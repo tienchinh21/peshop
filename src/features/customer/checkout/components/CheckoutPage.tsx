@@ -411,7 +411,7 @@ export default function CheckoutPage() {
     );
   }
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <SectionContainer>
         <div className="py-6 space-y-3">
           <AddressSection

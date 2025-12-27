@@ -1,7 +1,8 @@
 import ProductSkeleton from "./ProductSkeleton";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 export default function ShopSkeleton() {
-  return <div className="min-h-screen bg-gray-50">
+  return (
+    <div className="min-h-screen">
       {}
       <Skeleton className="h-48 w-full rounded-none" />
 
@@ -19,8 +20,11 @@ export default function ShopSkeleton() {
 
         {}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {[...Array(10)].map((_, i) => <ProductSkeleton key={i} />)}
+          {[...Array(10)].map((_, i) => (
+            <ProductSkeleton key={i} />
+          ))}
         </div>
       </div>
-    </div>;
+    </div>
+  );
 }
