@@ -69,7 +69,7 @@ export function Header({
         </div>
       </SectionContainer>
 
-      <div className="border-t bg-gray-50">
+      <div className="border-t bg-gray-50 px-2">
         <SectionContainer>
           <nav className="flex items-center justify-between py-2 md:py-3 text-sm font-medium">
             <div className="flex items-center gap-3 md:gap-6 overflow-x-auto scrollbar-hide flex-1 -mx-2 px-2">
