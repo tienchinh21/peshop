@@ -4,43 +4,38 @@ import type { Product } from '@/features/customer/products';
 import type { ShopData } from '@/features/customer/shop-view';
 import type { SitemapEntry } from './types';
 export async function fetchAllProducts(): Promise<Product[]> {
-  const baseUrl = API_CONFIG.BASE_URL;
-  
-  if (!baseUrl) {
-    console.error('NEXT_PUBLIC_API_URL_DOTNET is not configured');
-    return [];
-  }
+  // Fallback URL nếu env không có
+  const baseUrl = API_CONFIG.BASE_URL || 'https://peshop.tandat.site';
   
   try {
-    // Chỉ fetch 1 page đầu để tránh timeout trên Vercel
-    const url = `${baseUrl}/Product/get-products?page=1&pageSize=50`;
-    console.log('Fetching products for sitemap from:', url);
+    const url = `${baseUrl}/Product/get-products?page=1&pageSize=100`;
     
     const response = await fetch(url, {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       },
-      cache: 'no-store'
+      cache: 'no-store',
+      // Timeout 10s cho Vercel
+      signal: AbortSignal.timeout(10000)
     });
     
     if (!response.ok) {
-      console.error(`Failed to fetch products: ${response.status} ${response.statusText}`);
+      console.error(`Sitemap: Failed to fetch products - ${response.status}`);
       return [];
     }
     
     const data = await response.json();
     
     if (data.error || !data.data) {
-      console.error('Error in products API response:', data.error);
+      console.error('Sitemap: API error -', data.error);
       return [];
     }
     
-    const products = data.data.products || [];
-    console.log(`Fetched ${products.length} products for sitemap`);
-    return products;
+    return data.data.products || [];
   } catch (error) {
-    console.error('Error fetching products for sitemap:', error);
+    console.error('Sitemap: Fetch error -', error);
     return [];
   }
 }

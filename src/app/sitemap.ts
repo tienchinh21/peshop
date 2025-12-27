@@ -11,7 +11,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const entries = await generateCompleteSitemap();
     
     if (entries.length === 0) {
-      // Fallback nếu không fetch được data
       return getStaticSitemap(baseUrl);
     }
     
