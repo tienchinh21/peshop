@@ -54,7 +54,11 @@ export default function ProductCard({
       {}
       <div className="relative aspect-square overflow-hidden">
         <Image
-          src={product.image || "/placeholder-product.svg"}
+          src={
+            imageError
+              ? "/placeholder-product.svg"
+              : product.image || "/placeholder-product.svg"
+          }
           alt={product.name}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -62,6 +66,7 @@ export default function ProductCard({
           loading={priority ? "eager" : "lazy"}
           priority={priority}
           onError={() => setImageError(true)}
+          unoptimized={product.image?.includes("salt.tikicdn.com")}
         />
 
         {product.boughtCount > 0 && (
