@@ -483,7 +483,7 @@ export default function CheckoutPage() {
           </Suspense>
 
           <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Phương thức thanh toán
               </h3>
@@ -495,7 +495,7 @@ export default function CheckoutPage() {
                       onClick={() => {
                         setSelectedPaymentMethod(method);
                       }}
-                      className={`flex items-center justify-between p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                      className={`flex items-center justify-between p-4 min-h-[56px] rounded-lg border-2 cursor-pointer transition-all ${
                         selectedPaymentMethod === method
                           ? "border-purple-600 bg-purple-50"
                           : "border-gray-200 hover:border-purple-300"
@@ -503,7 +503,7 @@ export default function CheckoutPage() {
                     >
                       <div className="flex items-center gap-3">
                         <div
-                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          className={`w-6 h-6 min-w-[24px] min-h-[24px] rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                             selectedPaymentMethod === method
                               ? "border-purple-600"
                               : "border-gray-300"

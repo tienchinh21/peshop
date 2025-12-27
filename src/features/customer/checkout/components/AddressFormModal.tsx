@@ -320,12 +320,12 @@ export function AddressFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-5xl min-h-[500px] overflow-visible p-6 md:p-8">
+      <DialogContent className="w-full max-w-[calc(100%-2rem)] sm:max-w-lg md:max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6 md:p-8">
         <DialogHeader>
           <DialogTitle>Quản lý địa chỉ giao hàng</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 overflow-visible pr-1 pb-20">
+        <div className="space-y-4 sm:space-y-6 pb-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="phone">
@@ -334,7 +334,10 @@ export function AddressFormModal({
               <Input
                 id="phone"
                 type="tel"
+                inputMode="tel"
+                autoComplete="tel"
                 placeholder="Nhập số điện thoại"
+                className="w-full min-h-[44px]"
                 value={formData.phone}
                 onChange={(e) =>
                   setFormData((prev) => ({
@@ -351,7 +354,10 @@ export function AddressFormModal({
               </Label>
               <Input
                 id="streetLine"
+                type="text"
+                autoComplete="street-address"
                 placeholder="Ví dụ: 123 Nguyễn Văn A"
+                className="w-full min-h-[44px]"
                 value={formData.streetLine}
                 onChange={(e) =>
                   setFormData((prev) => ({
@@ -412,12 +418,13 @@ export function AddressFormModal({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end pt-4 border-t">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
+            className="w-full sm:w-auto min-h-[44px]"
           >
             Hủy
           </Button>
@@ -425,6 +432,7 @@ export function AddressFormModal({
             type="button"
             onClick={handleSubmit}
             disabled={!isFormValid() || isLoading || loadingLocation}
+            className="w-full sm:w-auto min-h-[44px]"
           >
             {isLoading ? (
               <>

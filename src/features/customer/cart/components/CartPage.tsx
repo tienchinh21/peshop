@@ -216,7 +216,29 @@ export default function CartPage() {
         </div>
 
         <div className="lg:col-span-1">
-          <Card className="sticky top-4 border-none shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] bg-white/80 backdrop-blur-sm">
+          {/* Mobile sticky checkout bar */}
+          <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4 shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.1)] lg:hidden">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm text-gray-600">
+                Tổng ({selectedItems.length} sản phẩm)
+              </span>
+              <span className="text-lg font-bold text-purple-600">
+                {formatPrice(totalPrice)}
+              </span>
+            </div>
+            <Button
+              onClick={handleCheckout}
+              disabled={selectedItems.length === 0}
+              className="w-full h-12 min-h-[44px] text-base font-semibold shadow-lg shadow-purple-200"
+              size="lg"
+            >
+              Thanh toán ({selectedItems.length})
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </div>
+
+          {/* Desktop order summary card */}
+          <Card className="hidden lg:block sticky top-4 border-none shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] bg-white/80 backdrop-blur-sm">
             <CardContent className="p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Package className="w-5 h-5 text-purple-600" />
@@ -252,7 +274,7 @@ export default function CartPage() {
               <Button
                 onClick={handleCheckout}
                 disabled={selectedItems.length === 0}
-                className="w-full h-12 text-base font-semibold shadow-lg shadow-purple-200 hover:shadow-xl hover:translate-y-[-2px] transition-all duration-300"
+                className="w-full h-12 min-h-[44px] text-base font-semibold shadow-lg shadow-purple-200 hover:shadow-xl hover:translate-y-[-2px] transition-all duration-300"
                 size="lg"
               >
                 Thanh toán ({selectedItems.length})
@@ -262,6 +284,9 @@ export default function CartPage() {
           </Card>
         </div>
       </div>
+
+      {/* Spacer for mobile sticky footer */}
+      <div className="h-28 lg:hidden" />
     </SectionContainer>
   );
 }
@@ -336,16 +361,16 @@ function CartItemRow({
               </span>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <div className="flex items-center bg-gray-50 rounded-lg p-1 shadow-sm border border-gray-100">
                 <button
                   onClick={() =>
                     onUpdateQuantity(item.cartId, item.quantity - 1)
                   }
                   disabled={item.quantity <= 1}
-                  className="w-7 h-7 flex items-center justify-center hover:bg-white hover:shadow-sm rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed text-gray-600"
+                  className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-white hover:shadow-sm rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed text-gray-600"
                 >
-                  <Minus className="w-3 h-3" />
+                  <Minus className="w-4 h-4" />
                 </button>
                 <span className="w-10 text-center font-semibold text-sm text-gray-900">
                   {item.quantity}
@@ -354,9 +379,9 @@ function CartItemRow({
                   onClick={() =>
                     onUpdateQuantity(item.cartId, item.quantity + 1)
                   }
-                  className="w-7 h-7 flex items-center justify-center hover:bg-white hover:shadow-sm rounded-md transition-all text-gray-600"
+                  className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-white hover:shadow-sm rounded-md transition-all text-gray-600"
                 >
-                  <Plus className="w-3 h-3" />
+                  <Plus className="w-4 h-4" />
                 </button>
               </div>
 
@@ -364,7 +389,7 @@ function CartItemRow({
                 variant="ghost"
                 size="icon"
                 onClick={onDelete}
-                className="text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full h-9 w-9"
+                className="text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full h-11 w-11 min-h-[44px] min-w-[44px]"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>

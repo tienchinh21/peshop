@@ -205,8 +205,8 @@ const OrderCard = ({
       className="group overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer bg-white"
     >
       {/* Header: Shop & Status */}
-      <div className="px-4 py-3 border-b border-gray-50 flex justify-between items-center bg-white">
-        <div className="flex items-center gap-2">
+      <div className="px-4 py-3 border-b border-gray-50 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 bg-white">
+        <div className="flex items-center gap-2 flex-wrap">
           <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
             <Store className="h-4 w-4" />
             <span>{order.shopName}</span>
@@ -214,14 +214,14 @@ const OrderCard = ({
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 px-2 text-xs text-muted-foreground hover:text-primary hidden sm:flex"
+            className="h-8 px-2 text-xs text-muted-foreground hover:text-primary hidden sm:flex min-h-[44px]"
           >
             <MessageSquare className="h-3 w-3 mr-1" /> Chat
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 px-2 text-xs text-muted-foreground hover:text-primary sm:flex"
+            className="h-8 px-2 text-xs text-muted-foreground hover:text-primary sm:flex min-h-[44px]"
           >
             Xem Shop <ChevronRight className="h-3 w-3" />
           </Button>
@@ -229,7 +229,7 @@ const OrderCard = ({
 
         <div
           className={cn(
-            "flex items-center px-2.5 py-0.5 rounded text-xs font-medium border",
+            "flex items-center px-2.5 py-1 rounded text-xs font-medium border self-start sm:self-auto min-h-[32px]",
             getOrderStatusColor(order.orderStatus)
           )}
         >
@@ -266,21 +266,29 @@ const OrderCard = ({
           </span>
         </div>
 
-        <div className="flex justify-end gap-2">
+        <div className="flex flex-col sm:flex-row justify-end gap-2">
           <Button
             variant="outline"
             size="sm"
-            className="bg-white hover:bg-gray-50"
+            className="bg-white hover:bg-gray-50 min-h-[44px] w-full sm:w-auto"
           >
             Xem chi tiết
           </Button>
           {(isCompleted || isCancelled) && (
-            <Button size="sm" variant="default">
+            <Button
+              size="sm"
+              variant="default"
+              className="min-h-[44px] w-full sm:w-auto"
+            >
               Mua lại
             </Button>
           )}
           {order.orderStatus === OrderStatus.Shipping && (
-            <Button size="sm" variant="default">
+            <Button
+              size="sm"
+              variant="default"
+              className="min-h-[44px] w-full sm:w-auto"
+            >
               Đã nhận hàng
             </Button>
           )}
@@ -370,7 +378,7 @@ export function OrdersPage() {
                 <TabsTrigger
                   key={tab.value}
                   value={tab.value}
-                  className="flex-shrink-0 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none px-4 py-3 text-sm font-medium text-muted-foreground hover:text-gray-900 transition-colors"
+                  className="flex-shrink-0 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none px-4 py-3 min-h-[44px] text-sm font-medium text-muted-foreground hover:text-gray-900 transition-colors"
                 >
                   {tab.label}
                 </TabsTrigger>

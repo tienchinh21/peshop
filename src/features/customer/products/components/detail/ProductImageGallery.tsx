@@ -99,13 +99,13 @@ export const ProductImageGallery = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-2">
+      <div className="flex gap-2 overflow-x-auto pb-2 lg:grid lg:grid-cols-7 lg:overflow-visible">
         {images.map((image, index) => (
           <button
             key={index}
             onClick={() => handleThumbnailClick(index)}
             className={cn(
-              "relative aspect-square overflow-hidden rounded-md border-2 transition-all hover:border-primary",
+              "relative flex-shrink-0 w-14 h-14 lg:w-auto lg:h-auto lg:aspect-square overflow-hidden rounded-md border-2 transition-all hover:border-primary",
               selectedIndex === index
                 ? "border-primary ring-2 ring-primary ring-offset-2"
                 : "border-gray-200"

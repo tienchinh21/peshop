@@ -69,12 +69,17 @@ export function VoucherSection({
                       onValueChange={(value) =>
                         onSystemVoucherChange(value === "none" ? null : value)
                       }
+                      className="space-y-3"
                     >
-                      <div className="flex items-center space-x-3 p-2 rounded-lg border">
-                        <RadioGroupItem value="none" id="system-none" />
+                      <div className="flex items-center space-x-3 p-3 min-h-[48px] rounded-lg border">
+                        <RadioGroupItem
+                          value="none"
+                          id="system-none"
+                          className="min-w-[20px] min-h-[20px]"
+                        />
                         <Label
                           htmlFor="system-none"
-                          className="cursor-pointer text-sm"
+                          className="cursor-pointer text-sm flex-1"
                         >
                           Không sử dụng
                         </Label>
@@ -85,7 +90,7 @@ export function VoucherSection({
                         return (
                           <div
                             key={voucher.Id}
-                            className={`flex items-center space-x-3 p-3 rounded-lg border transition-all cursor-pointer ${
+                            className={`flex items-center space-x-3 p-3 min-h-[56px] rounded-lg border transition-all cursor-pointer ${
                               isBest
                                 ? "border-purple-300 bg-purple-50 hover:bg-purple-100"
                                 : "hover:bg-gray-50"
@@ -94,6 +99,7 @@ export function VoucherSection({
                             <RadioGroupItem
                               value={voucher.Id}
                               id={voucher.Id}
+                              className="min-w-[20px] min-h-[20px]"
                             />
                             <Label
                               htmlFor={voucher.Id}
@@ -165,15 +171,17 @@ export function VoucherSection({
                           value === "none" ? null : value
                         )
                       }
+                      className="space-y-3"
                     >
-                      <div className="flex items-center space-x-3 p-2 rounded border">
+                      <div className="flex items-center space-x-3 p-3 min-h-[48px] rounded-lg border">
                         <RadioGroupItem
                           value="none"
                           id={`shop-${shop.ShopId}-none`}
+                          className="min-w-[20px] min-h-[20px]"
                         />
                         <Label
                           htmlFor={`shop-${shop.ShopId}-none`}
-                          className="cursor-pointer text-sm"
+                          className="cursor-pointer text-sm flex-1"
                         >
                           Không sử dụng
                         </Label>
@@ -184,7 +192,7 @@ export function VoucherSection({
                         return (
                           <div
                             key={voucher.Id}
-                            className={`flex items-center space-x-3 p-3 rounded-lg border transition-all cursor-pointer ${
+                            className={`flex items-center space-x-3 p-3 min-h-[56px] rounded-lg border transition-all cursor-pointer ${
                               isBest
                                 ? "border-purple-300 bg-purple-50 hover:bg-purple-100"
                                 : "hover:bg-gray-50"
@@ -193,6 +201,7 @@ export function VoucherSection({
                             <RadioGroupItem
                               value={voucher.Id}
                               id={voucher.Id}
+                              className="min-w-[20px] min-h-[20px]"
                             />
                             <Label
                               htmlFor={voucher.Id}

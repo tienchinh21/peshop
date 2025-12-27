@@ -193,15 +193,15 @@ export default function QuickViewModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="max-w-[95vw] sm:max-w-6xl max-h-[90vh] w-[95vw] p-0 gap-0 overflow-hidden"
+        className="w-[95vw] max-w-[95vw] sm:max-w-6xl max-h-[90vh] sm:w-auto p-0 gap-0 overflow-hidden"
         showCloseButton={false}
       >
-        {}
+        {/* Close button - minimum 44x44px touch target for mobile */}
         <button
           onClick={onClose}
-          className="absolute right-3 top-3 z-50 rounded-full bg-white/90 hover:bg-white p-1.5 shadow-md transition-all"
+          className="absolute right-2 top-2 z-50 rounded-full bg-white/90 hover:bg-white p-2.5 shadow-md transition-all min-h-[44px] min-w-[44px] h-11 w-11 flex items-center justify-center"
         >
-          <X className="h-4 w-4 text-gray-600" />
+          <X className="h-5 w-5 text-gray-600" />
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 max-h-[90vh] overflow-hidden">
@@ -232,20 +232,20 @@ export default function QuickViewModal({
                   </CarouselContent>
                 </Carousel>
 
-                {}
+                {/* Carousel navigation buttons with proper touch targets */}
                 {allImages.length > 1 && (
                   <>
                     <button
                       onClick={handlePrevSlide}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white rounded-full p-2 shadow-md transition-all cursor-pointer"
+                      className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white rounded-full p-2.5 shadow-md transition-all cursor-pointer min-h-[44px] min-w-[44px] h-11 w-11 flex items-center justify-center"
                     >
-                      <ChevronLeft className="w-4 h-4 text-gray-600" />
+                      <ChevronLeft className="w-5 h-5 text-gray-600" />
                     </button>
                     <button
                       onClick={handleNextSlide}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white rounded-full p-2 shadow-md transition-all cursor-pointer"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white rounded-full p-2.5 shadow-md transition-all cursor-pointer min-h-[44px] min-w-[44px] h-11 w-11 flex items-center justify-center"
                     >
-                      <ChevronRight className="w-4 h-4 text-gray-600" />
+                      <ChevronRight className="w-5 h-5 text-gray-600" />
                     </button>
                   </>
                 )}
@@ -393,7 +393,7 @@ export default function QuickViewModal({
                                     }}
                                     disabled={option.isOutOfStock}
                                     className={cn(
-                                      "px-3 py-2 rounded-lg border transition-all text-sm font-medium cursor-pointer flex items-center gap-2",
+                                      "min-h-[44px] min-w-[44px] px-3 py-2 rounded-lg border transition-all text-sm font-medium cursor-pointer flex items-center gap-2",
                                       isSelected
                                         ? "border-2 border-gray-900 bg-gray-100 text-gray-900"
                                         : "border border-gray-300 hover:border-gray-400 text-gray-700",
@@ -476,7 +476,7 @@ export default function QuickViewModal({
               )
             )}
 
-            {}
+            {/* Quantity selector with proper touch targets */}
             {selectedVariant && (
               <div className="mb-4 p-2 bg-gray-50 rounded-md">
                 <div className="flex items-center justify-between">
@@ -490,11 +490,11 @@ export default function QuickViewModal({
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-6 h-6 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-100 cursor-pointer"
+                      className="min-w-[44px] min-h-[44px] w-11 h-11 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-100 cursor-pointer"
                     >
-                      <Minus className="w-3 h-3" />
+                      <Minus className="w-4 h-4" />
                     </button>
-                    <span className="w-8 text-center text-sm font-medium">
+                    <span className="w-10 text-center text-sm font-medium">
                       {quantity}
                     </span>
                     <button
@@ -503,20 +503,20 @@ export default function QuickViewModal({
                           Math.min(selectedVariant.quantity, quantity + 1)
                         )
                       }
-                      className="w-6 h-6 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-100 cursor-pointer"
+                      className="min-w-[44px] min-h-[44px] w-11 h-11 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-100 cursor-pointer"
                     >
-                      <Plus className="w-3 h-3" />
+                      <Plus className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
               </div>
             )}
 
-            {}
-            <div className="flex gap-2 mt-auto pt-4">
+            {/* Action buttons - stack vertically on mobile, horizontal on larger screens */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-2 mt-auto pt-4">
               <Button
                 onClick={handleAddToCart}
-                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white h-10 font-medium text-sm"
+                className="w-full sm:flex-1 bg-purple-600 hover:bg-purple-700 text-white min-h-[44px] h-11 font-medium text-sm"
                 disabled={
                   isLoading ||
                   addToCartMutation.isPending ||
@@ -540,7 +540,7 @@ export default function QuickViewModal({
               <Button
                 variant="outline"
                 onClick={onClose}
-                className="w-20 h-10 text-sm font-medium border hover:bg-gray-50"
+                className="w-full sm:w-20 min-h-[44px] h-11 text-sm font-medium border hover:bg-gray-50"
               >
                 Đóng
               </Button>

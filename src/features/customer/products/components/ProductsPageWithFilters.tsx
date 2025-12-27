@@ -20,6 +20,14 @@ import {
   PaginationPrevious,
 } from "@/shared/components/ui/pagination";
 import { Loader2, SlidersHorizontal } from "lucide-react";
+import { Button } from "@/shared/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/shared/components/ui/sheet";
 import ProductFiltersComponent from "./ProductFilters";
 interface ProductFiltersState {
   page: number;
@@ -115,6 +123,9 @@ export default function ProductsPageWithFilters() {
     filters.minPrice ||
     filters.maxPrice ||
     filters.reviewPoint;
+
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
   return (
     <div className="min-h-screen">
       <PageSection
@@ -128,9 +139,53 @@ export default function ProductsPageWithFilters() {
 
       <SectionContainer>
         <div className="py-8">
+          {/* Mobile Filter Button */}
+          <div className="lg:hidden mb-4">
+            <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full min-h-[44px] flex items-center justify-center gap-2"
+                >
+                  <SlidersHorizontal className="h-5 w-5" />
+                  <span>Bộ lọc</span>
+                  {hasActiveFilters && (
+                    <span className="bg-primary text-white text-xs px-2 py-0.5 rounded-full">
+                      Đang lọc
+                    </span>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent
+                side="left"
+                className="w-[85%] sm:w-[350px] overflow-y-auto"
+              >
+                <SheetHeader>
+                  <SheetTitle className="flex items-center gap-2">
+                    <SlidersHorizontal className="h-5 w-5 text-primary" />
+                    Bộ lọc
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="px-4 pb-4">
+                  <ProductFiltersComponent
+                    filters={filters}
+                    onFilterChange={(newFilters) => {
+                      handleFilterChange(newFilters);
+                      setIsFilterOpen(false);
+                    }}
+                    onClearFilters={() => {
+                      handleClearFilters();
+                      setIsFilterOpen(false);
+                    }}
+                  />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {}
-            <aside className="lg:col-span-1">
+            {/* Desktop Filter Sidebar - Hidden on mobile */}
+            <aside className="hidden lg:block lg:col-span-1">
               <div className="bg-white rounded-lg shadow-sm p-4 sticky top-4">
                 <div className="flex items-center gap-2 mb-4 pb-3 border-b">
                   <SlidersHorizontal className="h-5 w-5 text-primary" />
@@ -145,7 +200,7 @@ export default function ProductsPageWithFilters() {
               </div>
             </aside>
 
-            {}
+            {/* Products Grid */}
             <main className="lg:col-span-3">
               {isLoading && (
                 <div className="flex items-center justify-center py-20">

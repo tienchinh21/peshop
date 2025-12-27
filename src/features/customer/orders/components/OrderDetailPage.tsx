@@ -255,7 +255,12 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
     <div className="container mx-auto py-6 px-4 max-w-4xl">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => router.back()}
+          className="h-11 w-11 min-h-[44px] min-w-[44px]"
+        >
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
@@ -266,7 +271,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Left Column - Order Info */}
         <div className="lg:col-span-2 space-y-4">
           {/* Order Status Card */}
@@ -441,6 +446,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
                           <Button
                             size="sm"
                             variant="outline"
+                            className="min-h-[44px]"
                             onClick={() => {
                               setReviewProductId(item.productId);
                               setReviewVariantId(item.variantId || "");

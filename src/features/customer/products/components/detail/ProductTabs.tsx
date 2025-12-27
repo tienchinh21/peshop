@@ -1,30 +1,42 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
 interface ProductTabsProps {
   product: {
     description: string;
     reviewCount: number;
   };
 }
-export default function ProductTabs({
-  product
-}: ProductTabsProps) {
-  return <Tabs defaultValue="description" className="w-full">
-      <TabsList className="w-full justify-start border-b">
-        <TabsTrigger value="description">Mô tả sản phẩm</TabsTrigger>
-        <TabsTrigger value="reviews">
+export default function ProductTabs({ product }: ProductTabsProps) {
+  return (
+    <Tabs defaultValue="description" className="w-full">
+      <TabsList className="w-full justify-start border-b overflow-x-auto flex-nowrap">
+        <TabsTrigger value="description" className="flex-shrink-0">
+          Mô tả sản phẩm
+        </TabsTrigger>
+        <TabsTrigger value="reviews" className="flex-shrink-0">
           Đánh giá ({product.reviewCount})
         </TabsTrigger>
-        <TabsTrigger value="specifications">Thông số kỹ thuật</TabsTrigger>
-        <TabsTrigger value="policies">Chính sách</TabsTrigger>
+        <TabsTrigger value="specifications" className="flex-shrink-0">
+          Thông số kỹ thuật
+        </TabsTrigger>
+        <TabsTrigger value="policies" className="flex-shrink-0">
+          Chính sách
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="description" className="mt-6">
         <div className="prose max-w-none">
-          <div dangerouslySetInnerHTML={{
-          __html: product.description
-        }} />
+          <div
+            dangerouslySetInnerHTML={{
+              __html: product.description,
+            }}
+          />
         </div>
       </TabsContent>
 
@@ -62,5 +74,6 @@ export default function ProductTabs({
           </div>
         </div>
       </TabsContent>
-    </Tabs>;
+    </Tabs>
+  );
 }
