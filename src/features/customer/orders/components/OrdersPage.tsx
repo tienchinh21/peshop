@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { ProductImage } from "@/shared/components/ui/product-image";
 import {
   Package,
   RefreshCw,
@@ -144,7 +144,7 @@ const OrderProductItem = ({ product }: { product: OrderProductDetail }) => (
   <div className="flex gap-3 py-2">
     <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border border-gray-100 bg-gray-50">
       {product.productImage ? (
-        <Image
+        <ProductImage
           src={product.productImage}
           alt={product.productName}
           fill

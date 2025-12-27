@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { ProductImage } from "@/shared/components/ui/product-image";
 import Link from "next/link";
 import { groupBy, get } from "lodash";
 import { Button } from "@/shared/components/ui/button";
@@ -294,7 +294,7 @@ function CartItemRow({
           href={`/san-pham/${item.slug}`}
           className="flex-shrink-0 relative group"
         >
-          <Image
+          <ProductImage
             src={item.productImage || "/placeholder.png"}
             alt={item.productName}
             width={100}

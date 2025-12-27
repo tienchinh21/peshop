@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { ProductImage } from "@/shared/components/ui/product-image";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import {
@@ -400,7 +400,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
                   <div className="flex gap-3">
                     <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border bg-gray-50">
                       {item.productImage ? (
-                        <Image
+                        <ProductImage
                           src={item.productImage}
                           alt={item.productName}
                           fill

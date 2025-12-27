@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ProductImage } from "@/shared/components/ui/product-image";
 import Link from "next/link";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Store } from "lucide-react";
@@ -35,14 +35,12 @@ export function OrderItemsSection({
 }: OrderItemsSectionProps) {
   const useOrder = orderShops && orderShops.length > 0;
 
-  // Tạo map từ cart items để enrich order products
   const cartItemsMap = keyBy(items, "productId");
 
   const groupedByShop = useOrder
     ? groupBy(orderShops, "shopId")
     : groupBy(items, "shopId");
 
-  // Enrich order product với thông tin từ cart hoặc addedProductsInfo
   const enrichProduct = (prod: OrderProductItem): EnrichedOrderProduct => {
     const cartItem = cartItemsMap[prod.productId];
     const addedInfo = addedProductsInfo[prod.productId];
@@ -90,7 +88,7 @@ export function OrderItemsSection({
                               <div className="flex-shrink-0">
                                 {enriched.slug ? (
                                   <Link href={`/san-pham/${enriched.slug}`}>
-                                    <Image
+                                    <ProductImage
                                       src={
                                         enriched.productImage ||
                                         "/placeholder.png"
@@ -102,7 +100,7 @@ export function OrderItemsSection({
                                     />
                                   </Link>
                                 ) : (
-                                  <Image
+                                  <ProductImage
                                     src={
                                       enriched.productImage ||
                                       "/placeholder.png"
@@ -145,7 +143,7 @@ export function OrderItemsSection({
                             href={`/san-pham/${item.slug}`}
                             className="flex-shrink-0"
                           >
-                            <Image
+                            <ProductImage
                               src={item.productImage || "/placeholder.png"}
                               alt={item.productName}
                               width={60}

@@ -1,8 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
-import { Carousel, CarouselContent, CarouselItem, CarouselApi } from "@/shared/components/ui/carousel";
+import { ProductImage } from "@/shared/components/ui/product-image";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselApi,
+} from "@/shared/components/ui/carousel";
 import { cn } from "@/lib/utils";
 import { ZoomIn } from "lucide-react";
 interface ProductImageGalleryProps {
@@ -13,7 +18,7 @@ interface ProductImageGalleryProps {
 export const ProductImageGallery = ({
   images,
   productName,
-  onImageChange
+  onImageChange,
 }: ProductImageGalleryProps) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [api, setApi] = useState<CarouselApi>();
@@ -43,20 +48,45 @@ export const ProductImageGallery = ({
     if (!api) return;
     api.scrollTo(selectedIndex);
   }, [api, selectedIndex]);
-  return <div className="flex flex-col gap-4">
-      <div className="relative w-full overflow-hidden rounded-lg border bg-white" style={{
-      aspectRatio: "1/1"
-    }}>
-        <Carousel setApi={setApi} opts={{
-        loop: true,
-        startIndex: selectedIndex
-      }} className="h-full w-full">
+  return (
+    <div className="flex flex-col gap-4">
+      <div
+        className="relative w-full overflow-hidden rounded-lg border bg-white"
+        style={{
+          aspectRatio: "1/1",
+        }}
+      >
+        <Carousel
+          setApi={setApi}
+          opts={{
+            loop: true,
+            startIndex: selectedIndex,
+          }}
+          className="h-full w-full"
+        >
           <CarouselContent className="h-full">
-            {images.map((image, index) => <CarouselItem key={index} className="h-full">
-                <div className={cn("relative h-full w-full cursor-zoom-in transition-transform", isZoomed && "scale-150")} onClick={() => setIsZoomed(!isZoomed)}>
-                  <Image src={image || "/placeholder-product.png"} alt={`${productName} - Ảnh ${index + 1}`} fill className="object-contain" sizes="(max-width: 768px) 100vw, 50vw" priority={index === 0} loading={index === 0 ? "eager" : "lazy"} quality={90} />
+            {images.map((image, index) => (
+              <CarouselItem key={index} className="h-full">
+                <div
+                  className={cn(
+                    "relative h-full w-full cursor-zoom-in transition-transform",
+                    isZoomed && "scale-150"
+                  )}
+                  onClick={() => setIsZoomed(!isZoomed)}
+                >
+                  <ProductImage
+                    src={image || "/placeholder-product.png"}
+                    alt={`${productName} - Ảnh ${index + 1}`}
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    priority={index === 0}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    quality={90}
+                  />
                 </div>
-              </CarouselItem>)}
+              </CarouselItem>
+            ))}
           </CarouselContent>
         </Carousel>
 
@@ -70,9 +100,29 @@ export const ProductImageGallery = ({
       </div>
 
       <div className="grid grid-cols-7 gap-2">
-        {images.map((image, index) => <button key={index} onClick={() => handleThumbnailClick(index)} className={cn("relative aspect-square overflow-hidden rounded-md border-2 transition-all hover:border-primary", selectedIndex === index ? "border-primary ring-2 ring-primary ring-offset-2" : "border-gray-200")}>
-            <Image src={image || "/placeholder-product.png"} alt={`${productName} - Thumbnail ${index + 1}`} fill className="object-cover" sizes="(max-width: 768px) 20vw, 10vw" loading="lazy" quality={75} />
-          </button>)}
+        {images.map((image, index) => (
+          <button
+            key={index}
+            onClick={() => handleThumbnailClick(index)}
+            className={cn(
+              "relative aspect-square overflow-hidden rounded-md border-2 transition-all hover:border-primary",
+              selectedIndex === index
+                ? "border-primary ring-2 ring-primary ring-offset-2"
+                : "border-gray-200"
+            )}
+          >
+            <ProductImage
+              src={image || "/placeholder-product.png"}
+              alt={`${productName} - Thumbnail ${index + 1}`}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 20vw, 10vw"
+              loading="lazy"
+              quality={75}
+            />
+          </button>
+        ))}
       </div>
-    </div>;
+    </div>
+  );
 };

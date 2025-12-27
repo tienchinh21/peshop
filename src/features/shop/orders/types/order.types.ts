@@ -15,6 +15,10 @@ export interface Order {
   statusOrder: OrderStatus;
   createdAt: string;
   note: string | null;
+  recipientName: string | null;
+  recipientPhone: string | null;
+  paymentMethod: number;
+  statusPayment: number;
   orderDetails: OrderDetail[];
 }
 export interface PageInfo {

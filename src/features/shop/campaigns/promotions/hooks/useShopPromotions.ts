@@ -14,11 +14,11 @@ export const useShopPromotions = (filters?: PromotionListFilters) => {
   return useQuery({
     queryKey: shopPromotionKeys.list(filters || {}),
     queryFn: () => getPromotions(filters),
-    staleTime: 2 * 60 * 1000,
+    staleTime: 0,
     gcTime: 10 * 60 * 1000,
     retry: 1,
     retryDelay: 1000,
-    refetchOnWindowFocus: false
+    refetchOnMount: "always"
   });
 };
 export const useCreatePromotion = () => {
