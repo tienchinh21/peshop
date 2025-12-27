@@ -5,45 +5,40 @@ import type { ShopData } from '@/features/customer/shop-view';
 import type { SitemapEntry } from './types';
 export async function fetchAllProducts(): Promise<Product[]> {
   const baseUrl = API_CONFIG.BASE_URL;
+  
   if (!baseUrl) {
     console.error('NEXT_PUBLIC_API_URL_DOTNET is not configured');
     return [];
   }
+  
   try {
-    const allProducts: Product[] = [];
-    let currentPage = 1;
-    const pageSize = 100;
-    let hasNextPage = true;
-    while (hasNextPage) {
-      const url = `${baseUrl}/Product/get-products?page=${currentPage}&pageSize=${pageSize}`;
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        next: {
-          revalidate: 3600
-        }
-      });
-      if (!response.ok) {
-        console.error(`Failed to fetch products page ${currentPage}: ${response.status}`);
-        break;
-      }
-      const data = await response.json();
-      if (data.error || !data.data) {
-        console.error('Error in products API response:', data.error);
-        break;
-      }
-      const products = data.data.products || [];
-      allProducts.push(...products);
-      hasNextPage = data.data.hasNextPage || false;
-      currentPage++;
-      if (currentPage > 100) {
-        console.warn('Reached maximum page limit for products');
-        break;
-      }
+    // Chỉ fetch 1 page đầu để tránh timeout trên Vercel
+    const url = `${baseUrl}/Product/get-products?page=1&pageSize=50`;
+    console.log('Fetching products for sitemap from:', url);
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      cache: 'no-store'
+    });
+    
+    if (!response.ok) {
+      console.error(`Failed to fetch products: ${response.status} ${response.statusText}`);
+      return [];
     }
-    return allProducts;
+    
+    const data = await response.json();
+    
+    if (data.error || !data.data) {
+      console.error('Error in products API response:', data.error);
+      return [];
+    }
+    
+    const products = data.data.products || [];
+    console.log(`Fetched ${products.length} products for sitemap`);
+    return products;
   } catch (error) {
     console.error('Error fetching products for sitemap:', error);
     return [];

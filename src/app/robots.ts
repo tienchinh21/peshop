@@ -1,17 +1,27 @@
 import { MetadataRoute } from 'next';
 import { getBaseUrl } from '@/lib/seo/config';
+
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = getBaseUrl();
+  
   return {
-    rules: [{
+    rules: {
       userAgent: '*',
-      allow: ['/', '/san-pham', '/san-pham/*', '/shop-view/*', '/tim-kiem', '/sitemap.xml'],
-      disallow: ['/gio-hang', '/thanh-toan', '/don-hang', '/tai-khoan', '/yeu-thich', '/shop', '/shop/*', '/dang-ky', '/xac-thuc', '/api/*', '/_next/*', '/_vercel/*']
-    }, {
-      userAgent: 'Googlebot',
-      allow: ['/', '/san-pham', '/san-pham/*', '/shop-view/*', '/tim-kiem', '/sitemap.xml'],
-      disallow: ['/gio-hang', '/thanh-toan', '/don-hang', '/tai-khoan', '/yeu-thich', '/shop', '/shop/*', '/dang-ky', '/xac-thuc', '/api/*', '/_next/*']
-    }],
+      allow: '/',
+      disallow: [
+        '/gio-hang',
+        '/thanh-toan',
+        '/don-hang',
+        '/tai-khoan',
+        '/yeu-thich',
+        '/shop/',
+        '/dang-ky',
+        '/xac-thuc',
+        '/api/',
+        '/_next/',
+        '/_vercel/'
+      ]
+    },
     sitemap: `${baseUrl}/sitemap.xml`
   };
 }
