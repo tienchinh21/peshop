@@ -20,9 +20,10 @@ export function OrderSummary({
   formatPrice,
   onCheckout,
   isLoading,
-  isCalculating
+  isCalculating,
 }: OrderSummaryProps) {
-  return <Card className="sticky top-4">
+  return (
+    <Card className="sticky top-4">
       <CardContent className="p-6">
         <h3 className="text-lg font-bold text-gray-900 mb-4">Tổng đơn hàng</h3>
 
@@ -30,23 +31,33 @@ export function OrderSummary({
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Tạm tính</span>
             <span className="font-medium">
-              {isCalculating ? <Loader2 className="w-4 h-4 animate-spin" /> : formatPrice(orderTotal)}
+              {isCalculating ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                formatPrice(orderTotal)
+              )}
             </span>
           </div>
 
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Phí vận chuyển</span>
             <span className="font-medium">
-              {isCalculating ? <Loader2 className="w-4 h-4 animate-spin" /> : formatPrice(shippingFee)}
+              {isCalculating ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                formatPrice(shippingFee)
+              )}
             </span>
           </div>
 
-          {voucherDiscount > 0 && <div className="flex justify-between text-sm">
+          {voucherDiscount > 0 && (
+            <div className="flex justify-between text-sm">
               <span className="text-gray-600">Giảm giá</span>
               <span className="font-medium text-green-600">
                 -{formatPrice(voucherDiscount)}
               </span>
-            </div>}
+            </div>
+          )}
         </div>
 
         <Separator className="my-4" />
@@ -54,19 +65,33 @@ export function OrderSummary({
         <div className="flex justify-between mb-6">
           <span className="text-lg font-bold">Tổng thanh toán</span>
           <span className="text-2xl font-bold text-purple-600">
-            {isCalculating ? <Loader2 className="w-6 h-6 animate-spin" /> : formatPrice(finalTotal)}
+            {isCalculating ? (
+              <Loader2 className="w-6 h-6 animate-spin" />
+            ) : (
+              formatPrice(finalTotal)
+            )}
           </span>
         </div>
 
-        <Button onClick={onCheckout} disabled={isLoading || isCalculating} className="w-full h-12 text-base" size="lg">
-          {isLoading ? <>
+        <Button
+          onClick={onCheckout}
+          disabled
+          className="w-full h-12 text-base"
+          size="lg"
+        >
+          {isLoading ? (
+            <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
               Đang xử lý...
-            </> : <>
+            </>
+          ) : (
+            <>
               Đặt hàng
               <ArrowRight className="w-5 h-5 ml-2" />
-            </>}
+            </>
+          )}
         </Button>
       </CardContent>
-    </Card>;
+    </Card>
+  );
 }
