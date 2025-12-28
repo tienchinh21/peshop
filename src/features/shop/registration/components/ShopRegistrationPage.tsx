@@ -2,16 +2,25 @@
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 import { toast } from "sonner";
 import { useAuth } from "@/shared/hooks";
 import { Store } from "lucide-react";
-import { AddressSelectModal, AddressSelection } from "@/shared/components/layout/AddressSelectModal";
+import {
+  AddressSelectModal,
+  AddressSelection,
+} from "@/shared/components/layout/AddressSelectModal";
 import { createShop } from "../services";
 import { useDispatch } from "react-redux";
-import { updateUser } from "@/lib/store/slices/authSlice";
-import { STORAGE_KEYS } from "@/lib/config/api.config";
+import { logout } from "@/lib/store/slices/authSlice";
+import { removeAuthTokenCookie } from "@/lib/utils/cookies.utils";
 import type { AppDispatch } from "@/lib/store";
 import { BasicInfoSection } from "./BasicInfoSection";
 import { AvatarUploadSection } from "./AvatarUploadSection";
@@ -20,9 +29,7 @@ import { ContactInfoSection } from "./ContactInfoSection";
 import { FormActions } from "./FormActions";
 const ShopRegistrationPage: React.FC = () => {
   const router = useRouter();
-  const {
-    user
-  } = useAuth();
+  const { user } = useAuth();
   const dispatch = useDispatch<AppDispatch>();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -37,66 +44,67 @@ const ShopRegistrationPage: React.FC = () => {
     fullOldAddress: "",
     fullNewAddress: "132123123",
     newWardId: "12313123",
-    newProviceId: "1231313123"
+    newProviceId: "1231313123",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [addressModalOpen, setAddressModalOpen] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState<AddressSelection | null>(null);
+  const [selectedAddress, setSelectedAddress] =
+    useState<AddressSelection | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       email: user?.email || "",
-      phone: user?.phone || ""
+      phone: user?.phone || "",
     }));
   }, [user]);
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const {
-      name,
-      value
-    } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    if (errors[name]) {
-      setErrors(prev => ({
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({
         ...prev,
-        [name]: ""
+        [name]: value,
       }));
-    }
-  }, [errors]);
-  const handleAvatarChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (!file.type.startsWith("image/")) {
-        toast.error("Vui lòng chọn file hình ảnh");
-        return;
+      if (errors[name]) {
+        setErrors((prev) => ({
+          ...prev,
+          [name]: "",
+        }));
       }
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("Kích thước file không được vượt quá 5MB");
-        return;
-      }
-      setAvatarFile(file);
-      const reader = new FileReader();
-      reader.onload = e => {
-        setAvatarPreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-      setErrors(prev => {
-        if (prev.avatar) {
-          const {
-            avatar,
-            ...rest
-          } = prev;
-          return rest;
+    },
+    [errors]
+  );
+  const handleAvatarChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        if (!file.type.startsWith("image/")) {
+          toast.error("Vui lòng chọn file hình ảnh");
+          return;
         }
-        return prev;
-      });
-    }
-  }, []);
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error("Kích thước file không được vượt quá 5MB");
+          return;
+        }
+        setAvatarFile(file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setAvatarPreview(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+        setErrors((prev) => {
+          if (prev.avatar) {
+            const { avatar, ...rest } = prev;
+            return rest;
+          }
+          return prev;
+        });
+      }
+    },
+    []
+  );
   const removeAvatar = useCallback(() => {
     setAvatarFile(null);
     setAvatarPreview(null);
@@ -122,7 +130,8 @@ const ShopRegistrationPage: React.FC = () => {
       newErrors.streetLine = "Địa chỉ là bắt buộc";
     }
     if (!selectedAddress) {
-      newErrors.streetLine = newErrors.streetLine || "Vui lòng chọn Tỉnh/Quận/Phường";
+      newErrors.streetLine =
+        newErrors.streetLine || "Vui lòng chọn Tỉnh/Quận/Phường";
     }
     if (!formData.phone) {
       newErrors.phone = "Số điện thoại là bắt buộc";
@@ -159,28 +168,20 @@ const ShopRegistrationPage: React.FC = () => {
         newWardId: formData.newWardId,
         newProviceId: formData.newProviceId,
         ...(avatarFile && {
-          logofile: avatarFile
-        })
+          logofile: avatarFile,
+        }),
       };
       const response = await createShop(shopData);
-      if (user) {
-        const updatedRoles = [...(user.roles || [])];
-        if (!updatedRoles.includes("Shop")) {
-          updatedRoles.push("Shop");
-        }
-        const updatedUser = {
-          ...user,
-          roles: updatedRoles
-        };
-        dispatch(updateUser(updatedUser));
-        if (typeof window !== "undefined") {
-          localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(updatedUser));
-        }
-      }
+
+      // Đăng ký shop thành công - cần đăng nhập lại để lấy token mới có role "Shop"
       toast.success("Đăng ký shop thành công!", {
-        description: "Chuyển hướng đến dashboard..."
+        description: "Vui lòng đăng nhập lại để truy cập kênh người bán",
       });
-      setTimeout(() => router.push("/shop/dashboard"), 500);
+
+      // Logout và chuyển đến trang đăng nhập
+      dispatch(logout());
+      removeAuthTokenCookie();
+      setTimeout(() => router.push("/xac-thuc"), 1500);
     } catch (error) {
       console.error("Create shop error:", error);
       toast.error("Đăng ký shop thất bại. Vui lòng thử lại.");
@@ -188,7 +189,8 @@ const ShopRegistrationPage: React.FC = () => {
       setIsLoading(false);
     }
   };
-  return <div className="min-h-screen bg-muted/30">
+  return (
+    <div className="min-h-screen bg-muted/30">
       <div className="mx-auto max-w-4xl px-4 py-12">
         {}
         <div className="mb-8 space-y-2">
@@ -224,13 +226,37 @@ const ShopRegistrationPage: React.FC = () => {
           </CardHeader>
           <CardContent className="p-6">
             <form onSubmit={handleSubmit} className="space-y-8">
-              <BasicInfoSection name={formData.name} error={errors.name} onChange={handleInputChange} />
+              <BasicInfoSection
+                name={formData.name}
+                error={errors.name}
+                onChange={handleInputChange}
+              />
 
-              <AvatarUploadSection avatarPreview={avatarPreview} avatarFile={avatarFile} fileInputRef={fileInputRef} error={errors.avatar} onAvatarChange={handleAvatarChange} onRemoveAvatar={removeAvatar} onUploadClick={handleUploadClick} />
+              <AvatarUploadSection
+                avatarPreview={avatarPreview}
+                avatarFile={avatarFile}
+                fileInputRef={fileInputRef}
+                error={errors.avatar}
+                onAvatarChange={handleAvatarChange}
+                onRemoveAvatar={removeAvatar}
+                onUploadClick={handleUploadClick}
+              />
 
-              <AddressSection streetLine={formData.streetLine} selectedAddress={selectedAddress} error={errors.streetLine} onChange={handleInputChange} onOpenModal={handleOpenAddressModal} />
+              <AddressSection
+                streetLine={formData.streetLine}
+                selectedAddress={selectedAddress}
+                error={errors.streetLine}
+                onChange={handleInputChange}
+                onOpenModal={handleOpenAddressModal}
+              />
 
-              <ContactInfoSection phone={formData.phone} email={formData.email} phoneError={errors.phone} emailError={errors.email} onChange={handleInputChange} />
+              <ContactInfoSection
+                phone={formData.phone}
+                email={formData.email}
+                phoneError={errors.phone}
+                emailError={errors.email}
+                onChange={handleInputChange}
+              />
 
               <FormActions isLoading={isLoading} onCancel={handleCancelClick} />
             </form>
@@ -238,7 +264,12 @@ const ShopRegistrationPage: React.FC = () => {
         </Card>
       </div>
 
-      <AddressSelectModal open={addressModalOpen} onOpenChange={setAddressModalOpen} onConfirm={value => setSelectedAddress(value)} />
-    </div>;
+      <AddressSelectModal
+        open={addressModalOpen}
+        onOpenChange={setAddressModalOpen}
+        onConfirm={(value) => setSelectedAddress(value)}
+      />
+    </div>
+  );
 };
 export default ShopRegistrationPage;

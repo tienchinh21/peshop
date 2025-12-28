@@ -9,19 +9,18 @@ import type { ProductDetail } from "../../types";
 interface ShopInfoCardProps {
   product: ProductDetail;
 }
-export const ShopInfoCard = ({
-  product
-}: ShopInfoCardProps) => {
+export const ShopInfoCard = ({ product }: ShopInfoCardProps) => {
   const chatContext = useChatContextSafe();
   const handleChatClick = () => {
     if (chatContext) {
       chatContext.openChat({
         shopId: product.shopId,
-        shopName: product.shopName
+        shopName: product.shopName?.trim() || "Shop",
       });
     }
   };
-  return <Card>
+  return (
+    <Card>
       <CardContent className="p-6">
         <div className="flex flex-col gap-4">
           {}
@@ -84,5 +83,6 @@ export const ShopInfoCard = ({
           </Button>
         </div>
       </CardContent>
-    </Card>;
+    </Card>
+  );
 };

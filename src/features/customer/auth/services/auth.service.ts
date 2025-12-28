@@ -2,19 +2,78 @@ import { axiosDotnet } from "@/lib/config/axios.config";
 import { API_ENDPOINTS } from "@/lib/config/api.config";
 import type { SendOtpRequest, SendOtpResponse, VerifyOtpRequest, VerifyOtpResponse, RegisterRequest, RegisterResponse, LoginRequest, LoginResponse, AuthUser } from "../types";
 
+// Helper function to extract error message from API response
+const extractErrorMessage = (error: any, defaultMsg: string): string => {
+  if (typeof error === 'object' && error !== null) {
+    return error.message || defaultMsg;
+  }
+  return error || defaultMsg;
+};
+
 export const sendOtp = async (data: SendOtpRequest): Promise<SendOtpResponse> => {
-  const response = await axiosDotnet.post<SendOtpResponse>(API_ENDPOINTS.MAIL.SEND_OTP, data);
-  return response.data;
+  try {
+    const response = await axiosDotnet.post<SendOtpResponse>(API_ENDPOINTS.MAIL.SEND_OTP, data);
+    // Handle error object: {"error":{"message":"..."}, "data":null}
+    if (response.data?.error) {
+      return {
+        error: extractErrorMessage(response.data.error, "Gửi OTP thất bại"),
+        data: null
+      };
+    }
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.data) {
+      return {
+        error: extractErrorMessage(error.response.data.error, "Gửi OTP thất bại"),
+        data: null
+      };
+    }
+    throw error;
+  }
 };
 
 export const verifyOtp = async (data: VerifyOtpRequest): Promise<VerifyOtpResponse> => {
-  const response = await axiosDotnet.post<VerifyOtpResponse>(API_ENDPOINTS.MAIL.VERIFY_OTP, data);
-  return response.data;
+  try {
+    const response = await axiosDotnet.post<VerifyOtpResponse>(API_ENDPOINTS.MAIL.VERIFY_OTP, data);
+    // Handle error object: {"error":{"message":"..."}, "data":null}
+    if (response.data?.error) {
+      return {
+        error: extractErrorMessage(response.data.error, "Xác thực OTP thất bại"),
+        data: null
+      };
+    }
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.data) {
+      return {
+        error: extractErrorMessage(error.response.data.error, "Xác thực OTP thất bại"),
+        data: null
+      };
+    }
+    throw error;
+  }
 };
 
 export const resendOtp = async (data: SendOtpRequest): Promise<SendOtpResponse> => {
-  const response = await axiosDotnet.post<SendOtpResponse>(API_ENDPOINTS.MAIL.RESEND_OTP, data);
-  return response.data;
+  try {
+    const response = await axiosDotnet.post<SendOtpResponse>(API_ENDPOINTS.MAIL.RESEND_OTP, data);
+    // Handle error object: {"error":{"message":"..."}, "data":null}
+    if (response.data?.error) {
+      return {
+        error: extractErrorMessage(response.data.error, "Gửi lại OTP thất bại"),
+        data: null
+      };
+    }
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.data) {
+      return {
+        error: extractErrorMessage(error.response.data.error, "Gửi lại OTP thất bại"),
+        data: null
+      };
+    }
+    throw error;
+  }
 };
 
 const cleanToken = (token: string): string => {
@@ -37,9 +96,19 @@ export const register = async (data: RegisterRequest): Promise<RegisterResponse>
       };
     }
     if (response.data && typeof response.data === "object") {
+      // Handle error object: {"error":{"message":"..."}, "data":null}
+      if (response.data.error) {
+        const errorMsg = typeof response.data.error === 'object' 
+          ? (response.data.error as any).message || "Đăng ký thất bại"
+          : response.data.error;
+        return {
+          error: errorMsg,
+          data: ""
+        };
+      }
       if (typeof response.data.data === "string") {
         return {
-          error: response.data.error || null,
+          error: null,
           data: cleanToken(response.data.data)
         };
       }
@@ -49,8 +118,12 @@ export const register = async (data: RegisterRequest): Promise<RegisterResponse>
   } catch (error: any) {
     console.error("Register error:", error);
     if (error.response?.data) {
+      const errData = error.response.data;
+      const errorMsg = typeof errData.error === 'object'
+        ? errData.error.message || "Đăng ký thất bại"
+        : errData.error || errData.message || "Đăng ký thất bại";
       return {
-        error: error.response.data.error || error.response.data.message || "Đăng ký thất bại",
+        error: errorMsg,
         data: ""
       };
     }
@@ -71,9 +144,19 @@ export const login = async (data: LoginRequest): Promise<LoginResponse> => {
       };
     }
     if (response.data && typeof response.data === "object") {
+      // Handle error object: {"error":{"message":"..."}, "data":null}
+      if (response.data.error) {
+        const errorMsg = typeof response.data.error === 'object' 
+          ? (response.data.error as any).message || "Đăng nhập thất bại"
+          : response.data.error;
+        return {
+          error: errorMsg,
+          data: ""
+        };
+      }
       if (typeof response.data.data === "string") {
         return {
-          error: response.data.error || null,
+          error: null,
           data: cleanToken(response.data.data)
         };
       }
@@ -83,8 +166,12 @@ export const login = async (data: LoginRequest): Promise<LoginResponse> => {
   } catch (error: any) {
     console.error("Login error:", error);
     if (error.response?.data) {
+      const errData = error.response.data;
+      const errorMsg = typeof errData.error === 'object'
+        ? errData.error.message || "Đăng nhập thất bại"
+        : errData.error || errData.message || "Đăng nhập thất bại";
       return {
-        error: error.response.data.error || error.response.data.message || "Đăng nhập thất bại",
+        error: errorMsg,
         data: ""
       };
     }

@@ -27,6 +27,7 @@ import {
 const LoginPage: React.FC = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -154,7 +155,7 @@ const LoginPage: React.FC = () => {
       {/* Back to Home Button */}
       <Button
         variant="ghost"
-        onClick={() => router.push("/")}
+        onClick={() => router.replace("/")}
         className="fixed top-4 left-4 z-50 gap-2 min-h-[44px] hover:bg-gray-100"
       >
         <ArrowLeft className="h-4 w-4" />

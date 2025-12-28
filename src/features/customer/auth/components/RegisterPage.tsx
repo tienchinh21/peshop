@@ -35,6 +35,7 @@ const RegistrationFormStep = lazy(() =>
 const RegisterPage: React.FC = () => {
   const router = useRouter();
   const { register: registerUser } = useAuth();
+
   const [state, dispatch] = useReducer(registerReducer, initialState);
   const { countdown, start: startCountdown } = useCountdown();
   const { errors, validate, validateAll, clearError, clearAllErrors } =
@@ -221,7 +222,7 @@ const RegisterPage: React.FC = () => {
       {/* Back to Home Button */}
       <Button
         variant="ghost"
-        onClick={() => router.push("/")}
+        onClick={() => router.replace("/")}
         className="fixed top-4 left-4 z-50 gap-2 min-h-[44px] hover:bg-gray-100"
       >
         <ArrowLeft className="h-4 w-4" />
