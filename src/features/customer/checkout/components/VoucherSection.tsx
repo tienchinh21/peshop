@@ -24,13 +24,14 @@ export function VoucherSection({
   onShopVoucherChange,
   formatPrice,
 }: VoucherSectionProps) {
-  const systemVouchers = _.get(vouchers, "SystemVouchers.Vouchers", []);
+  // API trả về camelCase
+  const systemVouchers = _.get(vouchers, "systemVouchers.vouchers", []) || [];
   const bestSystemVoucherId = _.get(
     vouchers,
-    "SystemVouchers.BestVoucherId",
+    "systemVouchers.bestVoucherId",
     null
   );
-  const shopVouchers = _.get(vouchers, "ShopVouchers", []);
+  const shopVouchers = _.get(vouchers, "shopVouchers", []) || [];
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -56,7 +57,7 @@ export function VoucherSection({
           {systemVouchers.length > 0 &&
             (() => {
               const allowedSystemVouchers = systemVouchers.filter(
-                (item: any) => item.IsAllowed
+                (item: any) => item.isAllowed
               );
               return (
                 <div className="space-y-3">
@@ -85,11 +86,11 @@ export function VoucherSection({
                         </Label>
                       </div>
                       {allowedSystemVouchers.map((item: any) => {
-                        const voucher = item.Voucher;
-                        const isBest = voucher.Id === bestSystemVoucherId;
+                        const voucher = item.voucher;
+                        const isBest = voucher.id === bestSystemVoucherId;
                         return (
                           <div
-                            key={voucher.Id}
+                            key={voucher.id}
                             className={`flex items-center space-x-3 p-3 min-h-[56px] rounded-lg border transition-all cursor-pointer ${
                               isBest
                                 ? "border-purple-300 bg-purple-50 hover:bg-purple-100"
@@ -97,19 +98,19 @@ export function VoucherSection({
                             }`}
                           >
                             <RadioGroupItem
-                              value={voucher.Id}
-                              id={voucher.Id}
+                              value={voucher.id}
+                              id={voucher.id}
                               className="min-w-[20px] min-h-[20px]"
                             />
                             <Label
-                              htmlFor={voucher.Id}
+                              htmlFor={voucher.id}
                               className="flex-1 cursor-pointer"
                             >
                               <div className="flex items-center justify-between gap-2">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-1">
                                     <p className="font-medium text-sm text-gray-900">
-                                      {voucher.Name}
+                                      {voucher.name}
                                     </p>
                                     {isBest && (
                                       <Badge
@@ -123,9 +124,9 @@ export function VoucherSection({
                                   </div>
                                   <p className="text-xs text-gray-500">
                                     Giảm{" "}
-                                    {voucher.ValueType === 2
-                                      ? `${voucher.DiscountValue}%`
-                                      : formatPrice(voucher.DiscountValue)}
+                                    {voucher.valueType === 2
+                                      ? `${voucher.discountValue}%`
+                                      : formatPrice(voucher.discountValue)}
                                   </p>
                                 </div>
                               </div>
@@ -153,21 +154,21 @@ export function VoucherSection({
 
           {shopVouchers
             .map((shop: any) => {
-              const allowedVouchers = shop.Vouchers
-                ? shop.Vouchers.filter((item: any) => item.IsAllowed)
+              const allowedVouchers = shop.vouchers
+                ? shop.vouchers.filter((item: any) => item.isAllowed)
                 : [];
-              const bestShopVoucherId = shop.BestVoucherId;
+              const bestShopVoucherId = shop.bestVoucherId;
               return (
-                <div key={shop.ShopId} className="space-y-2">
+                <div key={shop.shopId} className="space-y-2">
                   <p className="text-sm font-medium text-gray-700">
-                    Mã giảm giá của {shop.ShopName}
+                    Mã giảm giá của {shop.shopName}
                   </p>
                   {allowedVouchers.length > 0 ? (
                     <RadioGroup
-                      value={selectedShopVoucherIds[shop.ShopId] || "none"}
+                      value={selectedShopVoucherIds[shop.shopId] || "none"}
                       onValueChange={(value) =>
                         onShopVoucherChange(
-                          shop.ShopId,
+                          shop.shopId,
                           value === "none" ? null : value
                         )
                       }
@@ -176,22 +177,22 @@ export function VoucherSection({
                       <div className="flex items-center space-x-3 p-3 min-h-[48px] rounded-lg border">
                         <RadioGroupItem
                           value="none"
-                          id={`shop-${shop.ShopId}-none`}
+                          id={`shop-${shop.shopId}-none`}
                           className="min-w-[20px] min-h-[20px]"
                         />
                         <Label
-                          htmlFor={`shop-${shop.ShopId}-none`}
+                          htmlFor={`shop-${shop.shopId}-none`}
                           className="cursor-pointer text-sm flex-1"
                         >
                           Không sử dụng
                         </Label>
                       </div>
                       {allowedVouchers.map((item: any) => {
-                        const voucher = item.Voucher;
-                        const isBest = voucher.Id === bestShopVoucherId;
+                        const voucher = item.voucher;
+                        const isBest = voucher.id === bestShopVoucherId;
                         return (
                           <div
-                            key={voucher.Id}
+                            key={voucher.id}
                             className={`flex items-center space-x-3 p-3 min-h-[56px] rounded-lg border transition-all cursor-pointer ${
                               isBest
                                 ? "border-purple-300 bg-purple-50 hover:bg-purple-100"
@@ -199,19 +200,19 @@ export function VoucherSection({
                             }`}
                           >
                             <RadioGroupItem
-                              value={voucher.Id}
-                              id={voucher.Id}
+                              value={voucher.id}
+                              id={voucher.id}
                               className="min-w-[20px] min-h-[20px]"
                             />
                             <Label
-                              htmlFor={voucher.Id}
+                              htmlFor={voucher.id}
                               className="flex-1 cursor-pointer"
                             >
                               <div className="flex items-center justify-between gap-2">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-1">
                                     <p className="font-medium text-sm text-gray-900">
-                                      {voucher.Name}
+                                      {voucher.name}
                                     </p>
                                     {isBest && (
                                       <Badge
@@ -225,9 +226,9 @@ export function VoucherSection({
                                   </div>
                                   <p className="text-xs text-gray-500">
                                     Giảm{" "}
-                                    {voucher.ValueType === 2
-                                      ? `${voucher.DiscountValue}%`
-                                      : formatPrice(voucher.DiscountValue)}
+                                    {voucher.valueType === 2
+                                      ? `${voucher.discountValue}%`
+                                      : formatPrice(voucher.discountValue)}
                                   </p>
                                 </div>
                               </div>
@@ -245,7 +246,7 @@ export function VoucherSection({
                         Không có mã giảm giá khả dụng
                       </p>
                       <p className="text-xs text-gray-400 mt-1">
-                        Shop {shop.ShopName} hiện không có voucher đủ điều kiện
+                        Shop {shop.shopName} hiện không có voucher đủ điều kiện
                       </p>
                     </div>
                   )}
